@@ -57,11 +57,21 @@ def recommend():
         response_data = {
             "sessionId": session_id,
             "topic": topic,
-            "aiMessage": f"'{topic}' 감성에 어울리는 음악을 추천합니다.",
+            "aiMessage": f"'{topic}'에 어울리는 음악을 추천합니다.",
             "keywords": english_keywords,
-            "recommendations": recommended_songs,
             "mergedSentence": merged_sentence,
+            "recommendations": [
+                {
+                    "songId": song.get("track_id"),
+                    "title": song.get("track_id"),
+                    "artist": song.get("mood_tags"),
+                    "albumCover": song.get("genre_tags"),
+                    "previewUrl": song.get("path")
+                }
+                for song in result.get("recommended_songs", [])
+            ],
         }
+
 
         print(f"✅ [Flask] 파이프라인 완료, 키워드={english_keywords}")
         return jsonify(response_data), 200

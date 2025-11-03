@@ -90,6 +90,99 @@ public class ChatService {
     }
 
     // ✅ Flask AI 서버와 통신 (Agent3 통합 파이프라인)
+    // public AiResponseResponse generateAiResponse(AiResponseRequest req) {
+    //     try {
+    //         Long sessionId = req.getSessionId();
+    //         ChatSession session = sessionRepo.findById(sessionId)
+    //                 .orElseThrow(() -> new RuntimeException("Session not found: " + sessionId));
+
+    //         String topic = session.getTopic();
+            
+
+    //         // Flask 요청 payload
+    //         Map<String, Object> payload = new HashMap<>();
+    //         payload.put("sessionId", sessionId);
+    //         payload.put("topic", topic);
+    //         payload.put("inputText", req.getInputText());
+    //         payload.put("imageUrls", req.getImageUrls());
+
+    //         HttpHeaders headers = new HttpHeaders();
+    //         headers.setContentType(MediaType.APPLICATION_JSON);
+    //         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
+
+    //         System.out.println("🚀 Flask 요청 본문: " + mapper.writeValueAsString(payload));
+
+    //         System.out.println("🌐 Flask AI 서버 요청 전송 → " + aiServerUrl);
+    //         ResponseEntity<String> response = restTemplate.exchange(
+    //                 aiServerUrl, HttpMethod.POST, entity, String.class
+    //         );
+
+    //         // 사용자 메시지 저장
+    //         ChatMessage userMsg = new ChatMessage();
+    //         userMsg.setSession(session);
+    //         userMsg.setSender("user");
+    //         userMsg.setText(req.getInputText());
+    //         if (req.getImageUrls() != null && !req.getImageUrls().isEmpty()) {
+    //             userMsg.setImageUrl(String.join(",", req.getImageUrls()));
+    //         }
+    //         messageRepo.save(userMsg);
+
+    //         // 응답 처리
+    //         if (response.getStatusCode() == HttpStatus.OK) {
+    //             JsonNode root = mapper.readTree(response.getBody());
+
+    //             List<String> keywords = mapper.convertValue(
+    //                     root.path("keywords"),
+    //                     mapper.getTypeFactory().constructCollectionType(List.class, String.class)
+    //             );
+
+    //             List<AiResponseResponse.Recommendation> recs = new ArrayList<>();
+    //             for (JsonNode song : root.path("recommendations")) {
+    //                 recs.add(AiResponseResponse.Recommendation.builder()
+    //                         .title(song.path("title").asText())
+    //                         .artist(song.path("artist").asText())
+    //                         .albumCover(song.path("albumCover").asText(null))
+    //                         .previewUrl(song.path("previewUrl").asText(null))
+    //                         .build());
+    //             }
+
+    //             String aiMessage = root.path("aiMessage").asText("AI 추천 결과입니다.");
+    //             String mergedSentence = root.path("mergedSentence").asText("");
+
+    //             // AI 메시지 저장
+    //             ChatMessage aiMsg = new ChatMessage();
+    //             aiMsg.setSession(session);
+    //             aiMsg.setSender("ai");
+    //             aiMsg.setText(aiMessage + "\n" + mergedSentence);
+    //             aiMsg.setKeywordsJson(mapper.writeValueAsString(keywords));
+    //             aiMsg.setRecommendationsJson(mapper.writeValueAsString(recs));
+    //             messageRepo.save(aiMsg);
+
+    //             return AiResponseResponse.builder()
+    //                     .sessionId(sessionId)
+    //                     .topic(topic)
+    //                     .keywords(keywords)
+    //                     .aiMessage(aiMessage)
+    //                     .recommendations(recs)
+    //                     .timestamp(LocalDateTime.now())
+    //                     .build();
+    //         }
+
+    //         throw new RuntimeException("AI server returned " + response.getStatusCode());
+
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //         return AiResponseResponse.builder()
+    //                 .sessionId(req.getSessionId())
+    //                 .topic("추천 생성 실패")
+    //                 .keywords(List.of("error"))
+    //                 .aiMessage("AI 서버와 통신 중 오류가 발생했습니다.")
+    //                 .recommendations(List.of())
+    //                 .timestamp(LocalDateTime.now())
+    //                 .build();
+    //     }
+    // }
+
     public AiResponseResponse generateAiResponse(AiResponseRequest req) {
         try {
             Long sessionId = req.getSessionId();
@@ -97,8 +190,9 @@ public class ChatService {
                     .orElseThrow(() -> new RuntimeException("Session not found: " + sessionId));
 
             String topic = session.getTopic();
+            ObjectMapper mapper = new ObjectMapper();
 
-            // Flask 요청 payload
+            // ✅ Flask로 보낼 payload 구성
             Map<String, Object> payload = new HashMap<>();
             payload.put("sessionId", sessionId);
             payload.put("topic", topic);
@@ -109,10 +203,26 @@ public class ChatService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
 
-            System.out.println("🌐 Flask AI 서버 요청 전송 → " + aiServerUrl);
+            // 🧩 [디버그 로그 - 요청 내용]
+            System.out.println("====================================================");
+            System.out.println("🚀 [Flask 요청 시작]");
+            System.out.println("📡 URL: " + aiServerUrl);
+            System.out.println("🧾 Payload: " + mapper.writeValueAsString(payload));
+            System.out.println("====================================================");
+
+            // Flask 호출
             ResponseEntity<String> response = restTemplate.exchange(
-                    aiServerUrl, HttpMethod.POST, entity, String.class
+                    aiServerUrl,
+                    HttpMethod.POST,
+                    entity,
+                    String.class
             );
+
+            // 🧩 [디버그 로그 - 응답 내용]
+            System.out.println("🧠 [Flask 응답 수신]");
+            System.out.println("📥 Status: " + response.getStatusCode());
+            System.out.println("📦 Body: " + response.getBody());
+            System.out.println("====================================================");
 
             // 사용자 메시지 저장
             ChatMessage userMsg = new ChatMessage();
@@ -124,24 +234,27 @@ public class ChatService {
             }
             messageRepo.save(userMsg);
 
-            // 응답 처리
-            if (response.getStatusCode() == HttpStatus.OK) {
+            // Flask 응답 처리
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 JsonNode root = mapper.readTree(response.getBody());
 
                 List<String> keywords = mapper.convertValue(
                         root.path("keywords"),
                         mapper.getTypeFactory().constructCollectionType(List.class, String.class)
                 );
+                keywords = geminiService.translateKeywords(keywords);
 
                 List<AiResponseResponse.Recommendation> recs = new ArrayList<>();
-                for (JsonNode song : root.path("recommendations")) {
+                for (JsonNode songNode : root.path("recommendations")) {
                     recs.add(AiResponseResponse.Recommendation.builder()
-                            .title(song.path("title").asText())
-                            .artist(song.path("artist").asText())
-                            .albumCover(song.path("albumCover").asText(null))
-                            .previewUrl(song.path("previewUrl").asText(null))
+                            .songId(songNode.has("songId") ? songNode.path("songId").asLong() : null) // ✅ 안전 처리
+                            .title(songNode.path("title").asText(""))
+                            .artist(songNode.path("artist").asText(""))
+                            .albumCover(songNode.path("albumCover").asText(""))
+                            .previewUrl(songNode.path("previewUrl").asText(""))
                             .build());
                 }
+
 
                 String aiMessage = root.path("aiMessage").asText("AI 추천 결과입니다.");
                 String mergedSentence = root.path("mergedSentence").asText("");
@@ -150,7 +263,7 @@ public class ChatService {
                 ChatMessage aiMsg = new ChatMessage();
                 aiMsg.setSession(session);
                 aiMsg.setSender("ai");
-                aiMsg.setText(aiMessage + "\n" + mergedSentence);
+                aiMsg.setText(aiMessage);
                 aiMsg.setKeywordsJson(mapper.writeValueAsString(keywords));
                 aiMsg.setRecommendationsJson(mapper.writeValueAsString(recs));
                 messageRepo.save(aiMsg);
@@ -165,20 +278,33 @@ public class ChatService {
                         .build();
             }
 
+            // 200이 아닌 경우
             throw new RuntimeException("AI server returned " + response.getStatusCode());
 
         } catch (Exception e) {
+            System.err.println("🔥 [Flask 통신 중 예외 발생]");
+            System.err.println("🧾 요청 정보:");
+            System.err.println("  SessionId: " + req.getSessionId());
+            System.err.println("  Topic: " + req.getTopic());
+            System.err.println("  InputText: " + req.getInputText());
+            System.err.println("  ImageUrls: " + req.getImageUrls());
+
+            // 예외 메시지와 전체 스택 출력
+            System.err.println("💥 예외 타입: " + e.getClass().getName());
+            System.err.println("💬 예외 메시지: " + e.getMessage());
             e.printStackTrace();
+
             return AiResponseResponse.builder()
                     .sessionId(req.getSessionId())
                     .topic("추천 생성 실패")
                     .keywords(List.of("error"))
-                    .aiMessage("AI 서버와 통신 중 오류가 발생했습니다.")
+                    .aiMessage("AI 추천 서버와 통신 중 오류가 발생했습니다.")
                     .recommendations(List.of())
                     .timestamp(LocalDateTime.now())
                     .build();
         }
     }
+
 
     // ✅ 기존 대화 이력 조회 (그대로 유지)
     public ChatHistoryResponse getMyChatHistory(Long sessionId) {
