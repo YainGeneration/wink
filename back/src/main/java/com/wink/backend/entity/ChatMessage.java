@@ -1,47 +1,34 @@
 package com.wink.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "chat_message")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class ChatMessage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "session_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "session_id")
     private ChatSession session;
 
-    @Column(nullable = false, length = 10)
-    private String sender; // user / ai
-
+    private String sender; // "user" or "ai"
     @Column(columnDefinition = "TEXT")
     private String text;
-
     private String imageUrl;
 
-    // ✅ AI 추천 관련 확장 필드 (옵션)
-    @Lob
-    private String keywordsJson;  // ["calm", "sentimental", "earthytone"]
+    // ✅ AI 키워드와 추천곡을 JSON으로 저장
+    @Column(columnDefinition = "TEXT")
+    private String keywordsJson;
 
-    @Lob
-    private String recommendationsJson; // 추천곡 JSON 배열 전체 문자열
+    @Column(columnDefinition = "TEXT")
+    private String recommendationsJson;
 
-    @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    @PrePersist
-    public void onCreate() {
-        if (createdAt == null)
-            createdAt = LocalDateTime.now();
-    }
 }

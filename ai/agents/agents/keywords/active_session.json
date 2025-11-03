@@ -1,0 +1,135 @@
+{
+  "session_name": "active_session",
+  "session_start": "2025-11-03 18:40:17",
+  "input_korean": [
+    "비 오는 날 잔잔한 노래 추천해줘",
+    "비 오는 날 잔잔한 노래 추천해줘",
+    "비 오는 날 잔잔한 노래 추천해줘",
+    "비 오는 날 잔잔한 노래 추천해줘",
+    "비 오는 날 잔잔한 노래 추천해줘"
+  ],
+  "input_image": [
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "english_text_from_agent1": [
+    "I would like to recommend a song for a rainy day.",
+    "I would like to recommend a song for a rainy day.",
+    "I would like to recommend a song for a rainy day.",
+    "I would like to recommend a song for a rainy day.",
+    "I would like to recommend a song for a rainy day."
+  ],
+  "english_caption_from_agent2": [
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "merged_sentence": [
+    "I would like to recommend a song for a rainy day.",
+    "I would like to recommend a song for a rainy day.",
+    "I would like to recommend a song for a rainy day.",
+    "I would like to recommend a song for a rainy day.",
+    "I would like to recommend a song for a rainy day."
+  ],
+  "english_keywords": [
+    [
+      "rainy day",
+      "melancholy",
+      "atmospheric"
+    ],
+    [
+      "rainy day",
+      "melancholy",
+      "atmospheric"
+    ],
+    [
+      "rainy day",
+      "melancholy",
+      "ambient"
+    ],
+    [
+      "rainy day",
+      "melancholy",
+      "ambient"
+    ],
+    [
+      "rainy day",
+      "melancholy",
+      "ambient"
+    ]
+  ],
+  "recommended_songs": [
+    [],
+    [],
+    [],
+    [
+      {
+        "path": "98/1207298.mp3",
+        "genre_tags": "ambient\tatmospheric",
+        "track_id": "track_1207298",
+        "mood_tags": "sad"
+      },
+      {
+        "mood_tags": "happy\trelaxing",
+        "genre_tags": "ambient\tatmospheric",
+        "track_id": "track_1380732",
+        "path": "32/1380732.mp3"
+      },
+      {
+        "path": "56/1121456.mp3",
+        "mood_tags": "hopeful\tsad",
+        "track_id": "track_1121456",
+        "genre_tags": "ambient"
+      },
+      {
+        "path": "21/1314121.mp3",
+        "track_id": "track_1314121",
+        "mood_tags": "melodic\tsad",
+        "genre_tags": "ambient\tatmospheric"
+      },
+      {
+        "path": "27/575227.mp3",
+        "genre_tags": "ambient\tfolk",
+        "mood_tags": "sad",
+        "track_id": "track_0575227"
+      }
+    ],
+    [
+      {
+        "track_id": "track_1207298",
+        "path": "98/1207298.mp3",
+        "mood_tags": "sad",
+        "genre_tags": "ambient\tatmospheric"
+      },
+      {
+        "path": "32/1380732.mp3",
+        "genre_tags": "ambient\tatmospheric",
+        "mood_tags": "happy\trelaxing",
+        "track_id": "track_1380732"
+      },
+      {
+        "path": "56/1121456.mp3",
+        "mood_tags": "hopeful\tsad",
+        "track_id": "track_1121456",
+        "genre_tags": "ambient"
+      },
+      {
+        "path": "21/1314121.mp3",
+        "mood_tags": "melodic\tsad",
+        "track_id": "track_1314121",
+        "genre_tags": "ambient\tatmospheric"
+      },
+      {
+        "path": "27/575227.mp3",
+        "track_id": "track_0575227",
+        "mood_tags": "sad",
+        "genre_tags": "ambient\tfolk"
+      }
+    ]
+  ]
+}

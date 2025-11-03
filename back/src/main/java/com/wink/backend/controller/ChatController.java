@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/chat")
+@CrossOrigin(origins = "*")
 public class ChatController {
 
     private final ChatService chatService;
@@ -35,6 +36,7 @@ public class ChatController {
     @Operation(summary = "AI 추천 응답 생성", description = "AI 추천 서버와 연동하여 추천곡/키워드/분위기 분석 결과 반환")
     @PostMapping("/ai-response")
     public AiResponseResponse generateAiResponse(@RequestBody AiResponseRequest req) {
+        // ✅ Flask(Agent3 통합 파이프라인) 서버 호출
         return chatService.generateAiResponse(req);
     }
 

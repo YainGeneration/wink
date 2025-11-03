@@ -5,14 +5,14 @@ import com.wink.backend.entity.ChatMessage;
 import com.wink.backend.entity.ChatSession;
 import com.wink.backend.repository.ChatMessageRepository;
 import com.wink.backend.repository.ChatSessionRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
-import java.util.stream.Collectors;
 import java.util.*;
 
 @Service
@@ -21,32 +21,29 @@ public class ChatService {
     private final ChatSessionRepository sessionRepo;
     private final GeminiService geminiService;
     private final ChatMessageRepository messageRepo;
+    private final RestTemplate restTemplate;
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    @Value("${ai.server.url}")
+    private String aiServerUrl; // ex) http://127.0.0.1:5001/api/recommend
 
     public ChatService(ChatSessionRepository sessionRepo,
-                    GeminiService geminiService,
-                    ChatMessageRepository messageRepo) {
+                       GeminiService geminiService,
+                       ChatMessageRepository messageRepo) {
         this.sessionRepo = sessionRepo;
         this.geminiService = geminiService;
         this.messageRepo = messageRepo;
+        this.restTemplate = new RestTemplate();
     }
 
-    // 나의 순간
+    // ✅ 나의 순간
     public ChatStartResponse startMy(ChatStartMyRequest req) {
         ChatSession session = new ChatSession();
         session.setType("MY");
         session.setStartTime(LocalDateTime.now());
 
-        // 프롬프트 구성: 텍스트 + 이미지 URL을 함께 전달
-        StringBuilder prompt = new StringBuilder(req.getInputText());
-        if (req.getImageUrls() != null && !req.getImageUrls().isEmpty()) {
-            prompt.append(" (참고 이미지: ");
-            prompt.append(String.join(", ", req.getImageUrls()));
-            prompt.append(")");
-        }
-
-
-        // Gemini API로 주제 추출
-        String topic = geminiService.extractTopic(prompt.toString());
+        // Gemini 기반 주제 추출
+        String topic = geminiService.extractTopic(req.getInputText());
         session.setTopic(topic);
         sessionRepo.save(session);
 
@@ -54,38 +51,31 @@ public class ChatService {
                 session.getId(),
                 session.getType(),
                 session.getTopic(),
-                "Gemini API 기반 주제 추출 완료",
+                "Gemini 기반 주제 추출 완료",
                 session.getStartTime()
         );
     }
 
-    // 공간의 순간
+    // ✅ 공간의 순간
     public ChatStartResponse startSpace(ChatStartSpaceRequest req) {
         ChatSession session = new ChatSession();
         session.setType("SPACE");
         session.setStartTime(LocalDateTime.now());
 
-        // 주변 음악 요약
         String nearbySummary = "";
         if (req.getNearbyMusic() != null && !req.getNearbyMusic().isEmpty()) {
             nearbySummary = req.getNearbyMusic().stream()
                     .map(m -> m.getTitle() + " - " + m.getArtist())
-                    .collect(Collectors.joining(", "));
+                    .reduce((a, b) -> a + ", " + b).orElse("");
         }
 
-        // AI 프롬프트 구성
         String prompt = String.format(
-                "📍장소명: %s (%s, %.4f, %.4f)\n" +
-                "🎧 주변 음악: %s\n" +
-                "이 장소의 분위기와 어울리는 음악적 주제를 한 문장으로 요약해줘.",
+                "📍장소명: %s (%s)\n🎧 주변 음악: %s\n이 장소의 분위기와 어울리는 음악적 주제를 한 문장으로 요약해줘.",
                 req.getLocation().getPlaceName(),
                 req.getLocation().getAddress(),
-                req.getLocation().getLat(),
-                req.getLocation().getLng(),
                 nearbySummary.isBlank() ? "정보 없음" : nearbySummary
         );
 
-        // Gemini 호출
         String topic = geminiService.extractTopic(prompt);
         session.setTopic(topic);
         sessionRepo.save(session);
@@ -94,26 +84,21 @@ public class ChatService {
                 session.getId(),
                 session.getType(),
                 session.getTopic(),
-                "Gemini API 기반 공간 주제 생성 완료",
+                "Gemini 기반 공간 주제 생성 완료",
                 session.getStartTime()
         );
     }
 
-    // !!!!!나중에 은정이랑 연결할 부분!!!!!
+    // ✅ Flask AI 서버와 통신 (Agent3 통합 파이프라인)
     public AiResponseResponse generateAiResponse(AiResponseRequest req) {
         try {
             Long sessionId = req.getSessionId();
             ChatSession session = sessionRepo.findById(sessionId)
                     .orElseThrow(() -> new RuntimeException("Session not found: " + sessionId));
 
-            // topic 재추출 금지 (이미 세션 생성 시 추출됨)
             String topic = session.getTopic();
 
-            // AI 추천 서버에 전달할 요청 구성
-            String aiServerUrl = "http://localhost:5001/api/recommend"; // ← 실제 AI 서버 주소로 변경 가능
-            ObjectMapper mapper = new ObjectMapper();
-            RestTemplate restTemplate = new RestTemplate();
-
+            // Flask 요청 payload
             Map<String, Object> payload = new HashMap<>();
             payload.put("sessionId", sessionId);
             payload.put("topic", topic);
@@ -122,34 +107,24 @@ public class ChatService {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
+
+            System.out.println("🌐 Flask AI 서버 요청 전송 → " + aiServerUrl);
             ResponseEntity<String> response = restTemplate.exchange(
-                    aiServerUrl,
-                    HttpMethod.POST,
-                    entity,
-                    String.class
+                    aiServerUrl, HttpMethod.POST, entity, String.class
             );
 
-            try {
-                ChatMessage userMsg = new ChatMessage();
-                userMsg.setSession(session);
-                userMsg.setSender("user");
-                userMsg.setText(req.getInputText());
-
-                // 이미지가 여러 개인 경우 JSON 문자열로 병합
-                if (req.getImageUrls() != null && !req.getImageUrls().isEmpty()) {
-                    userMsg.setImageUrl(String.join(",", req.getImageUrls()));
-                }
-
-                messageRepo.save(userMsg);
-                System.out.println("💾 사용자 메시지 저장 완료 (messageId=" + userMsg.getId() + ")");
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                System.err.println("⚠️ 사용자 메시지 저장 중 오류 발생: " + ex.getMessage());
+            // 사용자 메시지 저장
+            ChatMessage userMsg = new ChatMessage();
+            userMsg.setSession(session);
+            userMsg.setSender("user");
+            userMsg.setText(req.getInputText());
+            if (req.getImageUrls() != null && !req.getImageUrls().isEmpty()) {
+                userMsg.setImageUrl(String.join(",", req.getImageUrls()));
             }
+            messageRepo.save(userMsg);
 
-            // AI 서버 응답 파싱
+            // 응답 처리
             if (response.getStatusCode() == HttpStatus.OK) {
                 JsonNode root = mapper.readTree(response.getBody());
 
@@ -158,44 +133,33 @@ public class ChatService {
                         mapper.getTypeFactory().constructCollectionType(List.class, String.class)
                 );
 
-                keywords = geminiService.translateKeywords(keywords);
-
-
                 List<AiResponseResponse.Recommendation> recs = new ArrayList<>();
-                for (JsonNode songNode : root.path("recommendations")) {
+                for (JsonNode song : root.path("recommendations")) {
                     recs.add(AiResponseResponse.Recommendation.builder()
-                            .songId(songNode.path("songId").asLong())
-                            .title(songNode.path("title").asText())
-                            .artist(songNode.path("artist").asText())
-                            .albumCover(songNode.path("albumCover").asText())
-                            .previewUrl(songNode.path("previewUrl").asText())
+                            .title(song.path("title").asText())
+                            .artist(song.path("artist").asText())
+                            .albumCover(song.path("albumCover").asText(null))
+                            .previewUrl(song.path("previewUrl").asText(null))
                             .build());
                 }
 
-                 String aiMessage = root.path("aiMessage").asText("AI 추천 결과입니다.");
+                String aiMessage = root.path("aiMessage").asText("AI 추천 결과입니다.");
+                String mergedSentence = root.path("mergedSentence").asText("");
 
-                try {
-                    ChatMessage aiMsg = new ChatMessage();
-                    aiMsg.setSession(session);
-                    aiMsg.setSender("ai");
-                    aiMsg.setText(aiMessage);
-
-                    aiMsg.setKeywordsJson(mapper.writeValueAsString(keywords));
-                    aiMsg.setRecommendationsJson(mapper.writeValueAsString(recs));
-
-                    messageRepo.save(aiMsg);
-
-                    System.out.println("💾 AI 메시지 저장 완료 (messageId=" + aiMsg.getId() + ")");
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    System.err.println("⚠️ AI 메시지 저장 중 오류 발생: " + ex.getMessage());
-                }
+                // AI 메시지 저장
+                ChatMessage aiMsg = new ChatMessage();
+                aiMsg.setSession(session);
+                aiMsg.setSender("ai");
+                aiMsg.setText(aiMessage + "\n" + mergedSentence);
+                aiMsg.setKeywordsJson(mapper.writeValueAsString(keywords));
+                aiMsg.setRecommendationsJson(mapper.writeValueAsString(recs));
+                messageRepo.save(aiMsg);
 
                 return AiResponseResponse.builder()
                         .sessionId(sessionId)
                         .topic(topic)
                         .keywords(keywords)
-                        .aiMessage(root.path("aiMessage").asText("AI 추천 결과입니다."))
+                        .aiMessage(aiMessage)
                         .recommendations(recs)
                         .timestamp(LocalDateTime.now())
                         .build();
@@ -209,41 +173,46 @@ public class ChatService {
                     .sessionId(req.getSessionId())
                     .topic("추천 생성 실패")
                     .keywords(List.of("error"))
-                    .aiMessage("AI 추천 서버와 통신 중 오류가 발생했습니다.")
+                    .aiMessage("AI 서버와 통신 중 오류가 발생했습니다.")
                     .recommendations(List.of())
                     .timestamp(LocalDateTime.now())
                     .build();
         }
     }
 
+    // ✅ 기존 대화 이력 조회 (그대로 유지)
     public ChatHistoryResponse getMyChatHistory(Long sessionId) {
         ChatSession session = sessionRepo.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found: " + sessionId));
 
         List<ChatMessage> messages = messageRepo.findBySessionIdOrderByCreatedAtAsc(sessionId);
+        List<ChatMessageResponse> messageResponses = new ArrayList<>();
 
-        List<ChatMessageResponse> messageResponses = messages.stream().map(msg -> {
+        ObjectMapper mapper = new ObjectMapper();
+
+        for (ChatMessage msg : messages) {
             List<String> keywords = new ArrayList<>();
             List<AiResponseResponse.Recommendation> recs = new ArrayList<>();
 
             try {
-                ObjectMapper mapper = new ObjectMapper();
                 if (msg.getKeywordsJson() != null)
                     keywords = mapper.readValue(msg.getKeywordsJson(), List.class);
                 if (msg.getRecommendationsJson() != null)
-                    recs = Arrays.asList(mapper.readValue(msg.getRecommendationsJson(),
-                            AiResponseResponse.Recommendation[].class));
+                    recs = Arrays.asList(mapper.readValue(
+                            msg.getRecommendationsJson(),
+                            AiResponseResponse.Recommendation[].class
+                    ));
             } catch (Exception ignored) {}
 
-            return ChatMessageResponse.builder()
+            messageResponses.add(ChatMessageResponse.builder()
                     .messageId(msg.getId())
                     .sender(msg.getSender())
                     .text(msg.getText())
                     .keywords(keywords)
                     .recommendations(recs)
                     .timestamp(msg.getCreatedAt())
-                    .build();
-        }).toList();
+                    .build());
+        }
 
         return ChatHistoryResponse.builder()
                 .sessionId(session.getId())
