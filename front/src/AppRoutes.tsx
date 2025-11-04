@@ -4,11 +4,15 @@ import Home from "./pages/Home";
 import ChatPage from "./pages/ChatPage";
 import HistoryDetail from "./pages/HistoryDetail"; // optional
 
-const AppRoutes = () => {
+interface AppRoutesProps {
+  setShowOverlay: (v: boolean) => void;
+}
+
+const AppRoutes = ({ setShowOverlay }: AppRoutesProps) => {
   return (
     <Routes>
       {/* 새 채팅 시작 (홈) */}
-      <Route path="/home" element={<Home />} />
+      <Route path="/home" element={<Home setShowOverlay={setShowOverlay}/>} />
 
       {/* 채팅 진행 페이지 */}
       <Route path="/chat/:sessionId" element={<ChatPage />} />

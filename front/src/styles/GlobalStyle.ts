@@ -28,7 +28,7 @@ const GlobalStyle = createGlobalStyle`
 
     #root {
         width: 393px;
-        min-height: 852px;
+        height: 852px;
     }
 
     a {

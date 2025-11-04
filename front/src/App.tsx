@@ -7,10 +7,12 @@ import AppRoutes from "./AppRoutes";
 import WinkSplash from "./pages/WinkSplash";
 import { useEffect, useState } from "react";
 import AppLayout from "./layouts/AppLayout";
+import BaseLayout from "./layouts/BaseLayout";
 
 function App(){
   const [showSplash, setShowSplash] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
+  const [showOverlay, setShowOverlay] = useState(false);
 
   useEffect(() => {
     // 스플래시를 이미 본 적 있는지 확인
@@ -19,11 +21,12 @@ function App(){
     if (!splashSeen) {
       setShowSplash(true);
       // 2~3초 후 스플래시 닫기
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         setShowSplash(false);
         sessionStorage.setItem("splashSeen", "true");
         setIsChecking(false);
-      }, 3000); // 스플래시 지속 시간
+      }, 5000);
+      return () => clearTimeout(timer);
     } else {
       // 이미 본 적 있다면 바로 false로
       setShowSplash(false);
@@ -31,26 +34,28 @@ function App(){
     }
   }, []);
 
+    if (isChecking) return null;
+
   return (
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <GlobalStyle />
         {/* AppLayout으로 모든 페이지 감싸기 */}
-        <AppLayout>
-          <AppRoutes />
-          <AnimatePresence>
-            {showSplash ? (
-              <WinkSplash
-                onDone={() => setShowSplash(false)}
-                stepMs={1200}
-              />
-            ) : (<AppRoutes />
-            )}
-          </AnimatePresence>
+        <AppLayout backgroundColor="#fff">
+          {/* ✅ BaseLayout: StatusBar, HomeIndicator, Overlay 포함 */}
+          <BaseLayout showOverlay={showOverlay}>
+            <AnimatePresence mode="wait">
+              {showSplash ? (
+                <WinkSplash onDone={() => setShowSplash(false)} stepMs={1200} />
+              ) : (
+                <AppRoutes setShowOverlay={setShowOverlay} />
+              )}
+            </AnimatePresence>
+          </BaseLayout>
         </AppLayout>
       </ThemeProvider>
     </BrowserRouter>
   );
 }
 
-export default App
+export default App;
