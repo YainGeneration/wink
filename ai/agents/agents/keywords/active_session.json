@@ -11,9 +11,11 @@
     "비 오는 날 잔잔한 노래 추천해줘",
     "비 오는 날 잔잔한 노래 추천해줘",
     "비 오는 날 잔잔한 노래 추천해줘",
+    "비 오는 날 잔잔한 노래 추천해줘",
     "비 오는 날 잔잔한 노래 추천해줘"
   ],
   "input_image": [
+    "",
     "",
     "",
     "",
@@ -35,6 +37,7 @@
     "I would like to recommend a song for a rainy day.",
     "I would like to recommend a song for a rainy day.",
     "I would like to recommend a song for a rainy day.",
+    "I would like to recommend a song for a rainy day.",
     "I would like to recommend a song for a rainy day."
   ],
   "english_caption_from_agent2": [
@@ -47,9 +50,11 @@
     "",
     "",
     "",
+    "",
     ""
   ],
   "merged_sentence": [
+    "I would like to recommend a song for a rainy day.",
     "I would like to recommend a song for a rainy day.",
     "I would like to recommend a song for a rainy day.",
     "I would like to recommend a song for a rainy day.",
@@ -111,6 +116,11 @@
       "rainy day",
       "melancholy",
       "ambient"
+    ],
+    [
+      "rainy day",
+      "chill",
+      "melancholy"
     ]
   ],
   "recommended_songs": [
@@ -339,6 +349,38 @@
         "mood_tags": "sad",
         "path": "27/575227.mp3",
         "track_id": "track_0575227"
+      }
+    ],
+    [
+      {
+        "track_id": "track_1257052",
+        "path": "52/1257052.mp3",
+        "mood_tags": "sad",
+        "genre_tags": "ambient\tatmospheric\tchillout"
+      },
+      {
+        "path": "13/1310113.mp3",
+        "genre_tags": "ambient\tatmospheric\tchillout",
+        "track_id": "track_1310113",
+        "mood_tags": "sad"
+      },
+      {
+        "path": "56/1313456.mp3",
+        "genre_tags": "ambient\tatmospheric\tchillout",
+        "track_id": "track_1313456",
+        "mood_tags": "emotional\tsad"
+      },
+      {
+        "path": "07/1384407.mp3",
+        "mood_tags": "corporate\tsad",
+        "genre_tags": "ambient\tatmospheric\tchillout",
+        "track_id": "track_1384407"
+      },
+      {
+        "genre_tags": "ambient\tatmospheric\tchillout",
+        "path": "09/1384409.mp3",
+        "track_id": "track_1384409",
+        "mood_tags": "corporate\tsad"
       }
     ]
   ]
