@@ -9,7 +9,8 @@ import { useEffect, useState } from "react";
 import AppLayout from "./layouts/AppLayout";
 
 function App(){
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     // 스플래시를 이미 본 적 있는지 확인
@@ -21,7 +22,12 @@ function App(){
       setTimeout(() => {
         setShowSplash(false);
         sessionStorage.setItem("splashSeen", "true");
+        setIsChecking(false);
       }, 3000); // 스플래시 지속 시간
+    } else {
+      // 이미 본 적 있다면 바로 false로
+      setShowSplash(false);
+      setIsChecking(false);
     }
   }, []);
 
@@ -29,11 +35,9 @@ function App(){
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <GlobalStyle />
-
         {/* AppLayout으로 모든 페이지 감싸기 */}
         <AppLayout>
           <AppRoutes />
-
           <AnimatePresence>
             {showSplash ? (
               <WinkSplash
