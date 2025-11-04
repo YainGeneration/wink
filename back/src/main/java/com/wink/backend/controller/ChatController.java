@@ -45,4 +45,11 @@ public class ChatController {
     public ChatHistoryResponse getMyChatHistory(@PathVariable Long sessionId) {
         return chatService.getMyChatHistory(sessionId);
     }
+
+    @Operation(summary = "나의 순간 메시지 목록 조회", description = "sessionId를 기준으로 모든 메시지를 반환")
+    @GetMapping("/messages/my")
+    public ChatHistoryResponse getMyChatMessages(@RequestParam Long sessionId) {
+        return chatService.getMyChatHistory(sessionId);
+    }
+
 }
