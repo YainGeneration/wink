@@ -15,6 +15,7 @@ import json
 import base64
 from datetime import datetime
 import requests
+import uuid
 
 # agent1 import
 try:
@@ -53,15 +54,9 @@ SAVE_DIR = "agents/keywords"
 os.makedirs(SAVE_DIR, exist_ok=True)
 
 # =========================================================
-# 5. [Agent 3-1] 두 영어 문장 합치기 (Ollama Gemma3)
+# 3. [Agent 3-1] 두 영어 문장 합치기 (Ollama Gemma3)
 # =========================================================
-def rewrite_combined_sentence(text1: str, text2: str, full_history: str) -> str:
-    """
-    (Agent 3, 1단계)
-    (수정) '전체 대화 이력'과 '새 입력'을 Ollama로 결합(재작성)합니다.
-    """
-    
-    # --- 1. 새 입력 조합 ---
+def rewrite_combined_sentence(text1: str, text2: str, full_history: str) -> str:    
     new_input_sentence = f"{text1} {text2}".strip()
     if not new_input_sentence:
         # (예: "비 오는 날" -> "더 차분하게")
@@ -72,7 +67,6 @@ def rewrite_combined_sentence(text1: str, text2: str, full_history: str) -> str:
         return ""
 
     print("🧩 [Agent 3] Merging (Context + New Input) sentences (Ollama)...")
-
     # [핵심] 👈 Gemma3에게 '이전 대화'와 '새 요청'을 함께 전달
     prompt = f"""
 You are a context-aware chat assistant. Your job is to understand the user's full request by combining their past conversation history with their newest input.
@@ -106,7 +100,7 @@ Respond *only* with the final combined English sentence.
         return new_input_sentence # 실패 시 새 입력만 반환
     
 # =========================================================
-# 6. [Agent 3-2] 감성 키워드 추출 (Gemma3) - (수정: JSON 모드)
+# 4. [Agent 3-2] 감성 키워드 추출 (Gemma3)
 # =========================================================
 def extract_keywords(merged_text: str, k: int = 3) -> list[str]:
     if not merged_text.strip():
@@ -130,6 +124,7 @@ Respond *only* with a valid JSON object in this format:
         {"role": "user", "content": prompt_content}
     ]
     payload = {"model": GEMMA3_MODEL, "messages": messages, "stream": False, "format": "json"}
+ 
     try:
         res = requests.post(f"{OLLAMA_URL}/api/chat", json=payload, timeout=60)
         res.raise_for_status()
@@ -167,7 +162,6 @@ def save_to_session_simple(data: dict, session_file: str):
     파일이 없으면 새로 생성합니다.
     """
     default_structure = {
-        "session_name": os.path.basename(session_file).replace(".json", ""),
         "session_start": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "input_korean": [], "input_image": [],
         "english_text_from_agent1": [], "english_caption_from_agent2": [],
@@ -204,14 +198,10 @@ def save_to_session_simple(data: dict, session_file: str):
         json.dump(session_data, f, ensure_ascii=False, indent=2)
 
 # =========================================================
-# 9. 전체 실행 파이프라인
+# 9. 메인 파이프라인
 # =========================================================
-def run_agent_pipeline(korean_text="", image_path="") -> dict:
-    """
-(수정) 'active_session.json'에서 '전체 이력'을 로드한 후 파이프라인을 실행합니다.
-    """
-    
-    # --- [수정] 1. RAG: 전체 대화 이력 로드 ---
+def run_agent_pipeline(korean_text="", image_path="") -> dict:    
+    # 대화 이력 불러오기
     session_file_path = os.path.join(SAVE_DIR, "active_session.json")
     full_history = get_full_conversation_history(session_file_path)
     
@@ -223,12 +213,9 @@ def run_agent_pipeline(korean_text="", image_path="") -> dict:
     merged = rewrite_combined_sentence(english_text, english_caption, full_history)
     # [Agent 3-2]: 영어 키워드 추출
     eng_keywords = extract_keywords(merged, k=3)
-    
-    # RAG 검색 (노래 추천) ---
+    # RAG 검색 (노래 추천): 각 키워드 별 5곡씩
     recommended_songs = get_song_recommendations(eng_keywords, top_k=5)
     
-    session_file_path = os.path.join(SAVE_DIR, "active_session.json")
-
     data = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "input": {"korean_text": korean_text, "image_path": image_path},
@@ -239,56 +226,84 @@ def run_agent_pipeline(korean_text="", image_path="") -> dict:
         "recommended_songs": recommended_songs,
     }
 
-    session_file_path = os.path.join(SAVE_DIR, "active_session.json")
     save_to_session_simple(data, session_file_path)
-    
     print(f"\n✅ Saved to active session → {session_file_path}")
     return data
 
 # =========================================================
-# 10. CLI (세션 관리자)
+# 7️⃣ CLI (세션 관리자)
 # =========================================================
+from collections import OrderedDict
 if __name__ == "__main__":
     print("\n🤖 Agent Pipeline (세션형 실행)")
-    
+
     active_session_path = os.path.join(SAVE_DIR, "active_session.json")
-    choice = input("\n새 대화를 시작하려면 'new' 입력 (기존 대화 이어하기는 Enter): ").strip().lower()
+    choice = input("\n새 대화를 시작하려면 'new' 입력 (기존 이어하기는 Enter): ").strip().lower()
 
     if choice == "new":
         if os.path.exists(active_session_path):
             try:
                 with open(active_session_path, "r", encoding="utf-8") as f:
                     old_data = json.load(f)
-                start_time_str = old_data.get("session_start", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-                ts = datetime.strptime(start_time_str, "%Y-%m-%d %H:%M:%S").strftime('%Y%m%d_%H%M%S')
-                archive_name = f"session_{ts}.json"
+                end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                old_data["session_end"] = end_time
+
+                # ✅ OrderedDict으로 정렬 (session_start → session_end 순서)
+                ordered_data = OrderedDict()
+                for key in ["session_id", "session_start", "session_end"]:
+                    if key in old_data:
+                        ordered_data[key] = old_data[key]
+                for key, value in old_data.items():
+                    if key not in ordered_data:
+                        ordered_data[key] = value
+
+                # ✅ 파일명 = session_{session_id}.json
+                session_id = old_data.get("session_id", f"{uuid.uuid4().hex[:6]}")
+                archive_name = f"session_{session_id}.json"
+                archive_path = os.path.join(SAVE_DIR, archive_name)
+
+                with open(archive_path, "w", encoding="utf-8") as f:
+                    json.dump(ordered_data, f, ensure_ascii=False, indent=2)
+
+                os.remove(active_session_path)
+                print(f"🗂️ 세션 보관 완료: {archive_name} (session_end: {end_time})")
             except Exception as e:
-                archive_name = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}_corrupted.json"
-            
-            archive_path = os.path.join(SAVE_DIR, archive_name)
-            os.rename(active_session_path, archive_path)
-            print(f"   -> 🗂️  기존 대화({active_session_path.split('/')[-1]})를 '{archive_name}'(으)로 보관합니다.")
-            
-        print(f"   -> 🆕 새 대화({active_session_path.split('/')[-1]})를 시작합니다.")
-        
+                print(f"⚠️ 세션 아카이빙 중 오류: {e}")
+
+        print(f"🆕 새 대화를 시작합니다.")
+        session_id = f"{uuid.uuid4().hex[:6]}"
+        new_session = OrderedDict([
+            ("session_id", session_id),
+            ("session_start", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+            ("input_korean", []),
+            ("input_image", []),
+            ("english_text_from_agent1", []),
+            ("english_caption_from_agent2", []),
+            ("merged_sentence", []),
+            ("english_keywords", []),
+            ("recommended_songs", [])
+        ])
+        with open(active_session_path, "w", encoding="utf-8") as f:
+            json.dump(new_session, f, ensure_ascii=False, indent=2)
+        print(f"🆔 새 세션 ID: {session_id}")
+
     else:
-        print(f"   -> ➡️  기존 대화({active_session_path.split('/')[-1]})에 이어합니다.")
+        print("➡️ 기존 세션 이어서 진행합니다.")
         if not os.path.exists(active_session_path):
-            print("      (기존 파일이 없어 새로 시작합니다)")
+            print("📁 기존 세션이 없어 새로 시작합니다.")
 
     print("\n--- 💬 입력을 시작하세요 ---")
     text = input("한국어 텍스트 입력 (없으면 Enter): ").strip()
-    img = input("이미지 파일 경로 입력 (없으면 Enter): ").strip()
+    img = input("이미지 경로 입력 (없으면 Enter): ").strip()
 
     if not text and not img:
         print("\n🛑 입력이 없어 종료합니다.")
         exit()
 
-    print("\n--- 🚀 에이전트 파이프라인 실행 ---")
+    print("\n--- 🚀 파이프라인 실행 ---")
     try:
-        result = run_agent_pipeline(text, img) 
+        result = run_agent_pipeline(text, img)
         print("\n--- 🎯 실행 결과 ---")
         print(json.dumps(result, ensure_ascii=False, indent=2))
-        
     except Exception as e:
-        print(f"\n🔥🔥🔥 파이프라인 실행 중 심각한 오류 발생: {e}")
+        print(f"\n🔥 오류 발생: {e}")
