@@ -8,20 +8,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class MusicService {
 
     private final MusicRepository musicRepository;
 
+    // ✅ 반복 재생 상태 (전역 toggle)
+    private final AtomicBoolean repeatMode = new AtomicBoolean(false);
+
     @Autowired
     public MusicService(MusicRepository musicRepository) {
         this.musicRepository = musicRepository;
     }
 
-    /**
-     * DB에서 songId로 음악 상세정보 조회
-     */
     public MusicDetailResponse getMusicDetail(Long songId) {
         MusicEntity entity = musicRepository.findById(songId)
                 .orElseThrow(() -> new RuntimeException("노래를 찾을 수 없습니다. songId=" + songId));
@@ -38,85 +39,48 @@ public class MusicService {
         );
     }
 
-    /**
-     * 음악 재생
-     */
     public MusicControlButton playMusic(Long songId, Long sessionId) {
         MusicDetailResponse currentSong = getMusicDetail(songId);
-
-        return new MusicControlButton(
-                true,
-                sessionId,
-                currentSong,
-                "playing"
-        );
+        return new MusicControlButton(true, sessionId, currentSong, "playing");
     }
 
-    /**
-     * 음악 일시정지
-     */
     public MusicControlButton pauseMusic(Long songId, Long sessionId) {
         MusicDetailResponse currentSong = getMusicDetail(songId);
-
-        return new MusicControlButton(
-                true,
-                sessionId,
-                currentSong,
-                "paused"
-        );
+        return new MusicControlButton(true, sessionId, currentSong, "paused");
     }
 
-    /**
-     * 다음 곡 재생
-     */
     public MusicControlButton nextMusic(Long currentSongId, Long sessionId) {
         List<MusicEntity> allSongs = musicRepository.findAll();
+        if (allSongs.isEmpty()) throw new RuntimeException("재생 가능한 곡이 없습니다.");
 
-        if (allSongs.isEmpty()) {
-            throw new RuntimeException("재생 가능한 곡이 없습니다.");
-        }
-
-        // 현재 곡 인덱스 찾기
-        int currentIndex = -1;
-        for (int i = 0; i < allSongs.size(); i++) {
-            if (allSongs.get(i).getSongId().equals(currentSongId)) {
-                currentIndex = i;
-                break;
-            }
-        }
-
-        // 다음 곡 인덱스 (마지막이면 첫 곡으로)
+        int currentIndex = findIndex(allSongs, currentSongId);
         int nextIndex = (currentIndex + 1) % allSongs.size();
-        MusicEntity nextSong = allSongs.get(nextIndex);
-
-        MusicDetailResponse nextSongDetail = new MusicDetailResponse(
-                nextSong.getSongId(),
-                nextSong.getTitle(),
-                nextSong.getArtist(),
-                nextSong.getAlbum(),
-                nextSong.getLyrics(),
-                nextSong.getPreviewUrl(),
-                nextSong.getDurationMs(),
-                nextSong.getLikeCount()
-        );
-
-        return new MusicControlButton(
-                true,
-                sessionId,
-                nextSongDetail,
-                "playing"
-        );
+        return makeButton(allSongs.get(nextIndex), sessionId, "playing");
     }
 
-    /**
-     * 좋아요 추가 (likeCount 1 증가)
-     */
+    // ✅ 이전 곡 재생
+    public MusicControlButton prevMusic(Long currentSongId, Long sessionId) {
+        List<MusicEntity> allSongs = musicRepository.findAll();
+        if (allSongs.isEmpty()) throw new RuntimeException("재생 가능한 곡이 없습니다.");
+
+        int currentIndex = findIndex(allSongs, currentSongId);
+        int prevIndex = (currentIndex - 1 + allSongs.size()) % allSongs.size();
+        return makeButton(allSongs.get(prevIndex), sessionId, "playing");
+    }
+
+    // ✅ 반복 재생 토글
+    public String toggleRepeatMode() {
+        boolean newValue = !repeatMode.get();
+        repeatMode.set(newValue);
+        return newValue ? "repeat_on" : "repeat_off";
+    }
+
     public MusicDetailResponse likeSong(Long songId) {
         MusicEntity entity = musicRepository.findById(songId)
                 .orElseThrow(() -> new RuntimeException("노래를 찾을 수 없습니다. songId=" + songId));
 
         entity.setLikeCount(entity.getLikeCount() + 1);
-        musicRepository.save(entity); // 변경사항 DB 반영
+        musicRepository.save(entity);
 
         return new MusicDetailResponse(
                 entity.getSongId(),
@@ -128,5 +92,27 @@ public class MusicService {
                 entity.getDurationMs(),
                 entity.getLikeCount()
         );
+    }
+
+    // ======= Helper Methods =======
+    private int findIndex(List<MusicEntity> songs, Long songId) {
+        for (int i = 0; i < songs.size(); i++) {
+            if (songs.get(i).getSongId().equals(songId)) return i;
+        }
+        return 0;
+    }
+
+    private MusicControlButton makeButton(MusicEntity song, Long sessionId, String status) {
+        MusicDetailResponse detail = new MusicDetailResponse(
+                song.getSongId(),
+                song.getTitle(),
+                song.getArtist(),
+                song.getAlbum(),
+                song.getLyrics(),
+                song.getPreviewUrl(),
+                song.getDurationMs(),
+                song.getLikeCount()
+        );
+        return new MusicControlButton(true, sessionId, detail, status);
     }
 }

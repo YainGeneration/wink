@@ -327,5 +327,38 @@ public class ChatService {
 
         return results;
     }
+    // ✅ 메시지 전송 (신규)
+    public ChatMessageResponse sendUserMessage(ChatMessageRequest req) {
+        Long sessionId = req.getSessionId();
+        ChatSession session = sessionRepo.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Session not found: " + sessionId));
+
+        // 🔒 최신 세션만 허용 (기존 방식 유지)
+        Optional<ChatSession> latestSession = sessionRepo.findTopByTypeOrderByStartTimeDesc(session.getType());
+        if (latestSession.isEmpty() || !Objects.equals(latestSession.get().getId(), sessionId)) {
+            throw new RuntimeException("Only the latest session allows new messages.");
+        }
+
+        // ✅ 메시지 저장
+        ChatMessage msg = new ChatMessage();
+        msg.setSession(session);
+        msg.setSender(req.getSender() != null ? req.getSender() : "user");
+        msg.setText(req.getText());
+        if (req.getImageUrls() != null && !req.getImageUrls().isEmpty()) {
+            msg.setImageUrl(String.join(",", req.getImageUrls()));
+        }
+        messageRepo.save(msg);
+
+        // ✅ 응답 DTO 생성
+        return ChatMessageResponse.builder()
+                .messageId(msg.getId())
+                .sessionId(sessionId)
+                .sender(msg.getSender())
+                .text(msg.getText())
+                .keywords(null)              // AI 응답 아님 → null
+                .recommendations(null)       // AI 응답 아님 → null
+                .timestamp(msg.getCreatedAt())
+                .build();
+    }
 
 }

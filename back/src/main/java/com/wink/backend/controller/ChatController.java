@@ -70,48 +70,5 @@ public class ChatController {
     public ChatMessageResponse sendMessage(@RequestBody ChatMessageRequest req) {
         return chatService.sendMessage(req);
     }
-
-    // @Operation(summary = "세션 내 대화 요약 조회", description = "Gemini 기반으로 세션 전체를 요약하여 주요 내용/키워드/추천 결과를 반환")
-    // @GetMapping("/summary/{sessionId}")
-    // public ChatSummaryResponse getChatSummary(@PathVariable Long sessionId) {
-    //     return chatService.getChatSummary(sessionId);
-    // }
-
-
-    // @Operation(summary = "채팅 내 검색", description = "모든 세션의 주제/입력 텍스트/AI 응답 중 키워드가 포함된 항목 반환")
-    // @GetMapping("/search")
-    // public List<ChatSearchResultResponse> searchChat(@RequestParam String keyword) {
-    //     return chatService.searchChat(keyword);
-    // }
-
-    // @Operation(summary = "주변 음악 조회", description = "현재 위치 기준 주변 사용자의 재생 음악 목록 반환")
-    // @GetMapping("/location/nearby-music")
-    // public List<NearbyMusicResponse> getNearbyMusic(@RequestParam double lat, @RequestParam double lng) {
-    //     return locationService.getNearbyMusic(lat, lng);
-    // }
-
-    // @Operation(summary = "주변 사용자 음악 상세 조회", description = "특정 사용자 ID로 현재 재생 음악 상세 조회")
-    // @GetMapping("/location/nearby-music/{userId}")
-    // public MusicDetailResponse getNearbyUserMusic(@PathVariable Long userId) {
-    //     return locationService.getNearbyUserMusic(userId);
-    // }
-
-    // @Operation(summary = "음악 상세 조회", description = "곡 ID로 가사, 앨범, 미리듣기, 가수 등 세부정보 반환")
-    // @GetMapping("/music/{songId}")
-    // public MusicDetailResponse getMusicDetail(@PathVariable Long songId) {
-    //     return musicService.getMusicDetail(songId);
-    // }
-    
-    // @Operation(summary = "AI 추천 재생목록 전체 보기", description = "세션 ID 기반으로 AI 추천곡 전체 반환")
-    // @GetMapping("/player/playlist")
-    // public PlaylistResponse getPlaylist(@RequestParam Long sessionId) {
-    //     return playerService.getPlaylist(sessionId);
-    // }
-
-    // @Operation(summary = "AI 추천 재생목록 저장", description = "추천받은 곡들을 세션별로 저장")
-    // @PostMapping("/player/playlist/save")
-    // public ApiResponse savePlaylist(@RequestBody PlaylistSaveRequest req) {
-    //     return playerService.savePlaylist(req);
-    // }
 }
 

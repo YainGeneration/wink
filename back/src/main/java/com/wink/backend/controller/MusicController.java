@@ -40,6 +40,18 @@ public class MusicController {
     public MusicControlButton nextMusic(@RequestParam Long songId, @RequestParam Long sessionId) {
         return musicService.nextMusic(songId, sessionId);
     }
+    
+    @Operation(summary = "이전 곡 재생")
+    @PostMapping("/prev")
+    public MusicControlButton prevMusic(@RequestParam Long songId, @RequestParam Long sessionId) {
+        return musicService.prevMusic(songId, sessionId);
+    }
+
+    @Operation(summary = "반복 재생 토글", description = "반복 재생을 켜거나 끕니다.")
+    @PostMapping("/repeat")
+    public String toggleRepeat() {
+        return musicService.toggleRepeatMode();
+    }
 
     @Operation(summary = "좋아요 추가")
     @PostMapping("/like")
