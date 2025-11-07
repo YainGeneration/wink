@@ -12,7 +12,7 @@ import java.util.*;
 
 /**
  * GeminiService
- * - Google Gemini API를 이용한 주제 추출 및 키워드 번역 기능 제공
+ * - Google Gemini API를 이용한 주제 추출, 요약, 키워드 번역 기능 제공
  */
 @Service
 public class GeminiService {
@@ -107,7 +107,7 @@ public class GeminiService {
 
             String requestBody = String.format("""
                 {
-                "contents": [ { "parts": [ { "text": "%s" } ] } ]
+                  "contents": [ { "parts": [ { "text": "%s" } ] } ]
                 }
             """, prompt.replace("\"", "'"));
 
@@ -153,5 +153,90 @@ public class GeminiService {
         if (text.contains("밤")) return "밤 감성 음악";
         if (text.contains("사랑")) return "로맨틱한 분위기 음악";
         return "오늘의 감성 음악";
+    }
+
+    /** ✅ 대화 전체 요약 */
+    public String summarizeConversation(String allText) {
+        try {
+            if (apiKey == null || apiKey.isBlank()) {
+                return "Gemini API Key가 설정되지 않았습니다.";
+            }
+
+            String prompt = "다음은 사용자의 대화 기록입니다. 핵심 내용을 3문장 이내로 간략히 요약해줘:\n" + allText;
+
+            String requestBody = String.format("""
+                {
+                  "contents": [ { "parts": [ { "text": "%s" } ] } ]
+                }
+            """, prompt.replace("\"", "'"));
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(GEMINI_URL + "?key=" + apiKey))
+                    .timeout(Duration.ofSeconds(15))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                System.err.println("⚠️ 대화 요약 실패 (" + response.statusCode() + ")");
+                return "대화 요약 실패: " + response.statusCode();
+            }
+
+            JsonNode root = mapper.readTree(response.body());
+            return root.path("candidates").get(0)
+                       .path("content").path("parts").get(0)
+                       .path("text").asText("요약 결과 없음");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "요약 중 오류 발생";
+        }
+    }
+
+    /** ✅ 요약문 기반 키워드 추출 */
+    public List<String> extractKeywords(String summary) {
+        try {
+            if (apiKey == null || apiKey.isBlank()) {
+                return List.of("요약", "대화", "결과");
+            }
+
+            String prompt = "다음 요약문에서 주요 키워드 3~5개를 추출해줘. 쉼표로만 구분해서 출력해줘:\n" + summary;
+
+            String requestBody = String.format("""
+                {
+                  "contents": [ { "parts": [ { "text": "%s" } ] } ]
+                }
+            """, prompt.replace("\"", "'"));
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(GEMINI_URL + "?key=" + apiKey))
+                    .timeout(Duration.ofSeconds(10))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                System.err.println("⚠️ 키워드 추출 실패 (" + response.statusCode() + ")");
+                return List.of("요약", "실패");
+            }
+
+            JsonNode root = mapper.readTree(response.body());
+            String text = root.path("candidates").get(0)
+                              .path("content").path("parts").get(0)
+                              .path("text").asText();
+
+            return Arrays.stream(text.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .toList();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of("오류", "발생");
+        }
     }
 }
