@@ -11,12 +11,12 @@ export default function Home({ setShowOverlay }: HomeProps) {
 
   const openSheet = () => {
     setShowSheet(true);
-    setShowOverlay(true);  // ✅ 전역 오버레이 ON
+    setShowOverlay(true);  // 전역 오버레이 ON
   };
 
   const closeSheet = () => {
     setShowSheet(false);
-    setShowOverlay(false); // ✅ 전역 오버레이 OFF
+    setShowOverlay(false); // 전역 오버레이 OFF
   };
   
   return (
