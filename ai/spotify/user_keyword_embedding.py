@@ -20,6 +20,16 @@ _model = AutoModel.from_pretrained(MODEL_NAME)
 
 
 # -----------------------------
+# ** L2 정규화
+# -----------------------------
+def l2_normalize(vec: np.ndarray):
+    norm = np.linalg.norm(vec)
+    if norm == 0:
+        return vec
+    return vec / norm
+
+
+# -----------------------------
 # 2) 텍스트 임베딩 함수
 # -----------------------------
 def get_text_embedding(text: str):
@@ -35,10 +45,7 @@ def get_text_embedding(text: str):
     embedding = embedding.cpu().numpy().astype(np.float32)
 
     # 임베딩 정규화
-    norm = np.linalg.norm(embedding)
-    if norm > 0:
-        embedding = embedding / norm
-
+    embedding = l2_normalize(embedding)
     return embedding
 
 
@@ -74,7 +81,7 @@ def get_latest_session_file_by_endtime():
 
 
 # -----------------------------
-# 4) 최신 키워드만 임베딩 추출
+# 4) 최신 키워드만 임베딩
 # -----------------------------
 def get_user_keyword_embedding():
     session_path = get_latest_session_file_by_endtime()
@@ -118,6 +125,7 @@ def get_weighted_user_embedding():
         embeddings.append(emb)
 
         # 가중치: 0.5 → ... → 1.0
+        # 최신 키워드일수록 가중치 증가
         w = 0.5 + 0.5 * (i / (n - 1)) if n > 1 else 1.0
         weights.append(w)
 
@@ -125,9 +133,10 @@ def get_weighted_user_embedding():
     weights = np.array(weights).reshape(-1, 1)
 
     weighted_vec = (embeddings * weights).sum(axis=0) / weights.sum()
-    normalized = weighted_vec / np.linalg.norm(weighted_vec)
+    # L2 정규화
+    weighted_vec = l2_normalize(weighted_vec)
     
-    return normalized.astype(np.float32)
+    return weighted_vec.astype(np.float32)
 
 # -----------------------------
 # 6) 세션 id 추출 함수

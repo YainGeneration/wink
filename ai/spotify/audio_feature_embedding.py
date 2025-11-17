@@ -1,4 +1,4 @@
-# ai/spotify/audio_feature_embedding.py
+# 스포티파이 오디오 피처 설명문 임베딩(L2 정규화 포함)
 
 import torch
 from transformers import AutoTokenizer, AutoModel
@@ -15,7 +15,18 @@ _model = AutoModel.from_pretrained(MODEL_NAME)
 
 
 # -----------------------------
-# 2) 임베딩 함수 정의
+# 🔧 2) L2 정규화 함수 추가
+# -----------------------------
+def l2_normalize(vec):
+    vec = np.array(vec, dtype=float)
+    norm = np.linalg.norm(vec)
+    if norm == 0:
+        return vec
+    return vec / norm
+
+
+# -----------------------------
+# 3) 임베딩 함수 정의
 # 텍스트 → BERT hidden-state sentence embedding
 # -----------------------------
 def get_text_embedding(text: str):
@@ -30,7 +41,7 @@ def get_text_embedding(text: str):
 
 
 # -----------------------------
-# 3) Spotify 오디오 피처 설명문 정의
+# 4) Spotify 오디오 피처 설명문 정의
 # -----------------------------
 FEATURE_DESCRIPTIONS = {
     "acousticness": "A confidence measure from 0.0 to 1.0 of whether the track is acoustic. 1.0 represents high confidence the track is acoustic.",
@@ -47,21 +58,22 @@ FEATURE_DESCRIPTIONS = {
 }
 
 # -----------------------------
-# 4) 설명문 → 임베딩 생성 및 저장
+# 5) 설명문 → 임베딩 생성 및 저장
 # -----------------------------
 def build_audio_feature_embeddings(save_path="spotify/embedding_data/audio_feature_embeddings.json"):
     final = {}
 
     for feature, desc in FEATURE_DESCRIPTIONS.items():
-        emb = get_text_embedding(desc)
-        final[feature] = emb.tolist()
+        raw_emb = get_text_embedding(desc)
+        norm_emb = l2_normalize(raw_emb)
+        final[feature] = norm_emb.tolist()
 
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
     with open(save_path, "w", encoding="utf-8") as f:
         json.dump(final, f, ensure_ascii=False, indent=2)
 
-    print(f"✅ 오디오 피처 임베딩 저장 완료 → {save_path}")
+    print(f"✅ 오디오 피처 임베딩(L2 정규화) 저장 완료 → {save_path}")
 
 
 if __name__ == "__main__":
