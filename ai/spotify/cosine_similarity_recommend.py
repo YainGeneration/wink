@@ -119,15 +119,24 @@ def load_song_data():
 # =========================================================
 def compute_recommendation_scores(df, feature_sims):
     df = df.copy()
+    
+    # 피처 정규화를 위한 min-max 계산
+    min_vals = df[AUDIO_FEATURE_COLUMNS].min()
+    max_vals = df[AUDIO_FEATURE_COLUMNS].max()
+    
+    # 정규화된 피처 만들기
+    norm_features = (df[AUDIO_FEATURE_COLUMNS] - min_vals) / (max_vals - min_vals)
+    norm_features = norm_features.fillna(0)     # 혹시 모를 division by zero 대비
+    
     scores = []
 
-    for _, row in df.iterrows():
+    for i, row in df.iterrows():
         score = 0.0
 
         for feat in AUDIO_FEATURE_COLUMNS:
+            feature_value = norm_features.loc[i, feat]
             sim = feature_sims.get(feat, 0.0)
-            value = row[feat]
-            score += sim * value
+            score += sim * feature_value
 
         scores.append(score)
 
