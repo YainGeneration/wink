@@ -253,6 +253,7 @@ def run_agent_pipeline(korean_text="", image_path=""):
     recommended_songs_df = recommend(top_k=5)
 
     recommended_songs = recommended_songs_df[[
+        "id", #수정
         "track_name",
         "artist_name",
         "recommend_score"
@@ -269,6 +270,9 @@ def run_agent_pipeline(korean_text="", image_path=""):
 
     with open(session_file, "w", encoding="utf-8") as f:
         json.dump(session_data, f, ensure_ascii=False, indent=2)
+        
+    data["recommended_songs"] = recommended_songs # 수정
+
 
     return data
 

@@ -15,7 +15,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "agents"))
 
 # ===== 내부 모듈 import =====
 try:
-    from agent3_keywordExtractor import run_agent_pipeline
+    from cosine_recommender import run_agent_pipeline
 except ImportError as e:
     print("❌ agent3_keywordExtractor.py 불러오기 실패:", e)
     exit()
@@ -62,18 +62,21 @@ def recommend():
             "mergedSentence": merged_sentence,
             "recommendations": [
                 {
-                    "songId": song.get("track_id"),
-                    "title": song.get("track_id"),
-                    "artist": song.get("mood_tags"),
-                    "albumCover": song.get("genre_tags"),
-                    "previewUrl": song.get("path")
+                    "songId": song.get("id") or 0,
+                    "title": song.get("track_name"),
+                    "artist": song.get("artist_name"),
+                    "albumCover": song.get("album_cover") or "",
+                    "previewUrl": song.get("preview_url") or ""
                 }
                 for song in result.get("recommended_songs", [])
             ],
+
         }
 
 
         print(f"✅ [Flask] 파이프라인 완료, 키워드={english_keywords}")
+        print(f"🎵 추천 결과: {[s.get('track_name') for s in result.get('recommended_songs', [])]}")
+
         return jsonify(response_data), 200
 
     except Exception as e:

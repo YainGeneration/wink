@@ -1,0 +1,28 @@
+{
+  "session_start": "2025-11-17 22:57:27",
+  "input_korean": [
+    "비 오는 날 잔잔한 노래 추천해줘"
+  ],
+  "input_image": [
+    ""
+  ],
+  "english_text_from_agent1": [
+    "I would like to recommend a song for a rainy day."
+  ],
+  "english_caption_from_agent2": [
+    ""
+  ],
+  "merged_sentence": [
+    "I would like to recommend a song for a rainy day."
+  ],
+  "english_keywords": [
+    [
+      "melancholy",
+      "peaceful",
+      "cozy"
+    ]
+  ],
+  "recommended_songs": [
+    []
+  ]
+}
