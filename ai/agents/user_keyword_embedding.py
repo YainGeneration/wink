@@ -1,3 +1,5 @@
+# 경로를 위해 파일 복사
+
 import os
 import json
 import torch

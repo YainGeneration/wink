@@ -52,6 +52,17 @@ def extract_session_id(path):
     return os.path.basename(path).replace("session_", "").replace(".json", "")
 
 
+# 현재 활성 세션 파일 경로
+def get_active_session_id():
+    active_path = os.path.join(SESSION_DIR, "active_session.json")
+    if not os.path.exists(active_path):
+        raise FileNotFoundError("❌ active_session.json 파일이 없음")
+    
+    with open(active_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    return data.get("session_id")
+
 # =========================================================
 # 1) 정규화 함수
 # =========================================================
@@ -65,8 +76,7 @@ def l2_norm(v):
 # 2) 사용자 임베딩 로드 (weighted / latest 자동)
 # =========================================================
 def load_user_embedding(mode="weighted"):
-    session_path = get_latest_session_file()
-    session_id = extract_session_id(session_path)
+    session_id = get_active_session_id()
 
     fname = f"user_keyword_embedding_{session_id}_{mode}.npy"
     fpath = os.path.join(EMBED_DIR, fname)
