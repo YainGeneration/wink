@@ -32,7 +32,7 @@ SONG_DATA_FILE = "spotify/data/merged_audio_features_after2000_final.csv"
 # 추천에 사용할 피처 목록
 AUDIO_FEATURE_COLUMNS = [
     "acousticness", "danceability", "energy", "instrumentalness",
-    "liveness", "loudness", "speechiness", "valence", "tempo"
+     "loudness", "valence", "tempo", 
 ]
 
 

@@ -65,48 +65,66 @@ os.makedirs(SAVE_DIR, exist_ok=True)
 # Agent 3-1: 문장 합성
 # =========================================================
 def rewrite_combined_sentence(text1: str, text2: str, full_history: str) -> str:    
-    new_input_sentence = f"{text1} {text2}".strip()
-
-    if not new_input_sentence:
-        print("⚠️ [Agent 3] No new input text or image provided.")
+    # 입력이 없으면 빈 문자열 반환
+    if not text1 and not text2:
+        print("⚠️ [Agent 3] No input text provided.")
         return ""
 
-    print("🧩 [Agent 3] Merging sentences...")
+    print("🧩 [Agent 3] Synthesizing sentences (Blending)...")
 
+    # 강력한 지시사항을 포함한 프롬프트
     prompt = f"""
-Combine the user's latest input with their past conversation history
-into one final, updated English description.
+You are a creative writer. 
+Your task is to **synthesize** the following inputs into **one single, cohesive, and atmospheric English sentence**.
 
-[History]
-{full_history}
+[Inputs]
+1. User Text: "{text1}"
+2. Visual Context: "{text2}"
+3. Conversation History: "{full_history}"
 
-[New]
-{new_input_sentence}
-
-Return only the final combined English sentence.
+[Rules]
+- Do NOT simply concatenate the sentences.
+- Blend the meaning of the text with the atmosphere of the visual.
+- Make it sound natural and emotional.
+- Output **ONLY** the final rewritten sentence. Do not add explanations.
 """
 
     messages = [{"role": "user", "content": prompt}]
+    
+    # Gemma3 27b는 무거우므로 타임아웃을 넉넉히 줌
     payload = {
         "model": GEMMA3_MODEL, 
         "messages": messages, 
         "stream": False, 
-        "format": "text"
+        "options": {
+            "temperature": 0.7,  # 창의적인 합성을 위해 약간 높임
+            "num_ctx": 4096
+        }
     }
 
     try:
-        res = requests.post(f"{OLLAMA_URL}/api/chat", json=payload, timeout=60)
+        # Timeout을 60초 -> 120초로 증가 (27b 모델 대비)
+        res = requests.post(f"{OLLAMA_URL}/api/chat", json=payload, timeout=120)
         res.raise_for_status()
+        
         raw = res.json().get("message", {}).get("content", "").strip()
+        print(f"🔍 [Debug] Raw LLM Output: {raw}") # 디버깅용 출력
 
-        # 따옴표 한번 더 제거
-        match = re.search(r'["\'](.*)["\']', raw)
-        return match.group(1).strip() if match else raw
+        # 따옴표 제거 로직 개선 (Regex 대신 strip 사용)
+        # 모델이 가끔 "Here is the sentence: ..." 라고 말할 때를 대비해 앞뒤만 정리
+        cleaned_sentence = raw.strip().strip('"').strip("'")
+        
+        # 만약 모델이 너무 짧거나 빈 값을 뱉으면 fallback
+        if len(cleaned_sentence) < 5:
+             raise ValueError("Output too short")
+
+        return cleaned_sentence
 
     except Exception as e:
         print(f"⚠️ Merge failed: {e}")
-        return new_input_sentence
-
+        print("👉 Using simple concatenation as fallback.")
+        # 실패 시 단순 결합
+        return f"{text1} {text2}".strip()
 
 # =========================================================
 # Agent 3-2: 감성 키워드 추출

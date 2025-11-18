@@ -1,0 +1,144 @@
+{
+  "session_id": "9effe6",
+  "session_start": "2025-11-18 19:29:01",
+  "input_korean": [
+    "크리스마스에 많이듣는 캐럴 노래",
+    "조금 더 잔잔한 노래로 듣고 다",
+    "더 신나는 노래로 추천해줘"
+  ],
+  "input_image": [
+    "/Users/eunjung/Desktop/wink/ai/images/test4.jpeg",
+    "/Users/eunjung/Desktop/wink/ai/images/test2.jpg",
+    ""
+  ],
+  "english_text_from_agent1": [
+    "Many people listen to Christmas carols.",
+    "Listen to a slightly softer song and enjoy it fully.",
+    "Please recommend a more exciting song."
+  ],
+  "english_caption_from_agent2": [
+    "The image portrays a serene winter scene with snow-covered houses nestled in the valley of a snowy mountain landscape, under a light blue sky that suggests a tranquil and peaceful day.",
+    "The image shows a night view of a city skyline with colorful lights against the backdrop of a dark sky, creating an atmospheric and vibrant mood.",
+    ""
+  ],
+  "merged_sentence": [
+    "Many people listen to Christmas carols. The image portrays a serene winter scene with snow-covered houses nestled in the valley of a snowy mountain landscape, under a light blue sky that suggests a tranquil and peaceful day.",
+    "As the city lights pulsed with a serene vibrancy mirroring the tranquil peace of a snow-covered valley, she closed her eyes and let a softer song fully wash over her, embracing the quiet beauty of the night.",
+    "Though the city hummed with a serene, pulsing light reminiscent of a snow-covered valley’s quiet peace, she found herself craving a song that could break the spell and ignite the stillness within her."
+  ],
+  "english_keywords": [
+    [
+      "serene",
+      "peaceful",
+      "tranquil"
+    ],
+    [
+      "serene",
+      "tranquil",
+      "peaceful"
+    ],
+    [
+      "serene",
+      "stillness",
+      "longing"
+    ]
+  ],
+  "recommended_songs": [
+    [
+      {
+        "id": "2oAPUnBerGoshpD7ueqwJW",
+        "track_name": "Jimi",
+        "artist_name": "Slightly Stoopid",
+        "recommend_score": 4.235598159323957,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b273dc1886ac54cb45a8843404d7",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
+      },
+      {
+        "id": "4zwHUFfiBp8qLlSfh4POmu",
+        "track_name": "Abeja",
+        "artist_name": "Mndsgn",
+        "recommend_score": 4.056034774822708,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b273a0b1d9c91c5cbcd2b38699cd",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/4zwHUFfiBp8qLlSfh4POmu"
+      },
+      {
+        "id": "0NTv0rd71ormOyAcuWeRQ7",
+        "track_name": "Office People (And A Perfectly Good Font Joke)",
+        "artist_name": "Christian Finnegan",
+        "recommend_score": 4.035114190242617,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b2738ebbd80cf1757c31e9099137",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/0NTv0rd71ormOyAcuWeRQ7"
+      },
+      {
+        "id": "3aETJQJhSMgJP7370A9pGZ",
+        "track_name": "What Are You, A Fag",
+        "artist_name": "Bill Burr",
+        "recommend_score": 4.014040257109816,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b27302789b81f9378cb589f79fe7",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/3aETJQJhSMgJP7370A9pGZ"
+      },
+      {
+        "id": "5bIaUFqwok97vCXAoTqFkj",
+        "track_name": "Be Our Guest",
+        "artist_name": "Mitchell Hope",
+        "recommend_score": 3.9044121801836993,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b273f2cf4cf5b74718a5922fa17d",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/5bIaUFqwok97vCXAoTqFkj"
+      }
+    ],
+    [
+      {
+        "id": "2oAPUnBerGoshpD7ueqwJW",
+        "track_name": "Jimi",
+        "artist_name": "Slightly Stoopid",
+        "recommend_score": 4.206461937396362,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b273dc1886ac54cb45a8843404d7",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
+      },
+      {
+        "id": "4zwHUFfiBp8qLlSfh4POmu",
+        "track_name": "Abeja",
+        "artist_name": "Mndsgn",
+        "recommend_score": 4.024484008001228,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b273a0b1d9c91c5cbcd2b38699cd",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/4zwHUFfiBp8qLlSfh4POmu"
+      },
+      {
+        "id": "0NTv0rd71ormOyAcuWeRQ7",
+        "track_name": "Office People (And A Perfectly Good Font Joke)",
+        "artist_name": "Christian Finnegan",
+        "recommend_score": 4.001474093657593,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b2738ebbd80cf1757c31e9099137",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/0NTv0rd71ormOyAcuWeRQ7"
+      },
+      {
+        "id": "3aETJQJhSMgJP7370A9pGZ",
+        "track_name": "What Are You, A Fag",
+        "artist_name": "Bill Burr",
+        "recommend_score": 3.9783422414807514,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b27302789b81f9378cb589f79fe7",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/3aETJQJhSMgJP7370A9pGZ"
+      },
+      {
+        "id": "5bIaUFqwok97vCXAoTqFkj",
+        "track_name": "Be Our Guest",
+        "artist_name": "Mitchell Hope",
+        "recommend_score": 3.8720198678262694,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b273f2cf4cf5b74718a5922fa17d",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/5bIaUFqwok97vCXAoTqFkj"
+      }
+    ],
+    []
+  ],
+  "session_end": "2025-11-18 19:44:38"
+}
