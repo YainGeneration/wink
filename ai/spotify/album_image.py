@@ -16,7 +16,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
 ))
 
 # ===== 1. CSV 불러오기 =====
-input_path = os.path.join("spotify/data/audio_features_after2000.csv")
+input_path = os.path.join("spotify/data/merged_audio_features_after2000_final.csv")
 df = pd.read_csv(input_path)
 
 # 팀원 별 연도 필터 설정
@@ -45,13 +45,13 @@ for start in range(0, len(track_ids), batch_size):
         try:
             track = sp.track(tid)
             info = {
-                "id": tid, # 트랙 ID
-                "track_name": track["name"], # 트랙 이름
-                "artist_name": track["artists"][0]["name"], # 아티스트 이름
-                "album_name": track["album"]["name"], # 앨범 이름
-                "external_url": track["external_urls"]["spotify"], # 스포티파이 URL
-                "preview_url": track["preview_url"], # 미리듣기 URL
-                "release_date": track["album"]["release_date"],   # 발매일
+                # "id": tid, # 트랙 ID
+                # "track_name": track["name"], # 트랙 이름
+                # "artist_name": track["artists"][0]["name"], # 아티스트 이름
+                # "album_name": track["album"]["name"], # 앨범 이름
+                # "external_url": track["external_urls"]["spotify"], # 스포티파이 URL
+                # "preview_url": track["preview_url"], # 미리듣기 URL
+                # "release_date": track["album"]["release_date"],   # 발매일
             }
             results.append(info)
             time.sleep(0.3)  # ✅ 요청 간 대기 (rate limit 방지)

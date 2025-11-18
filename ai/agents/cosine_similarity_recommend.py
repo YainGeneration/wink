@@ -3,13 +3,21 @@
 # 두 개의 임베딩 값으로 코사인 유사도 비교
 # 추천까지
 
-# ai/spotify/recommender_full.py
-
 import os
 import json
 import numpy as np
 import pandas as pd
 from datetime import datetime
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
+    client_id='9f601ae991474c5f9acbbca99f0d9c7c',
+    client_secret='302529b448714aaabc311bdb65772a96',
+    redirect_uri='http://127.0.0.1:8888/callback',
+    scope="user-library-read"
+))
+
 
 # -------------------------------
 # 경로 설정
@@ -122,6 +130,29 @@ def load_song_data():
     df = df.dropna(subset=AUDIO_FEATURE_COLUMNS)
     return df
 
+# =========================================================
+# 스포티파이 앨범 커버 이미지 가져오기
+def get_album_cover_url(track_id):
+    try:
+        track = sp.track(track_id)
+        images = track["album"]["images"]
+        if images:
+            return images[0]["url"]
+        return None
+    except Exception as e:
+        print(f"❌ Failed to fetch album cover for {track_id}: {e}")
+        return None
+    
+# =========================================================
+# 스포티파이 미리듣기 30초 URL 가져오기
+def get_preview_url(track_id):
+    try:
+        track = sp.track(track_id)
+        return track.get("preview_url", None)
+    except Exception as e:
+        print(f"❌ Failed to fetch preview_url for {track_id}: {e}")
+        return None
+
 
 # =========================================================
 # 7) 최종 점수 계산
@@ -178,11 +209,13 @@ def recommend(top_k=5, mode="weighted"):
     # 4) 최종 점수 계산
     scored_df = compute_recommendation_scores(df, feature_sims)
 
-    # 5) 상위 추천곡 선택
-    rec = scored_df.sort_values("recommend_score", ascending=False).head(top_k)
-
+    # 상위 곡 5개 선택
+    rec = scored_df.sort_values("recommend_score", ascending=False).head(top_k).copy()
+    # ★ 앨범 커버 URL 추가
+    rec["album_cover_url"] = rec["id"].apply(get_album_cover_url)
+    
     print("\n🎵 추천 결과 (Top 5):")
-    print(rec[["track_name", "artist_name", "recommend_score"]])
+    print(rec[["id", "track_name", "artist_name", "recommend_score"]])
 
     return rec
 
