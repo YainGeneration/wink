@@ -1,0 +1,41 @@
+{
+  "session_id": "c51849",
+  "session_start": "2025-11-18 19:44:38",
+  "input_korean": [
+    "휴가철에 드라이빙하면서 듣는 시원하고 상쾌한 노래",
+    "여름철나는 노래"
+  ],
+  "input_image": [
+    "",
+    ""
+  ],
+  "english_text_from_agent1": [
+    "Listening to cool and refreshing songs while driving during the summer season.",
+    "Summer songs"
+  ],
+  "english_caption_from_agent2": [
+    "",
+    ""
+  ],
+  "merged_sentence": [
+    "Sun-drenched asphalt blurred into a shimmering haze as cool melodies washed over the open car window, each note a fleeting echo of summer’s endless, golden afternoon.",
+    "Sun-drenched and shimmering with nostalgia, summer songs blurred into a golden haze, each note a fleeting echo of endless, serene afternoons drifting through an open window."
+  ],
+  "english_keywords": [
+    [
+      "nostalgia",
+      "serenity",
+      "dreamy"
+    ],
+    [
+      "nostalgia",
+      "serene",
+      "dreamy"
+    ]
+  ],
+  "recommended_songs": [
+    [],
+    []
+  ],
+  "session_end": "2025-11-18 19:48:47"
+}
