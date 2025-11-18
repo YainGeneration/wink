@@ -20,7 +20,6 @@ const GlobalStyle = createGlobalStyle`
     html, body {
         width: 100%;
         height: 100%;
-        font-family: 'Pretendard';
         background-color: ${({ theme }) => theme.colors.white};
         display: flex;
         justify-content: center;

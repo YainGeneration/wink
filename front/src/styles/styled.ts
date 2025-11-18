@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import {flexAllCenter, typography } from './common.js';
 import { NavLink } from 'react-router-dom';
 
-const S = {};
+const S: any = {};
 
 
 S.Heading1 = styled.div`
@@ -26,6 +26,8 @@ S.Caption = styled.div`
 S.Smalltext = styled.div`
     ${typography.st}
 `;
-
+S.Padding16px = styled.div`
+    padding: 16px;
+`;
 
 export default S;

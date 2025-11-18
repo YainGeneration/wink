@@ -10,31 +10,43 @@ import AppLayout from "./layouts/AppLayout";
 import BaseLayout from "./layouts/BaseLayout";
 
 function App(){
-  const [showSplash, setShowSplash] = useState(false);
+  const [showSplash, setShowSplash] = useState(
+    () => !sessionStorage.getItem("splashSeen")
+  );
   const [isChecking, setIsChecking] = useState(true);
   const [showOverlay, setShowOverlay] = useState(false);
 
+  // useEffect(() => {
+  //   // 스플래시를 이미 본 적 있는지 확인
+  //   const splashSeen = sessionStorage.getItem("splashSeen");
+
+  //   if (!splashSeen) {
+  //     setShowSplash(true);
+  //     // 2~3초 후 스플래시 닫기
+  //     const timer = setTimeout(() => {
+  //       setShowSplash(false);
+  //       sessionStorage.setItem("splashSeen", "true");
+  //       setIsChecking(false);
+  //     }, 5000);
+  //     return () => clearTimeout(timer);
+  //   } else {
+  //     // 이미 본 적 있다면 바로 false로
+  //     setShowSplash(false);
+  //     setIsChecking(false);
+  //   }
+  // }, []);
+
   useEffect(() => {
-    // 스플래시를 이미 본 적 있는지 확인
-    const splashSeen = sessionStorage.getItem("splashSeen");
+    if (!showSplash) return;
 
-    if (!splashSeen) {
-      setShowSplash(true);
-      // 2~3초 후 스플래시 닫기
-      const timer = setTimeout(() => {
-        setShowSplash(false);
-        sessionStorage.setItem("splashSeen", "true");
-        setIsChecking(false);
-      }, 5000);
-      return () => clearTimeout(timer);
-    } else {
-      // 이미 본 적 있다면 바로 false로
+    const timer = setTimeout(() => {
       setShowSplash(false);
-      setIsChecking(false);
-    }
-  }, []);
+      sessionStorage.setItem("splashSeen", "true");
+    }, 5000);
 
-    if (isChecking) return null;
+    return () => clearTimeout(timer);
+  }, [showSplash]);
+
 
   return (
     <BrowserRouter>
@@ -42,11 +54,15 @@ function App(){
         <GlobalStyle />
         {/* AppLayout으로 모든 페이지 감싸기 */}
         <AppLayout backgroundColor="#fff">
-          {/* ✅ BaseLayout: StatusBar, HomeIndicator, Overlay 포함 */}
+          {/* BaseLayout: StatusBar, HomeIndicator, Overlay 포함 */}
           <BaseLayout showOverlay={showOverlay}>
             <AnimatePresence mode="wait">
               {showSplash ? (
-                <WinkSplash onDone={() => setShowSplash(false)} stepMs={1200} />
+                <WinkSplash onDone={
+                  () => {
+                    setShowSplash(false);
+                    sessionStorage.setItem("splashSeen", "true");
+                }} stepMs={1200} />
               ) : (
                 <AppRoutes setShowOverlay={setShowOverlay} />
               )}
