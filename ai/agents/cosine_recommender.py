@@ -47,9 +47,9 @@ except ImportError:
 # Cosine Recommender
 # --------------------------
 try:
-    from cosine_similarity_recommend import recommend
+    from cosine_similarity_recommend import recommend, get_album_cover_url, get_preview_url
 except ImportError:
-    print("❌ 'spotify/cosine_recommender.py' 파일을 찾을 수 없습니다.")
+    print("❌ 'spotify/cosine_similarity_recommend.py' 파일을 찾을 수 없습니다.")
     exit()
 
 # =========================================================
@@ -253,11 +253,25 @@ def run_agent_pipeline(korean_text="", image_path=""):
     recommended_songs_df = recommend(top_k=5)
 
     recommended_songs = recommended_songs_df[[
-        "id", #수정
+        "id", 
         "track_name",
         "artist_name",
         "recommend_score"
     ]].to_dict(orient="records")
+    
+    def make_embed_url(track_id):
+        return f"https://open.spotify.com/embed/track/{track_id}"
+    
+    for song in recommended_songs:
+        track_id = song["id"]
+
+        # 앨범 커버
+        song["album_cover_url"] = get_album_cover_url(track_id)
+
+        # preview_url
+        song["preview_url"] = get_preview_url(track_id)
+        
+        song["spotify_embed_url"] = make_embed_url(track_id)
 
     # ----------------------------------------------------
     # STEP 4: 방금 저장된 마지막 요소의 recommended_songs만 수정 (append 하지 않음)
