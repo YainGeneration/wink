@@ -2,28 +2,70 @@
   "session_id": "918d97",
   "session_start": "2025-11-18 21:59:55",
   "input_korean": [
-    "겨울밤 듣고싶은 조용 잔잔한 발라드"
+    "겨울밤 듣고싶은 조용 잔잔한 발라드",
+    "더 잔잔한 노래로 추천해줘"
   ],
   "input_image": [
+    "/Users/eunjung/Desktop/wink/ai/images/test3.jpg",
     "/Users/eunjung/Desktop/wink/ai/images/test3.jpg"
   ],
   "english_text_from_agent1": [
-    "A quiet and soft winter ballad"
+    "A quiet and soft winter ballad",
+    "Please recommend it with a softer song."
   ],
   "english_caption_from_agent2": [
-    "The image captures a serene cityscape at dusk, with the silhouette of a bridge overlooking buildings and the peaceful ambiance of the evening sky."
+    "The image captures a serene cityscape at dusk, with the silhouette of a bridge overlooking buildings and the peaceful ambiance of the evening sky.",
+    "The image portrays a serene and picturesque night scene in a city, with the silhouette of the historic buildings, bridges, and streets creating an inviting ambiance, as the sky transitions from day to night."
   ],
   "merged_sentence": [
-    "A quiet and soft winter ballad The image captures a serene cityscape at dusk, with the silhouette of a bridge overlooking buildings and the peaceful ambiance of the evening sky."
+    "A quiet and soft winter ballad The image captures a serene cityscape at dusk, with the silhouette of a bridge overlooking buildings and the peaceful ambiance of the evening sky.",
+    "Please recommend it with a softer song. The image portrays a serene and picturesque night scene in a city, with the silhouette of the historic buildings, bridges, and streets creating an inviting ambiance, as the sky transitions from day to night."
   ],
   "english_keywords": [
     [
       "winter ballad",
       "serene",
       "peaceful"
+    ],
+    [
+      "serene",
+      "ambient",
+      "night"
     ]
   ],
   "recommended_songs": [
-    []
+    [],
+    [
+      {
+        "genre_tags": "ambient",
+        "path": "39/979839.mp3",
+        "track_id": "track_0979839",
+        "mood_tags": "background\tcalm\tmeditative\trelaxing"
+      },
+      {
+        "genre_tags": "ambient",
+        "path": "46/979846.mp3",
+        "track_id": "track_0979846",
+        "mood_tags": "background\tcalm\tmeditative\trelaxing"
+      },
+      {
+        "track_id": "track_0979850",
+        "genre_tags": "ambient",
+        "mood_tags": "background\tcalm\tmeditative\trelaxing",
+        "path": "50/979850.mp3"
+      },
+      {
+        "genre_tags": "ambient",
+        "mood_tags": "background\tcalm\tmeditative\trelaxing",
+        "track_id": "track_0979863",
+        "path": "63/979863.mp3"
+      },
+      {
+        "genre_tags": "ambient",
+        "path": "68/979868.mp3",
+        "track_id": "track_0979868",
+        "mood_tags": "background\tcalm\tmeditative\trelaxing"
+      }
+    ]
   ]
 }

@@ -54,7 +54,7 @@ SAVE_DIR = "agents/keywords"
 os.makedirs(SAVE_DIR, exist_ok=True)
 
 # =========================================================
-# 3. [Agent 3-1] 두 영어 문장 합치기 (Ollama Gemma3)
+# 3. [Agent 3-1] 두 영어 문장 합치기
 # =========================================================
 def rewrite_combined_sentence(text1: str, text2: str, full_history: str) -> str:    
     new_input_sentence = f"{text1} {text2}".strip()

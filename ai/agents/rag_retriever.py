@@ -9,6 +9,7 @@ import os
 from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 import json
+import requests
 
 # =========================================================
 # 1. 설정 (DB 구축 스크립트와 동일해야 함)
@@ -88,16 +89,82 @@ def get_song_recommendations(english_keywords: list[str], top_k: int = 5) -> lis
         # 3. LangChain RAG 검색 (유사도 검색)
         #    (LangChain이 내부적으로 query_text를 임베딩하여 DB와 비교)
         results = vector_db.similarity_search(query_text, k=top_k)
+        raw_recommendations = [doc.metadata for doc in results]
         
         # 4. 결과에서 메타데이터만 추출
-        recommendations = [doc.metadata for doc in results]
+        # recommendations = [doc.metadata for doc in results]
+        enriched = [enrich_song_metadata(item) for item in raw_recommendations]
         
-        print(f"   -> Found {len(recommendations)} recommendations.")
-        return recommendations
+        return enriched
+    
+    except Exception as e:
+        print(f"🔥 [RAG] Error during similarity search: {e}")
+        return []
+
+        
+        # print(f"   -> Found {len(recommendations)} recommendations.")
+        # return recommendations
 
     except Exception as e:
         print(f"🔥 [RAG] Error during similarity search: {e}")
         return []
+    
+    
+# jamendo API 트랙 정보 가져오기
+def get_jamendo_track_info(track_id: str) -> dict:
+    """
+    Jamendo Public API로 track_id 정보를 조회한다.
+    album_image, artist_image, audio stream URL 등을 가져온다.
+    """
+
+    url = (
+        "https://api.jamendo.com/v3.0/tracks/"
+        f"?client_id={JAMENDO_CLIENT_ID}"
+        f"&id={track_id}"
+        "&include=musicinfo+stats+lyrics+images"
+    )
+
+    try:
+        res = requests.get(url, timeout=10).json()
+        results = res.get("results", [])
+        if not results:
+            return {
+                "album_image": None,
+                "artist_image": None,
+                "audio": None,
+                "album_name": None,
+                "duration": None
+            }
+        track = results[0]
+        return {
+            "album_image": track.get("album_image"),
+            "artist_image": track.get("artist_image"),
+            "audio": track.get("audio"),
+            "audiodownload": track.get("audiodownload"),
+            "album_name": track.get("album_name"),
+            "duration": track.get("duration"),
+        }
+    except:
+        return {
+            "album_image": None,
+            "artist_image": None,
+            "audio": None,
+            "album_name": None,
+            "duration": None
+        }
+        
+#
+def enrich_song_metadata(song_item: dict) -> dict:
+    """
+    RAG 검색 결과(song_item)에 Jamendo API 정보 추가
+    """
+    track_id = str(song_item.get("track_id"))
+    jamendo_info = get_jamendo_track_info(track_id)
+    return {
+        **song_item,
+        **jamendo_info
+    }
+
 
 # =========================================================
 # 4. 테스트 실행
