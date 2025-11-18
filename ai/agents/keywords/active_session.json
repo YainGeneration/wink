@@ -14,6 +14,8 @@
     "비 오는 날 잔잔한 노래 추천해줘",
     "비 오는 날 잔잔한 노래 추천해줘",
     "비 오는 날 잔잔한 노래 추천해줘",
+    "비 오는 날 잔잔한 노래 추천해줘",
+    "비 오는 날 잔잔한 노래 추천해줘",
     "비 오는 날 잔잔한 노래 추천해줘"
   ],
   "input_image": [
@@ -29,11 +31,15 @@
     "",
     "",
     "",
-    ""
+    "",
+    "",
+    "http://localhost:5001/static/uploads/2025-10-13_7.09.49.png"
   ],
   "english_text_from_agent1": [
     "She wanted to hear the night view of Paris and enjoy a great pop song.",
     "Is there a more romantic song?",
+    "I would like to recommend a song for a rainy day.",
+    "I would like to recommend a song for a rainy day.",
     "I would like to recommend a song for a rainy day.",
     "I would like to recommend a song for a rainy day.",
     "I would like to recommend a song for a rainy day.",
@@ -59,11 +65,15 @@
     "",
     "",
     "",
+    "",
+    "",
     ""
   ],
   "merged_sentence": [
     "She wanted to hear the night view of Paris and enjoy a great pop song.",
     "Is there a more romantic song? As twilight descends, the city glows with warm lights, revealing a beautiful panorama of architecture, bridges, and a prominent tower rising above the urban landscape, creating a peaceful and enchanting atmosphere.",
+    "I would like to recommend a song for a rainy day.",
+    "I would like to recommend a song for a rainy day.",
     "I would like to recommend a song for a rainy day.",
     "I would like to recommend a song for a rainy day.",
     "I would like to recommend a song for a rainy day.",
@@ -135,6 +145,16 @@
     [
       "melancholy",
       "cozy",
+      "reflective"
+    ],
+    [
+      "melancholy",
+      "cozy",
+      "reflective"
+    ],
+    [
+      "melancholy",
+      "peaceful",
       "reflective"
     ],
     [
@@ -508,6 +528,70 @@
         "track_name": "Chain Stores",
         "artist_name": "Bill Burr",
         "recommend_score": 3.665554261876919
+      }
+    ],
+    [
+      {
+        "id": "2oAPUnBerGoshpD7ueqwJW",
+        "track_name": "Jimi",
+        "artist_name": "Slightly Stoopid",
+        "recommend_score": 3.9705332454815707
+      },
+      {
+        "id": "0NTv0rd71ormOyAcuWeRQ7",
+        "track_name": "Office People (And A Perfectly Good Font Joke)",
+        "artist_name": "Christian Finnegan",
+        "recommend_score": 3.78786121587611
+      },
+      {
+        "id": "3aETJQJhSMgJP7370A9pGZ",
+        "track_name": "What Are You, A Fag",
+        "artist_name": "Bill Burr",
+        "recommend_score": 3.7589943944361752
+      },
+      {
+        "id": "4zwHUFfiBp8qLlSfh4POmu",
+        "track_name": "Abeja",
+        "artist_name": "Mndsgn",
+        "recommend_score": 3.7155928259914774
+      },
+      {
+        "id": "1CkvIwNxysMq5u3hfLnoe6",
+        "track_name": "Chain Stores",
+        "artist_name": "Bill Burr",
+        "recommend_score": 3.6385475807986287
+      }
+    ],
+    [
+      {
+        "id": "2oAPUnBerGoshpD7ueqwJW",
+        "track_name": "Jimi",
+        "artist_name": "Slightly Stoopid",
+        "recommend_score": 3.938661686418378
+      },
+      {
+        "id": "0NTv0rd71ormOyAcuWeRQ7",
+        "track_name": "Office People (And A Perfectly Good Font Joke)",
+        "artist_name": "Christian Finnegan",
+        "recommend_score": 3.757763321242612
+      },
+      {
+        "id": "3aETJQJhSMgJP7370A9pGZ",
+        "track_name": "What Are You, A Fag",
+        "artist_name": "Bill Burr",
+        "recommend_score": 3.728878539466337
+      },
+      {
+        "id": "4zwHUFfiBp8qLlSfh4POmu",
+        "track_name": "Abeja",
+        "artist_name": "Mndsgn",
+        "recommend_score": 3.683441778477917
+      },
+      {
+        "id": "1CkvIwNxysMq5u3hfLnoe6",
+        "track_name": "Chain Stores",
+        "artist_name": "Bill Burr",
+        "recommend_score": 3.609612792374884
       }
     ]
   ]
