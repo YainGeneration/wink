@@ -5,7 +5,8 @@ import java.util.List;
 
 @Data
 public class ChatStartSpaceRequest {
-    private String imageUrl;
+    private List<String> imageBase64;
+
 
     private Location location;
     private List<NearbyMusic> nearbyMusic;
