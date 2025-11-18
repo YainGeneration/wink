@@ -7,5 +7,5 @@ public class SendMessageRequest {
     private Long sessionId;
     private String sender;
     private String text;
-    private String imageUrl;
+    private String imageBase64;
 }

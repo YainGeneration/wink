@@ -1,15 +1,16 @@
 # server.py
 # -*- coding: utf-8 -*-
 """
-Flask API for AI Recommendation
-- Agent3 통합 파이프라인(run_agent_pipeline) 직접 호출
-- Spring Boot (http://localhost:8080) → Flask (http://127.0.0.1:5001) 연결용
-- 이미지 업로드 엔드포인트 추가 (/api/upload)
+Flask API for AI Recommendation (Base64 전용)
+- Spring Boot → Flask
+- Base64 이미지 + 텍스트 입력
+- URL 기반 업로드/정적 파일 기능은 삭제됨
 """
 
-from flask import Flask, request, jsonify, send_from_directory
-import sys, os, json
-from werkzeug.utils import secure_filename
+from flask import Flask, request, jsonify
+import sys, os, json, base64
+from PIL import Image
+from io import BytesIO
 
 # ===== 경로 설정 =====
 sys.path.append(os.path.dirname(__file__))
@@ -19,48 +20,22 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "agents"))
 try:
     from cosine_recommender import run_agent_pipeline
 except ImportError as e:
-    print("❌ agent3_keywordExtractor.py 불러오기 실패:", e)
+    print("❌ cosine_recommender.py 불러오기 실패:", e)
     exit()
 
 # ===== Flask 설정 =====
 app = Flask(__name__)
 
-# ===== 업로드 폴더 설정 =====
-UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "static", "uploads")
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
-
-def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-# ===== 이미지 업로드 API =====
-@app.route("/api/upload", methods=["POST"])
-def upload_image():
-    """
-    이미지 파일 업로드 → Flask 서버에 저장 → 접근 가능한 URL 반환
-    """
-    if "file" not in request.files:
-        return jsonify({"error": "file field missing"}), 400
-
-    file = request.files["file"]
-    if file.filename == "":
-        return jsonify({"error": "no selected file"}), 400
-
-    if not allowed_file(file.filename):
-        return jsonify({"error": "unsupported file type"}), 400
-
-    filename = secure_filename(file.filename)
-    save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    file.save(save_path)
-
-    # Flask 정적 파일 접근 URL 생성
-    file_url = f"http://localhost:5001/static/uploads/{filename}"
-
-    print(f"📸 업로드 완료: {file_url}")
-    return jsonify({"url": file_url}), 200
+# ===== Base64 → PIL Image 변환 함수 =====
+def decode_base64_to_image(base64_str):
+    try:
+        img_bytes = base64.b64decode(base64_str)
+        img = Image.open(BytesIO(img_bytes))
+        return img
+    except Exception as e:
+        print(f"❌ Base64 이미지 디코딩 실패: {e}")
+        return None
 
 
 # ===== AI 추천 API =====
@@ -75,24 +50,31 @@ def recommend():
         session_id = data.get("sessionId", "")
         topic = data.get("topic", "")
         korean_text = data.get("inputText", "")
-        image_urls = data.get("imageUrls", [])
+        image_base64 = data.get("imageBase64", None)
 
-        print(f"\n🚀 [Flask] Received request from Spring (session={session_id})")
-        print(f"🗣️  Text: {korean_text}")
-        print(f"🖼️  Images: {image_urls}")
+        print(f"\n🚀 [Flask] Received request (session={session_id})")
+        print(f"🗣️ Text: {korean_text}")
 
-        # 이미지 경로 1개만 전달 (여러 개면 첫 번째)
-        image_path = image_urls[0] if image_urls else ""
+        # === Base64 이미지 디코딩 ===
+        img_object = None
+        if image_base64:
+            img_object = decode_base64_to_image(image_base64)
+            if img_object:
+                print("🖼️ Base64 이미지 디코딩 성공")
+            else:
+                print("⚠️ Base64 이미지 디코딩 실패 → 이미지 없이 진행")
 
-        # --- Agent3 파이프라인 실행 ---
-        result = run_agent_pipeline(korean_text=korean_text, image_path=image_path)
+        # ===== Agent 파이프라인 실행 =====
+        result = run_agent_pipeline(
+            korean_text=korean_text,
+            image=img_object  # 이미지 객체 전달
+        )
 
-        # --- 결과에서 필요한 항목 정리 ---
         english_keywords = result.get("english_keywords", [])
         recommended_songs = result.get("recommended_songs", [])
         merged_sentence = result.get("merged_sentence", "")
 
-        # --- 응답 JSON 생성 ---
+        # ===== 응답 JSON =====
         response_data = {
             "sessionId": session_id,
             "topic": topic,
@@ -107,13 +89,11 @@ def recommend():
                     "albumCover": song.get("album_cover") or "",
                     "previewUrl": song.get("preview_url") or "",
                 }
-                for song in result.get("recommended_songs", [])
+                for song in recommended_songs
             ],
         }
 
-        print(f"✅ [Flask] 파이프라인 완료, 키워드={english_keywords}")
-        print(f"🎵 추천 결과: {[s.get('track_name') for s in result.get('recommended_songs', [])]}")
-
+        print(f"🎵 추천 완료: {[s.get('track_name') for s in recommended_songs]}")
         return jsonify(response_data), 200
 
     except Exception as e:
@@ -121,21 +101,45 @@ def recommend():
         return jsonify({"error": str(e)}), 500
 
 
-# ===== 루트 및 헬스체크 =====
+# ===== 이미지 파일 → Base64 변환 API =====
+@app.route("/api/convert-base64", methods=["POST"])
+def convert_base64():
+    """
+    로컬 이미지 파일을 업로드하면 Base64로 변환하여 반환하는 API
+    (Postman 테스트 전용)
+    """
+    if "file" not in request.files:
+        return jsonify({"error": "file field missing"}), 400
+
+    file = request.files["file"]
+
+    if file.filename == "":
+        return jsonify({"error": "no selected file"}), 400
+
+    try:
+        # 파일 내용을 읽어서 Base64로 변환
+        file_bytes = file.read()
+        base64_str = base64.b64encode(file_bytes).decode("utf-8")
+
+        print("📸 Base64 변환 성공")
+        return jsonify({
+            "filename": file.filename,
+            "base64": base64_str
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ===== 헬스체크 =====
 @app.route("/", methods=["GET"])
 def home():
-    return jsonify({"message": "AI Flask Server Running (Agent3 Pipeline)"})
+    return jsonify({"message": "AI Flask Server Running (Base64 Mode)"})
 
 
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok"}), 200
-
-
-# ===== 정적 파일 서빙 (업로드된 이미지 접근용) =====
-@app.route("/static/uploads/<path:filename>")
-def serve_uploaded_file(filename):
-    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
 
 # ===== Flask 실행 =====
