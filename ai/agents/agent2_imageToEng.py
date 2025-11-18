@@ -1,82 +1,67 @@
-
 """
 Agent 2 (Module)
-- Ollama (Gemma3)를 이용한 이미지 캡션 생성을 전담합니다.
+- Ollama (LLaVA)로 이미지 캡션 생성
 """
 
 import os
 import base64
 import requests
-import re  # 👈 후처리를 위한 re 임포트
 
-# =========================================================
-# 1. 설정
-# =========================================================
 OLLAMA_URL = "http://localhost:11434"
-MODEL_NAME = "gemma3:27b" # (Agent 3와 동일한 모델 사용)
+MODEL_NAME = "llava:latest"   
 
-# =========================================================
-# 2. 이미지 캡션 생성 함수 (메인 파이프라인에서 이 함수를 import)
-# =========================================================
 def image_to_english_caption(image_path: str) -> str:
-    """
-    Gemma3 멀티모달 모델을 이용해 이미지 캡션(영문 한 문장)을 생성합니다.
-    """
     if not image_path or not os.path.exists(image_path):
+        print("❌ Image path invalid")
         return ""
     
-    print("🖼️  [Agent 2] Describing image → English caption (Ollama)...")
+    print("🖼️ [Agent 2] Sending image to LLaVA...")
 
-    if not os.path.exists(image_path):
-        print(f"❌ Image not found: {image_path}")
-        return ""
-
+    # 이미지 읽어서 Base64 인코딩
     with open(image_path, "rb") as f:
         image_b64 = base64.b64encode(f.read()).decode("utf-8")
 
-    prompt = (
-        "Describe this image in ONE natural English sentence. "
-        "Focus on the atmosphere, mood, and main objects. "
-        "Do not list elements; write a single complete sentence."
-    )
-
+    # ---------------------------------------------------------
+    # [수정된 부분] Ollama Native API 포맷에 맞게 Payload 변경
+    # ---------------------------------------------------------
     payload = {
         "model": MODEL_NAME,
-        "prompt": prompt,
-        "images": [image_b64],
+        "messages": [
+            {
+                "role": "user",
+                "content": "Describe this image in one natural English sentence focusing on mood and atmosphere.",
+                "images": [image_b64]  # content 리스트가 아니라 별도의 images 키 사용
+            }
+        ],
         "stream": False
     }
 
     try:
-        res = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=120)
-        res.raise_for_status()
-    except requests.exceptions.ConnectionError:
-        print("🚨 Ollama 서버가 꺼져 있습니다. 터미널에서 `ollama serve` 를 실행하세요.")
-        return ""
+        res = requests.post(f"{OLLAMA_URL}/api/chat", json=payload, timeout=90)
+        res.raise_for_status() # 400, 500 에러 발생 시 예외 발생
+        data = res.json()
+        # print("📡 Raw Response:", data) # 디버깅 시 주석 해제
+
     except Exception as e:
-        print(f"🔥 Ollama 요청 실패: {e}")
+        print(f"🔥 Ollama request failed: {e}")
+        if 'res' in locals():
+             print(f"👉 Server replied: {res.text}") # 서버가 보낸 구체적인 에러 메시지 확인
         return ""
 
-    # [수정] 👈 Agent 3와 동일한 후처리 로직 적용
-    raw_response = (res.json().get("response") or "").strip()
-    match = re.search(r'["\'](.*?_*)["\']', raw_response) # 따옴표 안 내용 추출
-    if match:
-        return match.group(1).strip()
-    return raw_response.split('\n')[-1].strip() # 따옴표 없으면 마지막 줄 반환
+    # LLaVA 응답에서 텍스트만 추출
+    message = data.get("message", {})
+    content = message.get("content", "")
 
-# =========================================================
-# 3. 테스트 실행 (독립 실행용)
-# =========================================================
+    caption = content.strip()
+    caption = caption.replace('"', '').replace("'", "").strip()
+
+    return caption
+
+
+# 테스트용
 if __name__ == "__main__":
-    print("\n🖼️  Agent 2 (Module) 테스트")
-    image_path = input("이미지 파일 경로를 입력하세요: ").strip()
-
-    if not image_path:
-        print("❌ 이미지 경로가 비어 있습니다.")
-    else:
-        try:
-            caption = image_to_english_caption(image_path)
-            print("\n🌍 생성된 영어 문장:")
-            print(caption)
-        except Exception as e:
-            print(f"\n⚠️ 오류 발생: {e}")
+    path = input("이미지 파일 경로 입력: ").strip()
+    # 경로에 따옴표가 섞여 들어올 경우 제거
+    path = path.replace("'", "").replace('"', "").strip()
+    
+    print("🌍 Generated caption:", image_to_english_caption(path))
