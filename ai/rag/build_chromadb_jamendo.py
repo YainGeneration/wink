@@ -18,7 +18,7 @@ from langchain_core.documents import Document
 # 1. 설정
 # =========================================================
 # 입력 클린 데이터
-INPUT_CSV = "jamendo/data/cleaned_merged_tags.csv"
+INPUT_CSV = "jamendo/data/final_jamendo_metadata.csv"
 # ChromaDB를 저장할 폴더
 DB_PERSIST_DIR = "rag/chroma_db"
 # ChromaDB 컬렉션 이름 (테이블 이름과 유사)
@@ -47,16 +47,25 @@ def load_and_prepare_documents(csv_path: str) -> list[Document]:
     
     for _, row in tqdm(df.iterrows(), total=df.shape[0]):
         # 1. 임베딩될 텍스트 (page_content)
-        #    RAG가 검색할 대상이 되는 텍스트 (장르 + 무드)
-        content_text = f"Genre: {row['genre_tags']}. Mood: {row['mood_tags']}".strip()
+        #    RAG가 검색할 대상이 되는 텍스트 (장르 + 무드) # 악기 넣을까 말까
+        content_text = (
+            f"Genre: {row['genre_tags']}. "
+            f"Mood: {row['mood/theme_tags']}"
+        ).strip()
         
         # 2. 검색 후 반환될 정보 (metadata)
         #    RAG가 검색한 후, 우리가 실제로 사용할 노래 정보
         metadata = {
-            "track_id": row['TRACK_ID'],
-            "path": row['PATH'],
-            "genre_tags": row['genre_tags'],
-            "mood_tags": row['mood_tags']
+            "track_id": row["TRACK_ID"],
+            "path": row["PATH"],
+            "genre_tags": row["genre_tags"],
+            "mood_tags": row["mood/theme_tags"],
+            "instrument_tags": row["instrument_tags"],
+            "track_name": row["TRACK_NAME"],
+            "artist_name": row["ARTIST_NAME"],
+            "album_name": row["ALBUM_NAME"],
+            "releasedate": row["RELEASEDATE"],
+            "url": row['URL']
         }
         
         # LangChain Document 객체 생성

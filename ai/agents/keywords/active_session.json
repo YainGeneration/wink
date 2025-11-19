@@ -1,151 +1,243 @@
 {
-  "session_id": "6aa4f8",
-  "session_start": "2025-11-19 11:39:04",
+  "session_id": "2af629",
+  "session_start": "2025-11-19 21:48:55",
   "input_korean": [
-    "겨울밤 듣고 싶은 조용하고 잔잔한 노래",
-    "겨울밤 조잔잔한 노래"
+    "비 오는 날 듣기 좋잔잔하고 조용한 노래",
+    "그것보다 조금 더 차분한 노래였으면좋겠어.",
+    "이것보다는 조금 더 신나도 돼"
   ],
   "input_image": [
-    "/Users/eunjung/Desktop/wink/ai/images/test7.jpg",
-    "/Users/eunjung/Desktop/wink/ai/images/test7.jpg"
+    "/Users/eunjung/Desktop/wink/ai/images/test5.jpg",
+    "",
+    ""
   ],
   "english_text_from_agent1": [
-    "I want to listen to a quiet and soft song during the winter night.",
-    "Winter night soft song"
+    "Rainy day listening to soft and quiet songs.",
+    "It would be better if it were a slightly calmer song.",
+    "This is much less exciting than I would be even if I were happier."
   ],
   "english_caption_from_agent2": [
-    "The image captures the quiet charm of a dimly lit nighttime street, where the solitary light post casts a gentle glow on the cobblestone pathway, enhancing the serene and peaceful ambiance.",
-    "The image portrays a tranquil nighttime scene, with the quiet street lights casting a warm glow down the empty road, which stretches into the distance under a dark sky."
+    "The image depicts a rainy city street at night, with a car passing by and the scene viewed through a window with raindrops outside.",
+    "",
+    ""
   ],
   "merged_sentence": [
-    "I want to listen to a quiet and soft song during the winter night. The image captures the quiet charm of a dimly lit nighttime street, where the solitary light post casts a gentle glow on the cobblestone pathway, enhancing the serene and peaceful ambiance.",
-    "Winter night soft song The image portrays a tranquil nighttime scene, with the quiet street lights casting a warm glow down the empty road, which stretches into the distance under a dark sky."
+    "Rainy day listening to soft and quiet songs. The image depicts a rainy city street at night, with a car passing by and the scene viewed through a window with raindrops outside.",
+    "It would be better if it were a slightly calmer song.",
+    "This is much less exciting than I would be even if I were happier."
   ],
   "english_keywords": [
     [
+      "rainy day",
       "ambient",
-      "peaceful",
-      "winter"
+      "melancholy"
     ],
     [
-      "tranquil",
-      "night",
-      "ambient"
+      "calm",
+      "relaxing",
+      "mellow"
+    ],
+    [
+      "melancholy",
+      "calm",
+      "understated"
     ]
   ],
   "recommended_songs": [
     [
       {
-        "track_id": "track_1352999",
-        "path": "99/1352999.mp3",
-        "mood_tags": "ambiental",
-        "genre_tags": "ambient\tatmospheric\tchillout",
-        "album_image": null,
-        "artist_image": null,
-        "audio": null,
-        "album_name": null,
-        "duration": null
+        "releasedate": "2011-09-10",
+        "artist_name": "CARMELO CAMERA",
+        "mood_tags": "relaxing",
+        "genre_tags": "ambient",
+        "path": "70/840570.mp3",
+        "album_name": "VISIONS",
+        "track_name": "Summer dream",
+        "track_id": "track_0840570",
+        "instrument_tags": "",
+        "similarity_score": 0.5451834457041504
       },
       {
-        "mood_tags": "ambiental",
-        "path": "10/1393010.mp3",
-        "genre_tags": "ambient\tatmospheric\tchillout",
-        "track_id": "track_1393010",
-        "album_image": null,
-        "artist_image": null,
-        "audio": null,
-        "album_name": null,
-        "duration": null
+        "track_id": "track_1168014",
+        "album_name": "For Your Pleasure Vol.1 [2014]",
+        "path": "14/1168014.mp3",
+        "track_name": "Finger Ballad",
+        "releasedate": "2014-11-19",
+        "artist_name": "JoosTVD",
+        "instrument_tags": "acousticbassguitar acousticguitar bass brass drums electricguitar guitar keyboard orchestra piano",
+        "mood_tags": "ballad melancholic sad",
+        "genre_tags": "ambient atmospheric pop soundtrack",
+        "similarity_score": 0.5396943240628312
       },
       {
-        "mood_tags": "ambiental\tdark",
-        "genre_tags": "ambient\tatmospheric\tchillout",
-        "track_id": "track_1348602",
-        "path": "02/1348602.mp3",
-        "album_image": null,
-        "artist_image": null,
-        "audio": null,
-        "album_name": null,
-        "duration": null
+        "album_name": "white",
+        "artist_name": "kate in space",
+        "path": "21/1314121.mp3",
+        "genre_tags": "ambient atmospheric",
+        "mood_tags": "melodic sad",
+        "releasedate": "2016-02-01",
+        "instrument_tags": "",
+        "track_id": "track_1314121",
+        "track_name": "I saw youre smile",
+        "similarity_score": 0.5383223788458316
       },
       {
-        "path": "35/1340335.mp3",
-        "mood_tags": "calm",
-        "genre_tags": "ambient\tatmospheric\texperimental",
-        "track_id": "track_1340335",
-        "album_image": null,
-        "artist_image": null,
-        "audio": null,
-        "album_name": null,
-        "duration": null
+        "artist_name": "Sideway",
+        "album_name": "Interlude",
+        "mood_tags": "documentary emotional melancholic sad",
+        "instrument_tags": "piano strings",
+        "track_name": "Look To The Sea",
+        "genre_tags": "ambient atmospheric soundtrack",
+        "releasedate": "2017-02-03",
+        "path": "37/1420637.mp3",
+        "track_id": "track_1420637",
+        "similarity_score": 0.5169705044758238
       },
       {
-        "path": "53/1320953.mp3",
-        "genre_tags": "ambient\tchillout",
-        "track_id": "track_1320953",
-        "mood_tags": "summer",
-        "album_image": null,
-        "artist_image": null,
-        "audio": null,
-        "album_name": null,
-        "duration": null
+        "mood_tags": "calm hopeful relaxing",
+        "releasedate": "2016-07-19",
+        "artist_name": "Sideway",
+        "instrument_tags": "piano strings",
+        "genre_tags": "ambient atmospheric soundtrack",
+        "track_name": "Believe in Something",
+        "album_name": "Soundtrack Moods",
+        "path": "81/1361381.mp3",
+        "track_id": "track_1361381",
+        "similarity_score": 0.5126204837063935
       }
     ],
     [
       {
-        "track_id": "track_1348602",
-        "mood_tags": "ambiental\tdark",
-        "path": "02/1348602.mp3",
-        "genre_tags": "ambient\tatmospheric\tchillout",
-        "album_image": null,
-        "artist_image": null,
-        "audio": null,
-        "album_name": null,
-        "duration": null
+        "artist_name": "Christoph Schade Composer",
+        "instrument_tags": "",
+        "url": "http://www.jamendo.com/track/1250197",
+        "releasedate": "2015-07-25",
+        "track_id": "track_1250197",
+        "album_name": "Background Music Loops",
+        "mood_tags": "calm relaxing",
+        "path": "97/1250197.mp3",
+        "track_name": "Atmo Relaxation (Loop)",
+        "genre_tags": "ambient chillout",
+        "similarity_score": 0.7302227107711657
       },
       {
-        "mood_tags": "ambiental",
-        "genre_tags": "ambient\tatmospheric\tdarkambient",
-        "path": "91/1372091.mp3",
-        "track_id": "track_1372091",
-        "album_image": null,
-        "artist_image": null,
-        "audio": null,
-        "album_name": null,
-        "duration": null
+        "path": "49/343649.mp3",
+        "url": "http://www.jamendo.com/track/343649",
+        "genre_tags": "ambient",
+        "artist_name": "Habuhiah",
+        "releasedate": "2009-05-11",
+        "track_id": "track_0343649",
+        "mood_tags": "calm relaxing",
+        "instrument_tags": "",
+        "track_name": "Tribalistique",
+        "album_name": "Tribalistique",
+        "similarity_score": 0.7129017221896415
       },
       {
-        "path": "90/1118090.mp3",
-        "track_id": "track_1118090",
-        "mood_tags": "meditative\tslow",
-        "genre_tags": "ambient\tdarkambient\texperimental",
-        "album_image": null,
-        "artist_image": null,
-        "audio": null,
-        "album_name": null,
-        "duration": null
+        "genre_tags": "ambient",
+        "releasedate": "2012-11-15",
+        "mood_tags": "calm relaxing",
+        "instrument_tags": "synthesizer",
+        "track_id": "track_0979836",
+        "track_name": "Beryl",
+        "album_name": "Elemental Volume 1",
+        "url": "http://www.jamendo.com/track/979836",
+        "path": "36/979836.mp3",
+        "artist_name": "Ken Elkinson",
+        "similarity_score": 0.7129017221896415
       },
       {
-        "mood_tags": "dark",
-        "genre_tags": "ambient\tchillout",
-        "path": "15/1411915.mp3",
-        "track_id": "track_1411915",
-        "album_image": null,
-        "artist_image": null,
-        "audio": null,
-        "album_name": null,
-        "duration": null
+        "releasedate": "2016-10-20",
+        "album_name": "Summer Lounge",
+        "instrument_tags": "guitar",
+        "path": "46/1386746.mp3",
+        "artist_name": "Steve Raphael",
+        "track_name": "Sensual Summer Breeze",
+        "url": "http://www.jamendo.com/track/1386746",
+        "genre_tags": "chillout lounge",
+        "mood_tags": "calm relaxing",
+        "track_id": "track_1386746",
+        "similarity_score": 0.7048214746332863
       },
       {
-        "path": "80/1343380.mp3",
-        "track_id": "track_1343380",
-        "mood_tags": "dark",
-        "genre_tags": "ambient\tdowntempo\texperimental",
-        "album_image": null,
-        "artist_image": null,
-        "audio": null,
-        "album_name": null,
-        "duration": null
+        "mood_tags": "calm relaxing soft uplifting",
+        "releasedate": "2007-11-26",
+        "path": "28/111028.mp3",
+        "artist_name": "Macroform",
+        "genre_tags": "chillout",
+        "instrument_tags": "guitar synthesizer",
+        "album_name": "Your Heart Is A Transceiver",
+        "url": "http://www.jamendo.com/track/111028",
+        "track_name": "Cool Grass",
+        "track_id": "track_0111028",
+        "similarity_score": 0.6790666963333616
+      }
+    ],
+    [
+      {
+        "genre_tags": "classical",
+        "url": "http://www.jamendo.com/track/1251175",
+        "artist_name": "Mark",
+        "instrument_tags": "piano",
+        "track_name": "Apostat",
+        "releasedate": "2015-07-14",
+        "mood_tags": "calm sad",
+        "track_id": "track_1251175",
+        "path": "75/1251175.mp3",
+        "album_name": "Recueil",
+        "similarity_score": 0.4907990825815296
+      },
+      {
+        "artist_name": "Kenny690",
+        "album_name": "Teenager",
+        "releasedate": "2014-09-14",
+        "mood_tags": "calm love",
+        "instrument_tags": "guitar",
+        "track_name": "Slavna's Courage",
+        "genre_tags": "",
+        "path": "80/1154280.mp3",
+        "url": "http://www.jamendo.com/track/1154280",
+        "track_id": "track_1154280",
+        "similarity_score": 0.4585267959637325
+      },
+      {
+        "path": "41/11841.mp3",
+        "instrument_tags": "guitar",
+        "artist_name": "Fadièse",
+        "track_name": "musiquette",
+        "genre_tags": "classical contemporary",
+        "url": "http://www.jamendo.com/track/11841",
+        "releasedate": "2006-04-23",
+        "mood_tags": "calm melodic relaxing soft",
+        "track_id": "track_0011841",
+        "album_name": "Pomponette",
+        "similarity_score": 0.45437953008810045
+      },
+      {
+        "path": "67/38767.mp3",
+        "album_name": "Pomponette II, le retour",
+        "url": "http://www.jamendo.com/track/38767",
+        "mood_tags": "calm melodic relaxing soft",
+        "track_name": "Poupine",
+        "track_id": "track_0038767",
+        "genre_tags": "classical contemporary",
+        "instrument_tags": "guitar",
+        "releasedate": "2007-03-16",
+        "artist_name": "Fadièse",
+        "similarity_score": 0.45437953008810045
+      },
+      {
+        "track_id": "track_1210607",
+        "album_name": "Fragile as Crystal",
+        "releasedate": "2015-03-23",
+        "track_name": "Monotony of Rain",
+        "url": "http://www.jamendo.com/track/1210607",
+        "instrument_tags": "piano",
+        "path": "07/1210607.mp3",
+        "mood_tags": "meditative melancholic sad",
+        "artist_name": "Aufklarung",
+        "genre_tags": "atmospheric chillout classical",
+        "similarity_score": 0.44851808013375416
       }
     ]
   ]

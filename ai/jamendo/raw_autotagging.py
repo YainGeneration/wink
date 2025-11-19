@@ -17,7 +17,7 @@ print("\n--- Jamendo 데이터 파싱 + 병합 시작 ---")
 # 1. autotagging.tsv 안전 파싱
 # ============================================================
 rows = []
-tag_pattern = re.compile(r"(genre---\S+|instrument---\S+)")
+tag_pattern = re.compile(r"(genre---\S+|instrument---\S+|mood/theme---\S+)")
 
 with open(FILE_AUTO, "r", encoding="utf-8") as f:
     for line in f:
