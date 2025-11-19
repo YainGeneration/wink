@@ -10,6 +10,7 @@ import AppLayout from "./layouts/AppLayout";
 import BaseLayout from "./layouts/BaseLayout";
 import { MusicPlayerProvider } from "./components/MusicPlayerContext";
 import GlobalAudio from "./components/GlobalAudio";
+import {APIProvider} from '@vis.gl/react-google-maps';
 
 function App(){
   const [showSplash, setShowSplash] = useState(
@@ -57,7 +58,8 @@ function App(){
           <GlobalStyle />
           <GlobalAudio />
           {/* AppLayout으로 모든 페이지 감싸기 */}
-          <AppLayout backgroundColor="#fff">
+          {/* 여기 backgroundColor 수정 필요. 페이지에 맞춰 바뀔 수 있어야 함 */}
+          <AppLayout>
             {/* BaseLayout: StatusBar, HomeIndicator, Overlay 포함 */}
             <BaseLayout showOverlay={showOverlay}>
               <AnimatePresence mode="wait">

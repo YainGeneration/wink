@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import statusBar from "../assets/ui/StatusBar.svg";
 import homeIndicator from "../assets/ui/HomeIndicator.svg";
 import theme from "../styles/theme";
@@ -12,14 +12,19 @@ import wave from "../assets/icons/wave.svg";
 import upWhite from "../assets/icons/arrow-up-white.svg";
 import home from "../assets/icons/home.svg"
 import homeFill from "../assets/icons/home-fill.svg"
+import homeWhite from "../assets/icons/home-white.svg"
 import mapPin from "../assets/icons/map-pin.svg"
 import mapPinFill from "../assets/icons/map-pin-fill.svg"
+import mapPinWhite from "../assets/icons/map-pin-white.svg"
 import headphones from "../assets/icons/headphones.svg"
 import headphonesFill from "../assets/icons/headphones-fill.svg"
+import headphonesWhite from "../assets/icons/headphones-white.svg"
 import dashboard from "../assets/icons/layout-dashboard.svg"
 import dashboardFill from "../assets/icons/layout-dashboard-fill.svg"
+import dashboardWhite from "../assets/icons/layout-dashboard-white.svg"
 import user from "../assets/icons/user.svg"
 import userFill from "../assets/icons/user-fill.svg"
+import userWhite from "../assets/icons/user-white.svg"
 import plusG600 from "../assets/icons/plus-g600.svg"
 import { useLocation, useNavigate } from "react-router-dom"; 
 import { useRef, useState, useEffect, useMemo } from "react";
@@ -32,6 +37,7 @@ import AddPhoto from "../components/BottomSheet/AddPhoto.tsx";
 type Props = {
   children: React.ReactNode;
   showOverlay?: boolean;
+  backgroundColor?: string;
 };
 
 
@@ -136,7 +142,7 @@ const BottomPlayerArea = styled.div`
 `;
 
 // 추가: 탭바 (하단 navigation)
-const TabBar = styled.div`
+const TabBar = styled.div<{ isRecommend: boolean }>`
   height: 78px;
 
   display: flex;
@@ -144,7 +150,10 @@ const TabBar = styled.div`
   align-items: flex-start;
   padding-top: 10px;
 
-  background-color: ${({ theme }) => theme.colors.white};
+  background-color: ${({ isRecommend }) =>
+    isRecommend ? "rgba(255, 255, 255, 0.2)" : theme.colors.white};
+  backdrop-filter: ${({ isRecommend }) =>
+    isRecommend ? "blur(30px)" : "none"};
 `;
 
 // 탭 설정 배열
@@ -153,48 +162,62 @@ const tabs = [
     path: "/home",
     label: "홈",
     icon: home,
-    iconFill: homeFill
+    iconFill: homeFill,
+    iconWhite: homeWhite
   },
   {
     path: "/nearby",
     label: "주변",
     icon: mapPin,
-    iconFill: mapPinFill
+    iconFill: mapPinFill,
+    iconWhite: mapPinWhite
   },
   {
     path: "/recommend",
     label: "추천",
     icon: headphones,
-    iconFill: headphonesFill
+    iconFill: headphonesFill,
+    iconWhite: headphonesWhite
   },
   {
     path: "/story",
     label: "스토리",
     icon: dashboard,
-    iconFill: dashboardFill
+    iconFill: dashboardFill,
+    iconWhite: dashboardWhite
   },
   {
     path: "/my",
     label: "My",
     icon: user,
-    iconFill: userFill
+    iconFill: userFill,
+    iconWhite: userWhite
   }
 ];
 
 
-export default function BaseLayout({ children, showOverlay }: Props) {
+export default function BaseLayout({ children, showOverlay, backgroundColor }: Props) {
   const location = useLocation();
   const navigate = useNavigate();
+  const theme = useTheme();
   const { currentTrack } = useMusicPlayer();
   console.log(currentTrack)
   
   const currentPath = location.pathname;
   const showPlayBar = currentPath === "/home";
+  const isRecommend = location.pathname === "/recommend";
 
   const prefixes = ['/home', '/chat'];
   const isChatMatch = useMemo(() => {
     return prefixes.some(prefix => currentPath.startsWith(prefix));
   }, [currentPath, prefixes]);
+
+  // Header 숨겨야 하는 경로 prefix
+  const hideHeaderPrefixes = ["/nearby", "/recommend", "/story", "/my"];
+  // 현재 경로가 위 3개 중 하나로 시작하면 Header 숨김
+  const hideHeader = hideHeaderPrefixes.some(prefix =>
+    location.pathname.startsWith(prefix)
+  );
 
   const [isSideBarOpen, setSideBarOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -219,7 +242,7 @@ export default function BaseLayout({ children, showOverlay }: Props) {
   return (
     <>
       
-      <LayoutWrap>
+      <LayoutWrap backgroundColor={backgroundColor}>
         <SideBar open={isSideBarOpen} onClose={() => setSideBarOpen(false)} />
         <AddPhoto
           open={addPhotoSheetOpen}
@@ -231,10 +254,11 @@ export default function BaseLayout({ children, showOverlay }: Props) {
           <img src={statusBar} alt="statusBar" />
         </TopBar>
 
-        <div style={{ width: "100%", padding: "16px" }}>
-
-          <DefaultHeader onMenuClick={() => setSideBarOpen(true)} />
-        </div>
+        {!hideHeader && (
+          <div style={{ width: "100%", padding: "16px" }}>
+            <DefaultHeader onMenuClick={() => setSideBarOpen(true)} />
+          </div>
+        )}
 
         <Content>{children}</Content>
 
@@ -355,9 +379,16 @@ export default function BaseLayout({ children, showOverlay }: Props) {
         <BottomPlayerArea>
           {showPlayBar && <PlayBar />}
         
-          <TabBar>
+          <TabBar isRecommend={isRecommend}>
             {tabs.map((tab) => {
               const isActive = location.pathname === tab.path;
+
+              // 아이콘 조건
+              const iconToShow = isRecommend
+                ? tab.iconWhite         // recommend 페이지 → 무조건 흰색 아이콘
+                : isActive
+                ? tab.iconFill          // 일반 페이지 active
+                : tab.icon;             // 일반 페이지 inactive
 
               return (
                 <button
@@ -372,15 +403,18 @@ export default function BaseLayout({ children, showOverlay }: Props) {
                     border: "none",
                   }}
                 >
-                  <img 
+                  {/* <img 
                     src={isActive ? tab.iconFill : tab.icon}  // 아이콘 Fill 적용
                     alt={tab.label}
-                  />
+                  /> */}
+                  <img src={iconToShow} alt={tab.label} />
                   <S.Smalltext
                     style={{
-                      color: isActive
+                      color: isRecommend
+                        ? theme.colors.white                // ✔ recommend page → white text
+                        : isActive
                         ? theme.colors.black
-                        : theme.colors.grayscale.g500
+                        : theme.colors.grayscale.g500,
                     }}
                   >
                     {tab.label}
