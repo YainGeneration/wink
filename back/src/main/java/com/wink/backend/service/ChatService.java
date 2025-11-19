@@ -128,13 +128,14 @@ public class ChatService {
             userMsg.setSession(session);
             userMsg.setSender("user");
             userMsg.setText(req.getInputText());
-            if (req.getImageBase64() != null && !req.getImageBase64().isEmpty()) {
-                userMsg.setImageUrl(String.join(",", req.getImageBase64()));
-            }
+            userMsg.setImageUrl(null);
             messageRepo.save(userMsg);
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 JsonNode root = mapper.readTree(response.getBody());
+
+                String mergedSentence = root.path("mergedSentence").asText("");
+                String interpretedSentence = geminiService.interpretMergedSentence(mergedSentence);
 
                 List<String> keywords = mapper.convertValue(
                         root.path("keywords"),
@@ -145,7 +146,7 @@ public class ChatService {
                 List<AiResponseResponse.Recommendation> recs = new ArrayList<>();
                 for (JsonNode songNode : root.path("recommendations")) {
                     recs.add(AiResponseResponse.Recommendation.builder()
-                            .songId(songNode.has("songId") ? songNode.path("songId").asLong() : null)
+                            .songId(songNode.has("songId") ? songNode.path("songId").asText() : null)
                             .title(songNode.path("title").asText(""))
                             .artist(songNode.path("artist").asText(""))
                             .albumCover(songNode.path("albumCover").asText(""))
@@ -161,6 +162,8 @@ public class ChatService {
                 aiMsg.setText(aiMessage);
                 aiMsg.setKeywordsJson(mapper.writeValueAsString(keywords));
                 aiMsg.setRecommendationsJson(mapper.writeValueAsString(recs));
+                aiMsg.setMergedSentence(mergedSentence);
+                aiMsg.setInterpretedSentence(interpretedSentence);
                 messageRepo.save(aiMsg);
 
                 return AiResponseResponse.builder()
@@ -168,6 +171,8 @@ public class ChatService {
                         .topic(topic)
                         .keywords(keywords)
                         .aiMessage(aiMessage)
+                        .mergedSentence(mergedSentence)
+                        .interpretedSentence(interpretedSentence)
                         .recommendations(recs)
                         .timestamp(LocalDateTime.now())
                         .build();
@@ -429,7 +434,7 @@ public class ChatService {
     private List<AiResponseResponse.Recommendation> extractAllRecommendations(List<ChatMessage> messages) {
         // 중복 제거를 위해 Set을 사용하지만, Recommendation 객체에 equals/hashCode가 구현되어 있어야 제대로 동작했습니다.
         // 여기서는 단순성을 위해 List로 반환하고, 노래 ID로 중복을 제거했습니다.
-        Map<Long, AiResponseResponse.Recommendation> uniqueRecommendations = new HashMap<>();
+        Map<String, AiResponseResponse.Recommendation> uniqueRecommendations = new HashMap<>();
 
         for (ChatMessage msg : messages) {
             if (msg.getRecommendationsJson() != null) {

@@ -9,6 +9,7 @@ Flask API for AI Recommendation (Base64 + LLaVA Image Captioning)
 - Base64 이미지를 /tmp 에 저장 후 Agent2에 파일 경로로 전달
 """
 
+from datetime import datetime
 from flask import Flask, request, jsonify
 import sys, os, json, base64, uuid
 from PIL import Image
@@ -57,7 +58,7 @@ def recommend():
         korean_text = data.get("inputText", "")
 
         # ★ 중요: 너가 실제로 보내는 필드명 = "imageUrls"
-        image_base64 = data.get("imageUrls", None)
+        image_base64 = data.get("imageBase64", None)
 
         print(f"\n🚀 [Flask] Received request (session={session_id})")
         print(f"🗣️ Text: {korean_text}")
@@ -101,15 +102,18 @@ def recommend():
             "mergedSentence": merged_sentence,
             "recommendations": [
                 {
-                    "songId": song.get("id") or 0,
+                    "songId": song.get("id"),
                     "title": song.get("track_name"),
                     "artist": song.get("artist_name"),
-                    "albumCover": song.get("album_cover_url") or "",
-                    "previewUrl": song.get("preview_url") or "",
+                    "albumCover": song.get("album_cover_url"),
+                    "previewUrl": song.get("preview_url"),
+                    "spotify_embed_url": song.get("spotify_embed_url")
                 }
                 for song in recommended_songs
             ],
+            "timestamp": datetime.now().isoformat()
         }
+
 
         print(f"🎵 추천 완료: {[s.get('track_name') for s in recommended_songs]}")
         return jsonify(response_data), 200

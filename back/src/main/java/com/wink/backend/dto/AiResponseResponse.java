@@ -11,18 +11,18 @@ public class AiResponseResponse {
     private String topic;
     private List<String> keywords;
     private String aiMessage;
+    private String mergedSentence;   // ★ 추가
+    private String interpretedSentence;
     private List<Recommendation> recommendations;
     private LocalDateTime timestamp;
 
-    /**
-     * AI 추천 노래 정보
-     */
     @Getter @Setter @Builder @AllArgsConstructor @NoArgsConstructor
     public static class Recommendation {
-        private Long songId;
+        private String songId;               // ★ Long → String
         private String title;
         private String artist;
         private String albumCover;
         private String previewUrl;
+        private String spotify_embed_url;    // ★ 추가
     }
 }

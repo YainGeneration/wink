@@ -1,20 +1,8 @@
 {
-  "session_start": "2025-11-18 21:30:37",
+  "session_id": "3ef98a",
+  "session_start": "2025-11-19 21:08:38",
   "input_korean": [
-    "해 질 때 집중 잘 되는 노래 추천해줘",
-    "해 질 때 집중 잘 되는 노래 추천해줘",
-    "해 질 때 집중 잘 되는 노래 추천해줘",
-    "해 질 때 집중 잘 되는 노래 추천해줘",
-    "해 질 때 집중 잘 되는 노래 추천해줘",
-    "해 질 때 집중 잘 되는 노래 추천해줘",
-    "해 질 때 집중 잘 되는 노래 추천해줘",
-    "해 질 때 집중 잘 되는 노래 추천해줘",
-    "해 질 때 집중 잘 되는 노래 추천해줘",
-    "해 질 때 집중 잘 되는 노래 추천해줘",
-    "해 질 때 집중 잘 되는 노래 추천해줘",
-    "해 질 때 집중 잘 되는 노래 추천해줘",
-    "비 오는 날 잔잔한 노래 추천해줘",
-    "해 질 때 집중 잘 되는 노래 추천해줘",
+    "우왕",
     "해 질 때 집중 잘 되는 노래 추천해줘",
     "해 질 때 집중 잘 되는 노래 추천해줘",
     "해 질 때 집중 잘 되는 노래 추천해줘",
@@ -23,42 +11,16 @@
     "해 질 때 집중 잘 되는 노래 추천해줘"
   ],
   "input_image": [
-    "",
-    "",
-    "",
-    "",
-    "/tmp/flask_uploaded_image.png",
-    "/tmp/flask_uploaded_image.png",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    ""
+    "\"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\"",
+    "/tmp/wink_img_4e578eafd7644769ada15b8a6a465c18.png",
+    "/tmp/wink_img_3f1572db522741b7b6b680f0a4dc8cd6.png",
+    "/tmp/wink_img_f6a4c555095f4411b38547ce4a03d3b6.png",
+    "/tmp/wink_img_95983ef0e42e46c4b400613c98a17423.png",
+    "/tmp/wink_img_0555ac9f53384585a7fe09d5a13baa78.png",
+    "/tmp/wink_img_eb495fabcddb43f1a0e5b153599f9ecf.png"
   ],
   "english_text_from_agent1": [
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song for a rainy day.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
+    "Uhwaa",
     "I would like to recommend a song you might enjoy when it gets dark.",
     "I would like to recommend a song you might enjoy when it gets dark.",
     "I would like to recommend a song you might enjoy when it gets dark.",
@@ -68,358 +30,84 @@
   ],
   "english_caption_from_agent2": [
     "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    ""
+    "The image presents a serene cityscape at dusk with the sunset painting a warm glow over the urban landscape, lending a peaceful ambiance to the scene.",
+    "The image depicts a cityscape at sunset, with the sky painted in hues of orange and pink and the silhouette of buildings creating an urban skyline against the vibrant backdrop.",
+    "The image depicts a tranquil cityscape at sunset, with the sky transitioning from warm orange hues to deep blue night tones, creating a serene and peaceful atmosphere overlooking the citys bustling lights.",
+    "The image presents a vibrant cityscape at sunset, with the sky transitioning through a spectrum of colors, creating a warm and inviting ambiance over the urban environment.",
+    "The image showcases a vibrant cityscape during sunset, with the silhouette of the city skyline against a brilliant orange sky, creating an inviting and warm atmosphere.",
+    "The image depicts a breathtaking city skyline at sunset, with the warm hues of the setting sun casting a serene and inviting glow over the urban landscape, as tall buildings stand against the backdrop of the fading light."
   ],
   "merged_sentence": [
-    "As twilight deepens, let this song be a quiet companion to the gathering shadows, a melody I hope finds you well when the world hushes.",
-    "As the last light fades and melancholy descends with the shadows, let this song be a serene and introspective companion to the quiet hush of the darkening world, hoping it finds you well within its embrace.",
-    "As twilight deepens and shadows lengthen, let this song weave a serene and introspective hush around you, a quiet companion hoping to find you well within the melancholy embrace of the darkening world.",
-    "As twilight deepens and shadows lengthen, let this song weave a serene and introspective hush around you, a quiet companion hoping to find you well within the melancholy embrace of the darkening world.",
-    "As twilight deepens and shadows lengthen, let this song weave a serene, introspective hush around you, a quiet companion hoping to find you well within the melancholy embrace of the darkening world.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song for a rainy day.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "I would like to recommend a song you might enjoy when it gets dark.",
-    "As twilight deepens and shadows lengthen, let this song weave a serene and introspective hush around you, a quiet companion hoping to find you well within the melancholy embrace of the darkening world.",
-    "As twilight deepens and shadows lengthen, I offer this song as a quiet, serene companion to the melancholy hush of the darkening world, hoping its introspective melody finds you well within the embrace of the coming night."
+    "A primal, echoing \"Uhwaa\" drifted into the stillness, a lonely sound swallowed by an unseen, vast expanse.",
+    "As the last embers of sunset kissed the serene cityscape, a song drifted into the gathering dusk, a fragile echo against the vastness – a hopeful counterpoint to the primal loneliness that still lingered in the air.",
+    "As the orange and pink of the sunset bled into the silhouetted cityscape, a song drifted into the gathering dusk, a fragile, hopeful echo meant to soften the primal loneliness that still lingered in the vastness beyond the lights.",
+    "As the last blush of sunset faded over the tranquil cityscape, painting the sky in deepening blues, a song drifted into the gathering dusk – a fragile, hopeful melody meant to soften the lingering echo of primal loneliness against the vastness beyond the glittering lights.",
+    "As the tranquil cityscape surrendered to deepening dusk, painted with the last embers of a vibrant sunset, a fragile, hopeful melody drifted into the stillness, a delicate counterpoint to the lingering echo of primal loneliness within the vastness beyond the glittering lights.",
+    "As the vibrant cityscape surrendered to the deepening dusk, painted with the last embers of a breathtaking sunset, a fragile, hopeful melody drifted into the stillness, a delicate counterpoint to the lingering echo of primal loneliness within the vastness beyond the glittering lights, a song I hoped might offer solace as darkness fell.",
+    "As the breathtaking cityscape surrendered to the deepening dusk, painted with the last embers of a vibrant sunset, a fragile, hopeful melody drifted into the stillness – a delicate counterpoint to the lingering echo of primal loneliness within the vastness beyond the glittering lights, a song offered as solace against the falling darkness."
   ],
   "english_keywords": [
     [
-      "melancholy",
+      "loneliness",
+      "vastness",
+      "primal"
+    ],
+    [
       "serene",
-      "introspective"
+      "melancholy",
+      "hopeful"
     ],
     [
       "melancholy",
-      "serene",
-      "introspective"
+      "hopeful",
+      "atmospheric"
     ],
     [
       "melancholy",
-      "serene",
-      "introspective"
+      "serenity",
+      "hopeful"
     ],
     [
       "melancholy",
-      "serene",
-      "introspective"
+      "serenity",
+      "nostalgia"
     ],
     [
       "melancholy",
-      "serene",
-      "introspective"
-    ],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [
-      "melancholy",
-      "serene",
-      "introspective"
+      "hopeful",
+      "atmospheric"
     ],
     [
       "melancholy",
-      "serene",
-      "introspective"
+      "serenity",
+      "hopeful"
     ]
   ],
   "recommended_songs": [
     [
       {
-        "id": "2oAPUnBerGoshpD7ueqwJW",
-        "track_name": "Jimi",
-        "artist_name": "Slightly Stoopid",
-        "recommend_score": 2.857151073270664,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
         "id": "2u2cS7pCuDbkJ5h6gcM46i",
         "track_name": "Amor De Lejos",
         "artist_name": "Lara & Reyes",
-        "recommend_score": 2.8482261922086507,
+        "recommend_score": 3.6240126409504483,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
       },
       {
-        "id": "27kGlAZVLGtgbWSuCbxXge",
-        "track_name": "奇術師のバイレ",
-        "artist_name": "Yoshihisa Hirano",
-        "recommend_score": 2.8452500647218932,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/27kGlAZVLGtgbWSuCbxXge"
-      },
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 2.840798648958657,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 2.791753582934495,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      }
-    ],
-    [
-      {
         "id": "2oAPUnBerGoshpD7ueqwJW",
         "track_name": "Jimi",
         "artist_name": "Slightly Stoopid",
-        "recommend_score": 2.857151073270664,
+        "recommend_score": 3.6218639888586543,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
       },
       {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 2.8482261922086507,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
-      },
-      {
-        "id": "27kGlAZVLGtgbWSuCbxXge",
-        "track_name": "奇術師のバイレ",
-        "artist_name": "Yoshihisa Hirano",
-        "recommend_score": 2.8452500647218932,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/27kGlAZVLGtgbWSuCbxXge"
-      },
-      {
         "id": "3ZsYfiwmPxg36alaj11kHk",
         "track_name": "Leona",
         "artist_name": "Lara & Reyes",
-        "recommend_score": 2.840798648958657,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 2.791753582934495,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      }
-    ],
-    [
-      {
-        "id": "2oAPUnBerGoshpD7ueqwJW",
-        "track_name": "Jimi",
-        "artist_name": "Slightly Stoopid",
-        "recommend_score": 2.857151073270664,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 2.8482261922086507,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
-      },
-      {
-        "id": "27kGlAZVLGtgbWSuCbxXge",
-        "track_name": "奇術師のバイレ",
-        "artist_name": "Yoshihisa Hirano",
-        "recommend_score": 2.8452500647218932,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/27kGlAZVLGtgbWSuCbxXge"
-      },
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 2.840798648958657,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 2.791753582934495,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      }
-    ],
-    [
-      {
-        "id": "2oAPUnBerGoshpD7ueqwJW",
-        "track_name": "Jimi",
-        "artist_name": "Slightly Stoopid",
-        "recommend_score": 2.857151073270664,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 2.8482261922086507,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
-      },
-      {
-        "id": "27kGlAZVLGtgbWSuCbxXge",
-        "track_name": "奇術師のバイレ",
-        "artist_name": "Yoshihisa Hirano",
-        "recommend_score": 2.8452500647218932,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/27kGlAZVLGtgbWSuCbxXge"
-      },
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 2.840798648958657,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 2.791753582934495,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      }
-    ],
-    [
-      {
-        "id": "2oAPUnBerGoshpD7ueqwJW",
-        "track_name": "Jimi",
-        "artist_name": "Slightly Stoopid",
-        "recommend_score": 2.857151073270664,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 2.8482261922086507,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
-      },
-      {
-        "id": "27kGlAZVLGtgbWSuCbxXge",
-        "track_name": "奇術師のバイレ",
-        "artist_name": "Yoshihisa Hirano",
-        "recommend_score": 2.8452500647218932,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/27kGlAZVLGtgbWSuCbxXge"
-      },
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 2.840798648958657,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 2.791753582934495,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      }
-    ],
-    [
-      {
-        "id": "2oAPUnBerGoshpD7ueqwJW",
-        "track_name": "Jimi",
-        "artist_name": "Slightly Stoopid",
-        "recommend_score": 3.180307877166997,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.1700211731207197,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
-      },
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.167437757079662,
+        "recommend_score": 3.6130610013349482,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
@@ -428,7 +116,7 @@
         "id": "27kGlAZVLGtgbWSuCbxXge",
         "track_name": "奇術師のバイレ",
         "artist_name": "Yoshihisa Hirano",
-        "recommend_score": 3.165219088708141,
+        "recommend_score": 3.5999451946461276,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/27kGlAZVLGtgbWSuCbxXge"
@@ -437,7 +125,7 @@
         "id": "0DhnpIeCaMp85Jyc39sUBy",
         "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
         "artist_name": "Brad Breeck",
-        "recommend_score": 3.1243508983142627,
+        "recommend_score": 3.5547437204768175,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
@@ -448,7 +136,7 @@
         "id": "2oAPUnBerGoshpD7ueqwJW",
         "track_name": "Jimi",
         "artist_name": "Slightly Stoopid",
-        "recommend_score": 3.3137142417456347,
+        "recommend_score": 3.198442192893698,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
@@ -457,16 +145,54 @@
         "id": "3ZsYfiwmPxg36alaj11kHk",
         "track_name": "Leona",
         "artist_name": "Lara & Reyes",
-        "recommend_score": 3.3039222528728582,
+        "recommend_score": 3.181889529967944,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
       },
       {
+        "id": "0DhnpIeCaMp85Jyc39sUBy",
+        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
+        "artist_name": "Brad Breeck",
+        "recommend_score": 3.1669107671394254,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
+      },
+      {
+        "id": "0DhnpIeCaMp85Jyc39sUBy",
+        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
+        "artist_name": "Brad Breeck",
+        "recommend_score": 3.1669107671394254,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
+      },
+      {
+        "id": "27kGlAZVLGtgbWSuCbxXge",
+        "track_name": "奇術師のバイレ",
+        "artist_name": "Yoshihisa Hirano",
+        "recommend_score": 3.1634925933945204,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/27kGlAZVLGtgbWSuCbxXge"
+      }
+    ],
+    [
+      {
+        "id": "2oAPUnBerGoshpD7ueqwJW",
+        "track_name": "Jimi",
+        "artist_name": "Slightly Stoopid",
+        "recommend_score": 3.2949856568677593,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
+      },
+      {
         "id": "2u2cS7pCuDbkJ5h6gcM46i",
         "track_name": "Amor De Lejos",
         "artist_name": "Lara & Reyes",
-        "recommend_score": 3.302756939597894,
+        "recommend_score": 3.2808287746070897,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
@@ -475,16 +201,25 @@
         "id": "27kGlAZVLGtgbWSuCbxXge",
         "track_name": "奇術師のバイレ",
         "artist_name": "Yoshihisa Hirano",
-        "recommend_score": 3.2967427989930433,
+        "recommend_score": 3.277757574084981,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/27kGlAZVLGtgbWSuCbxXge"
       },
       {
+        "id": "3ZsYfiwmPxg36alaj11kHk",
+        "track_name": "Leona",
+        "artist_name": "Lara & Reyes",
+        "recommend_score": 3.274512145398102,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
+      },
+      {
         "id": "0DhnpIeCaMp85Jyc39sUBy",
         "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
         "artist_name": "Brad Breeck",
-        "recommend_score": 3.2668351494173664,
+        "recommend_score": 3.2204173869524597,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
@@ -495,43 +230,43 @@
         "id": "2oAPUnBerGoshpD7ueqwJW",
         "track_name": "Jimi",
         "artist_name": "Slightly Stoopid",
-        "recommend_score": 3.3488164736500874,
+        "recommend_score": 3.2741406414948533,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.3414819163379934,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.337573863472862,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
       },
       {
         "id": "27kGlAZVLGtgbWSuCbxXge",
         "track_name": "奇術師のバイレ",
         "artist_name": "Yoshihisa Hirano",
-        "recommend_score": 3.3307805975216014,
+        "recommend_score": 3.2536112698197663,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/27kGlAZVLGtgbWSuCbxXge"
       },
       {
+        "id": "2u2cS7pCuDbkJ5h6gcM46i",
+        "track_name": "Amor De Lejos",
+        "artist_name": "Lara & Reyes",
+        "recommend_score": 3.2521056222108595,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
+      },
+      {
+        "id": "3ZsYfiwmPxg36alaj11kHk",
+        "track_name": "Leona",
+        "artist_name": "Lara & Reyes",
+        "recommend_score": 3.2486421917643717,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
+      },
+      {
         "id": "0DhnpIeCaMp85Jyc39sUBy",
         "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
         "artist_name": "Brad Breeck",
-        "recommend_score": 3.3095285771337095,
+        "recommend_score": 3.1962220797338037,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
@@ -542,43 +277,43 @@
         "id": "2oAPUnBerGoshpD7ueqwJW",
         "track_name": "Jimi",
         "artist_name": "Slightly Stoopid",
-        "recommend_score": 3.3398077962309394,
+        "recommend_score": 3.177925148041738,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.3343776755089096,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.3284708790256587,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
       },
       {
         "id": "27kGlAZVLGtgbWSuCbxXge",
         "track_name": "奇術師のバイレ",
         "artist_name": "Yoshihisa Hirano",
-        "recommend_score": 3.3211694292360456,
+        "recommend_score": 3.153872093642467,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/27kGlAZVLGtgbWSuCbxXge"
       },
       {
+        "id": "3ZsYfiwmPxg36alaj11kHk",
+        "track_name": "Leona",
+        "artist_name": "Lara & Reyes",
+        "recommend_score": 3.1491667855236627,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
+      },
+      {
+        "id": "2u2cS7pCuDbkJ5h6gcM46i",
+        "track_name": "Amor De Lejos",
+        "artist_name": "Lara & Reyes",
+        "recommend_score": 3.148347350186909,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
+      },
+      {
         "id": "0DhnpIeCaMp85Jyc39sUBy",
         "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
         "artist_name": "Brad Breeck",
-        "recommend_score": 3.3065772282022654,
+        "recommend_score": 3.101937187438373,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
@@ -589,43 +324,43 @@
         "id": "2oAPUnBerGoshpD7ueqwJW",
         "track_name": "Jimi",
         "artist_name": "Slightly Stoopid",
-        "recommend_score": 3.3130596838530115,
+        "recommend_score": 3.1069872117521267,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.3091073582247446,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.301718774678129,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
       },
       {
         "id": "27kGlAZVLGtgbWSuCbxXge",
         "track_name": "奇術師のバイレ",
         "artist_name": "Yoshihisa Hirano",
-        "recommend_score": 3.294075155431414,
+        "recommend_score": 3.089728618774245,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/27kGlAZVLGtgbWSuCbxXge"
       },
       {
+        "id": "2u2cS7pCuDbkJ5h6gcM46i",
+        "track_name": "Amor De Lejos",
+        "artist_name": "Lara & Reyes",
+        "recommend_score": 3.0866811820328683,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
+      },
+      {
+        "id": "3ZsYfiwmPxg36alaj11kHk",
+        "track_name": "Leona",
+        "artist_name": "Lara & Reyes",
+        "recommend_score": 3.0797166617091656,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
+      },
+      {
         "id": "0DhnpIeCaMp85Jyc39sUBy",
         "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
         "artist_name": "Brad Breeck",
-        "recommend_score": 3.2846246144085,
+        "recommend_score": 3.023090180151682,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
@@ -636,466 +371,43 @@
         "id": "2oAPUnBerGoshpD7ueqwJW",
         "track_name": "Jimi",
         "artist_name": "Slightly Stoopid",
-        "recommend_score": 3.280534535136722,
+        "recommend_score": 3.100192858095391,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.277744000752036,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.2692307600264447,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
       },
       {
         "id": "27kGlAZVLGtgbWSuCbxXge",
         "track_name": "奇術師のバイレ",
         "artist_name": "Yoshihisa Hirano",
-        "recommend_score": 3.2613484922461824,
+        "recommend_score": 3.0814359676951204,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/27kGlAZVLGtgbWSuCbxXge"
       },
       {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 3.2559248549843103,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      }
-    ],
-    [
-      {
-        "id": "2oAPUnBerGoshpD7ueqwJW",
-        "track_name": "Jimi",
-        "artist_name": "Slightly Stoopid",
-        "recommend_score": 3.2474686266115427,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.2456066468016695,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
         "id": "2u2cS7pCuDbkJ5h6gcM46i",
         "track_name": "Amor De Lejos",
         "artist_name": "Lara & Reyes",
-        "recommend_score": 3.236219285847801,
+        "recommend_score": 3.0770026206949916,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
       },
       {
-        "id": "27kGlAZVLGtgbWSuCbxXge",
-        "track_name": "奇術師のバイレ",
-        "artist_name": "Yoshihisa Hirano",
-        "recommend_score": 3.22816494625048,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/27kGlAZVLGtgbWSuCbxXge"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 3.225950413943321,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      }
-    ],
-    [
-      {
-        "id": "2oAPUnBerGoshpD7ueqwJW",
-        "track_name": "Jimi",
-        "artist_name": "Slightly Stoopid",
-        "recommend_score": 3.2160408399889215,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
         "id": "3ZsYfiwmPxg36alaj11kHk",
         "track_name": "Leona",
         "artist_name": "Lara & Reyes",
-        "recommend_score": 3.2149335401031913,
+        "recommend_score": 3.0717152770880167,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
       },
       {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.2048516642385043,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
-      },
-      {
         "id": "0DhnpIeCaMp85Jyc39sUBy",
         "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
         "artist_name": "Brad Breeck",
-        "recommend_score": 3.197057179507763,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 3.197057179507763,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      }
-    ],
-    [
-      {
-        "id": "2oAPUnBerGoshpD7ueqwJW",
-        "track_name": "Jimi",
-        "artist_name": "Slightly Stoopid",
-        "recommend_score": 3.187044583025269,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.1865602750109527,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.175915766791783,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 3.170167890119818,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 3.170167890119818,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      }
-    ],
-    [
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.16068932636318,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
-        "id": "2oAPUnBerGoshpD7ueqwJW",
-        "track_name": "Jimi",
-        "artist_name": "Slightly Stoopid",
-        "recommend_score": 3.1606520432326803,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.149581196396427,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 3.1455495348413787,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 3.1455495348413787,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      }
-    ],
-    [
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.13724518308384,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
-        "id": "2oAPUnBerGoshpD7ueqwJW",
-        "track_name": "Jimi",
-        "artist_name": "Slightly Stoopid",
-        "recommend_score": 3.13676564101257,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.12574921760016,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 3.1231747595003307,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 3.1231747595003307,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      }
-    ],
-    [
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.1160397586736726,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
-        "id": "2oAPUnBerGoshpD7ueqwJW",
-        "track_name": "Jimi",
-        "artist_name": "Slightly Stoopid",
-        "recommend_score": 3.11518102078167,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.104215146330737,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 3.1028915072858223,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 3.1028915072858223,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      }
-    ],
-    [
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.09685096213545,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
-        "id": "2oAPUnBerGoshpD7ueqwJW",
-        "track_name": "Jimi",
-        "artist_name": "Slightly Stoopid",
-        "recommend_score": 3.095663828667716,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.0847445815530734,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 3.0845053590517795,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 3.0845053590517795,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      }
-    ],
-    [
-      {
-        "id": "2oAPUnBerGoshpD7ueqwJW",
-        "track_name": "Jimi",
-        "artist_name": "Slightly Stoopid",
-        "recommend_score": 3.175006266815686,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.17476461953625,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.1639035963874305,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 3.1589538133532415,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 3.1589538133532415,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
-      }
-    ],
-    [
-      {
-        "id": "2oAPUnBerGoshpD7ueqwJW",
-        "track_name": "Jimi",
-        "artist_name": "Slightly Stoopid",
-        "recommend_score": 3.234434595708236,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
-      },
-      {
-        "id": "3ZsYfiwmPxg36alaj11kHk",
-        "track_name": "Leona",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.2328975709307857,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
-      },
-      {
-        "id": "2u2cS7pCuDbkJ5h6gcM46i",
-        "track_name": "Amor De Lejos",
-        "artist_name": "Lara & Reyes",
-        "recommend_score": 3.223209423831828,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
-      },
-      {
-        "id": "27kGlAZVLGtgbWSuCbxXge",
-        "track_name": "奇術師のバイレ",
-        "artist_name": "Yoshihisa Hirano",
-        "recommend_score": 3.215098726541445,
-        "album_cover_url": null,
-        "preview_url": null,
-        "spotify_embed_url": "https://open.spotify.com/embed/track/27kGlAZVLGtgbWSuCbxXge"
-      },
-      {
-        "id": "0DhnpIeCaMp85Jyc39sUBy",
-        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
-        "artist_name": "Brad Breeck",
-        "recommend_score": 3.2140053149315126,
+        "recommend_score": 3.016938218839167,
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"

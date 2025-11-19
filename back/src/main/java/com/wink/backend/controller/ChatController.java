@@ -70,5 +70,6 @@ public class ChatController {
     public ChatMessageResponse sendMessage(@RequestBody ChatMessageRequest req) {
         return chatService.sendMessage(req);
     }
+    
 }
 
