@@ -1,0 +1,76 @@
+{
+  "session_id": "c9397e",
+  "session_start": "2025-11-18 19:59:30",
+  "input_korean": [
+    "겨울밤 듣고 조용 잔잔한 발라드"
+  ],
+  "input_image": [
+    ""
+  ],
+  "english_text_from_agent1": [
+    "Listening to a quiet and soft ballad during winter night"
+  ],
+  "english_caption_from_agent2": [
+    ""
+  ],
+  "merged_sentence": [
+    "The winter night deepened, cradling the quiet ache of a soft ballad like a secret held close against the falling snow."
+  ],
+  "english_keywords": [
+    [
+      "melancholy",
+      "serene",
+      "intimate"
+    ]
+  ],
+  "recommended_songs": [
+    [
+      {
+        "id": "4zwHUFfiBp8qLlSfh4POmu",
+        "track_name": "Abeja",
+        "artist_name": "Mndsgn",
+        "recommend_score": 2.520908031982115,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b273a0b1d9c91c5cbcd2b38699cd",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/4zwHUFfiBp8qLlSfh4POmu"
+      },
+      {
+        "id": "2oAPUnBerGoshpD7ueqwJW",
+        "track_name": "Jimi",
+        "artist_name": "Slightly Stoopid",
+        "recommend_score": 2.35651837774415,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b273dc1886ac54cb45a8843404d7",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
+      },
+      {
+        "id": "2u2cS7pCuDbkJ5h6gcM46i",
+        "track_name": "Amor De Lejos",
+        "artist_name": "Lara & Reyes",
+        "recommend_score": 2.3520606964779005,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b2738177616b391114a61a3cf6d3",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2u2cS7pCuDbkJ5h6gcM46i"
+      },
+      {
+        "id": "27kGlAZVLGtgbWSuCbxXge",
+        "track_name": "奇術師のバイレ",
+        "artist_name": "Yoshihisa Hirano",
+        "recommend_score": 2.3511479400271713,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b27334066102faed189fee1058f9",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/27kGlAZVLGtgbWSuCbxXge"
+      },
+      {
+        "id": "3ZsYfiwmPxg36alaj11kHk",
+        "track_name": "Leona",
+        "artist_name": "Lara & Reyes",
+        "recommend_score": 2.330569475731349,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b2738177616b391114a61a3cf6d3",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/3ZsYfiwmPxg36alaj11kHk"
+      }
+    ]
+  ],
+  "session_end": "2025-11-18 20:26:36"
+}

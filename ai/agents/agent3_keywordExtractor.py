@@ -38,7 +38,7 @@ except ImportError:
     print("❌ 'agents/context_manager.py' 파일을 찾을 수 없습니다.")
     exit()
     
-# rag retriever import
+# rag retriever - song recommendation import
 try:
     from rag_retriever import get_song_recommendations
 except ImportError:
@@ -49,12 +49,12 @@ except ImportError:
 # 1. 전역 설정
 # =========================================================
 OLLAMA_URL = "http://localhost:11434"
-GEMMA3_MODEL = "gemma3:27b" # (Ollama가 멀티모달을 지원하는 모델 ID)
+GEMMA3_MODEL = "gemma3:27b"
 SAVE_DIR = "agents/keywords"
 os.makedirs(SAVE_DIR, exist_ok=True)
 
 # =========================================================
-# 3. [Agent 3-1] 두 영어 문장 합치기 (Ollama Gemma3)
+# 3. [Agent 3-1] 두 영어 문장 합치기 : 모델 안쓰고 그냥 문장 합칠지 고민중
 # =========================================================
 def rewrite_combined_sentence(text1: str, text2: str, full_history: str) -> str:    
     new_input_sentence = f"{text1} {text2}".strip()
@@ -102,25 +102,34 @@ Respond *only* with the final combined English sentence.
 # =========================================================
 # 4. [Agent 3-2] 감성 키워드 추출 (Gemma3)
 # =========================================================
-def extract_keywords(merged_text: str, k: int = 3) -> list[str]:
+def extract_keywords(merged_text: str, full_history: str, k: int = 3) -> list[str]:
     if not merged_text.strip():
         return []
     print("💬 [Agent 3] Extracting mood keywords (Ollama w/ JSON)...")
 
     prompt_content = f"""
-The text below is a user's request for music. 
-    **Analyze the user's intent** and **generate {k} keywords** that describe the mood, atmosphere, or genre they are looking for.
-    
-    Text:
+You are a music mood keyword extraction expert.
+
+The user is having an ongoing conversation about music.
+Below is the full conversation history so far:
+
+[Conversation History]
+{full_history}
+
+And here is the newest combined sentence representing the latest request:
+
+[Current Intent]
 "{merged_text}"
+
+Using **both** the history and the new input, extract {k} final keywords
+that represent the *updated* music mood/genre/style.
+
+Respond only with this JSON format:
+{{"keywords": ["k1", "k2", "k3"]}}
 """
-    system_prompt = """
-You are an expert keyword extractor.
-Respond *only* with a valid JSON object in this format:
-{"keywords": ["keyword1", "keyword2", "keyword3"]}
-"""
+
     messages = [
-        {"role": "system", "content": system_prompt},
+        {"role": "system", "content": "You extract music mood keywords only using JSON."},
         {"role": "user", "content": prompt_content}
     ]
     payload = {"model": GEMMA3_MODEL, "messages": messages, "stream": False, "format": "json"}
@@ -212,7 +221,7 @@ def run_agent_pipeline(korean_text="", image_path="") -> dict:
     # [Agent 3-1]
     merged = rewrite_combined_sentence(english_text, english_caption, full_history)
     # [Agent 3-2]: 영어 키워드 추출
-    eng_keywords = extract_keywords(merged, k=3)
+    eng_keywords = extract_keywords(merged, full_history, k=3)
     # RAG 검색 (노래 추천): 각 키워드 별 5곡씩
     recommended_songs = get_song_recommendations(eng_keywords, top_k=5)
     

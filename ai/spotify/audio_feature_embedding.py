@@ -9,7 +9,7 @@ import os
 # -----------------------------
 # 1) 모델 로드 (전역 캐시)
 # -----------------------------
-MODEL_NAME = "michellejieli/emotion_text_classifier"
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 _tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 _model = AutoModel.from_pretrained(MODEL_NAME)
 

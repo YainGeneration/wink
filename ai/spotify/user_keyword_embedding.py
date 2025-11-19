@@ -5,7 +5,7 @@ from datetime import datetime
 from transformers import AutoTokenizer, AutoModel
 import numpy as np
 
-MODEL_NAME = "michellejieli/emotion_text_classifier"
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 SESSION_DIR = "agents/keywords"
 EMBED_SAVE_DIR = "spotify/embedding_data"
 os.makedirs(EMBED_SAVE_DIR, exist_ok=True)

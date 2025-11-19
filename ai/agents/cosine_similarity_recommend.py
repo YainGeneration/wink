@@ -31,8 +31,8 @@ SONG_DATA_FILE = "spotify/data/merged_audio_features_after2000_final.csv"
 
 # 추천에 사용할 피처 목록
 AUDIO_FEATURE_COLUMNS = [
-    "acousticness", "danceability", "energy", "instrumentalness",
-     "loudness", "valence", "tempo", 
+    "danceability", "instrumentalness", "valence",
+     "loudness",  "speechiness"
 ]
 
 
@@ -125,11 +125,22 @@ def compute_feature_similarities(user_emb):
 # 6) Spotify 곡 데이터 로드
 # =========================================================
 def load_song_data():
-    df = pd.read_csv(SONG_DATA_FILE)
-    # 필요한 피처가 결측치인 곡 제외
-    df = df.dropna(subset=AUDIO_FEATURE_COLUMNS)
-    return df
+    if not os.path.exists(SONG_DATA_FILE):
+        raise FileNotFoundError(f"❌ 노래 데이터 파일 없음: {SONG_DATA_FILE}")
 
+    df = pd.read_csv(SONG_DATA_FILE)
+    
+    # 1. 결측치 제거
+    df = df.dropna(subset=AUDIO_FEATURE_COLUMNS)
+
+    # 2. [NEW] 중복 곡 제거 (가수 이름 + 노래 제목이 같으면 중복으로 처리)
+    # keep='first': 중복된 것 중 첫 번째만 남기고 나머지는 버림
+    original_len_dup = len(df)
+    df = df.drop_duplicates(subset=['artist_name', 'track_name'], keep='first')
+    print(f"✂️ [Deduplication] Removed {original_len_dup - len(df)} duplicate tracks.")
+
+    return df    
+    
 # =========================================================
 # 스포티파이 앨범 커버 이미지 가져오기
 def get_album_cover_url(track_id):
