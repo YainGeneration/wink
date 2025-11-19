@@ -1,5 +1,5 @@
-# main pipeline
-# -*- coding: utf-8 -*-
+# spotify main pipeline
+
 """
 Agent3 (통합 파이프라인)
 - Agent 1: 한국어 → 영어 (EXAONE)
@@ -47,9 +47,9 @@ except ImportError:
 # Cosine Recommender
 # --------------------------
 try:
-    from cosine_similarity_recommend import recommend
+    from cosine_similarity_recommend import recommend, get_album_cover_url, get_preview_url
 except ImportError:
-    print("❌ 'spotify/cosine_recommender.py' 파일을 찾을 수 없습니다.")
+    print("❌ 'spotify/cosine_similarity_recommend.py' 파일을 찾을 수 없습니다.")
     exit()
 
 # =========================================================
@@ -62,71 +62,102 @@ os.makedirs(SAVE_DIR, exist_ok=True)
 
 
 # =========================================================
-# Agent 3-1: 문장 합성
+# Agent 3-1: 문장 병합 (Creation X -> Combination O)
 # =========================================================
 def rewrite_combined_sentence(text1: str, text2: str, full_history: str) -> str:    
-    new_input_sentence = f"{text1} {text2}".strip()
-
-    if not new_input_sentence:
-        print("⚠️ [Agent 3] No new input text or image provided.")
+    # 입력이 없으면 빈 문자열 반환
+    if not text1 and not text2:
+        print("⚠️ [Agent 3] No input text provided.")
         return ""
 
-    print("🧩 [Agent 3] Merging sentences...")
+    print("🧩 [Agent 3] Merging sentences (Strict Combination)...")
 
+    # [핵심 변경] '작가'가 아니라 '편집자' 모드로 변경
+    # 내용을 새로 쓰지 말고, 두 문장을 자연스럽게 잇기만 하라고 지시
     prompt = f"""
-Combine the user's latest input with their past conversation history
-into one final, updated English description.
+You are a text editor.
+Your task is to **logically connect** the User Text and the Visual Context into one clear English sentence.
 
-[History]
-{full_history}
+[Inputs]
+1. **User Request (Primary)**: "{text1}"
+2. **Visual Context (Secondary)**: "{text2}"
+3. **Context History**: "{full_history}"
 
-[New]
-{new_input_sentence}
-
-Return only the final combined English sentence.
+[Strict Rules]
+- **DO NOT invent new emotions or adjectives.**
+- **DO NOT change the User Request.** Keep the specific nouns (e.g., Rain, Winter, Drive) exactly as they are.
+- Structure: "[User Request], while [Visual Context description]." or similar logical connection.
+- Keep it concise and factual.
 """
 
     messages = [{"role": "user", "content": prompt}]
+    
     payload = {
         "model": GEMMA3_MODEL, 
         "messages": messages, 
         "stream": False, 
-        "format": "text"
+        "options": {
+            "temperature": 0.2,  # 창의성을 확 낮춰서(0.2) 있는 그대로 합치게 유도
+            "num_ctx": 4096
+        }
     }
 
     try:
-        res = requests.post(f"{OLLAMA_URL}/api/chat", json=payload, timeout=60)
+        res = requests.post(f"{OLLAMA_URL}/api/chat", json=payload, timeout=120)
         res.raise_for_status()
+        
         raw = res.json().get("message", {}).get("content", "").strip()
+        print(f"🔍 [Debug] Raw LLM Output: {raw}") 
 
-        # 따옴표 한번 더 제거
-        match = re.search(r'["\'](.*)["\']', raw)
-        return match.group(1).strip() if match else raw
+        # 따옴표 제거
+        cleaned_sentence = raw.strip().strip('"').strip("'")
+        
+        if len(cleaned_sentence) < 5:
+             raise ValueError("Output too short")
+
+        return cleaned_sentence
 
     except Exception as e:
         print(f"⚠️ Merge failed: {e}")
-        return new_input_sentence
-
-
+        print("👉 Using simple concatenation as fallback.")
+        
+        # LLM 실패 시, 그냥 물리적으로 합쳐서 반환 (가장 확실한 방법)
+        if text1 and text2:
+            return f"{text1}. Context: {text2}"
+        return text1 if text1 else text2
+    
 # =========================================================
-# Agent 3-2: 감성 키워드 추출
+# Agent 3-2: 키워드 추출 (소리 + 환경/배경 밸런스)
 # =========================================================
-def extract_keywords(merged_text: str, k: int = 3):
+def extract_keywords(merged_text: str, k: int = 5):
     if not merged_text.strip():
         return []
 
-    print("💬 [Agent 3] Extracting keywords...")
+    print("💬 [Agent 3] Extracting vibe & atmospheric keywords...")
 
+    # [수정 포인트] 'Sound Engineer' -> 'Vibe Curator'로 변경
+    # 소리뿐만 아니라 계절, 시간, 장소 같은 명사도 중요하다고 명시
     system_prompt = """
-You are an expert keyword extractor.
-Return JSON only:
-{"keywords": ["a","b","c"]}
+You are a Content Analyst for Music Recommendation.
+Your task is to identify the **Key Subject** and **Atmosphere** of the sentence.
+
+You MUST extract keywords in this specific order of priority:
+1. **The Main Subject/Setting (Nouns)**: What is the main element? (e.g., Rain, Night, Winter, Ocean, Drive, Coffee). **This is MANDATORY.**
+2. **The Sound Texture (Adjectives)**: How does it sound? (e.g., Soft, Quiet, Acoustic, Jazzy).
+3. **The Emotional Vibe**: (e.g., Melancholic, Cozy, Chill).
+
+[Strict Rules]
+- **If the sentence mentions a specific weather (Rain), time (Night), or place, include it as a keyword!**
+- Do not just output abstract emotions.
+- Return JSON only: {"keywords": ["noun1", "adj1", "adj2", ...]}
 """
 
+    # 유저 프롬프트: 문장에서 중요한 단어를 놓치지 말라고 강조
     user_prompt = f"""
-Extract {k} English keywords that represent the mood or style of this sentence:
+Extract {k} keywords from the sentence below. 
+**Make sure to include the main noun (like 'Rain' or 'City') first.**
 
-"{merged_text}"
+Sentence: "{merged_text}"
 """
 
     messages = [
@@ -134,29 +165,46 @@ Extract {k} English keywords that represent the mood or style of this sentence:
         {"role": "user", "content": user_prompt}
     ]
 
-    res = requests.post(
-        f"{OLLAMA_URL}/api/chat",
-        json={"model": GEMMA3_MODEL, "messages": messages, "stream": False, "format": "json"},
-        timeout=60
-    )
-
-    raw = (
-        res.json().get("message", {}).get("content")
-        or res.json().get("response")
-        or ""
-    ).strip()
-
     try:
+        res = requests.post(
+            f"{OLLAMA_URL}/api/chat",
+            json={
+                "model": GEMMA3_MODEL, 
+                "messages": messages, 
+                "stream": False, 
+                "format": "json",
+                "options": {"temperature": 0.3} # 0.4 정도로 올려서 명사와 형용사를 적절히 섞도록 유도
+            },
+            timeout=60
+        )
+        res.raise_for_status()
+
+        raw = (
+            res.json().get("message", {}).get("content")
+            or res.json().get("response")
+            or ""
+        ).strip()
+
         parsed = json.loads(raw)
         kws = parsed.get("keywords", [])
-        kws = [w.lower().strip() for w in kws if 2 <= len(w) <= 15]
-        return kws[:k]
-    except:
-        # fallback: 단어만 추출
-        raw_clean = re.sub(r"[^a-zA-Z ]", " ", raw)
-        kws = [w for w in raw_clean.split() if len(w) > 2]
-        return kws[:k]
+        
+        # 전처리: 소문자, 영문만, 길이 제한
+        clean_kws = []
+        for w in kws:
+            w_clean = re.sub(r"[^a-zA-Z]", "", w.lower())
+            if 2 <= len(w_clean) <= 20:
+                clean_kws.append(w_clean)
+        
+        # 중복 제거
+        return list(dict.fromkeys(clean_kws))[:k]
 
+    except Exception as e:
+        print(f"⚠️ Keyword extraction failed: {e}")
+        # Fallback: 문장의 주요 명사와 형용사 추출
+        # 4글자 이상인 단어들 중, 문장 뒤쪽에 있는 단어(보통 핵심어) 우선 추출
+        words = re.findall(r'\b[a-zA-Z]{4,}\b', merged_text.lower())
+        return list(set(words[-k:])) if words else ["chill"]
+    
 
 # =========================================================
 # 세션 저장
@@ -212,7 +260,7 @@ def run_agent_pipeline(korean_text="", image_path=""):
     merged_sentence = rewrite_combined_sentence(english_text, english_caption, full_history)
 
     # Agent 3-2
-    keywords = extract_keywords(merged_sentence, k=3)
+    keywords = extract_keywords(merged_sentence, k=5)
 
     # ----------------------------------------------------
     # STEP 1: 세션에 먼저 keywords 포함하여 저장 (=딱 한 번 저장)
@@ -253,10 +301,25 @@ def run_agent_pipeline(korean_text="", image_path=""):
     recommended_songs_df = recommend(top_k=5)
 
     recommended_songs = recommended_songs_df[[
+        "id", 
         "track_name",
         "artist_name",
         "recommend_score"
     ]].to_dict(orient="records")
+    
+    def make_embed_url(track_id):
+        return f"https://open.spotify.com/embed/track/{track_id}"
+    
+    for song in recommended_songs:
+        track_id = song["id"]
+
+        # 앨범 커버
+        song["album_cover_url"] = get_album_cover_url(track_id)
+
+        # preview_url
+        song["preview_url"] = get_preview_url(track_id)
+        
+        song["spotify_embed_url"] = make_embed_url(track_id)
 
     # ----------------------------------------------------
     # STEP 4: 방금 저장된 마지막 요소의 recommended_songs만 수정 (append 하지 않음)
@@ -269,6 +332,9 @@ def run_agent_pipeline(korean_text="", image_path=""):
 
     with open(session_file, "w", encoding="utf-8") as f:
         json.dump(session_data, f, ensure_ascii=False, indent=2)
+        
+    data["recommended_songs"] = recommended_songs # 수정
+
 
     return data
 

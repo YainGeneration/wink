@@ -20,9 +20,9 @@ input_path = os.path.join("spotify/data/audio_features_after2000.csv")
 df = pd.read_csv(input_path)
 
 # 팀원 별 연도 필터 설정
-df = df[df["year"].between(2015, 2016)]  # 예인
+# df = df[df["year"].between(2015, 2016)]  # 예인
 # df = df[df["year"].between(2017, 2018)]  # 다은
-# df = df[df["year"].between(2019, 2020)]  # 은정
+df = df[df["year"].between(2019, 2020)]  # 은정
 
 
 # 중복 제거

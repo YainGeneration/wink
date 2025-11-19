@@ -10,6 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ChatMessageResponse {
     private Long messageId;
+    private Long sessionId; 
     private String sender;
     private String text;
     private List<String> keywords;

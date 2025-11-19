@@ -3,11 +3,18 @@ package com.wink.backend.controller;
 import com.wink.backend.dto.AiResponseRequest;
 import com.wink.backend.dto.AiResponseResponse;
 import com.wink.backend.dto.ChatHistoryResponse;
+import com.wink.backend.dto.ChatMessageRequest;
+import com.wink.backend.dto.ChatMessageResponse;
 import com.wink.backend.dto.ChatStartMyRequest;
 import com.wink.backend.dto.ChatStartResponse;
 import com.wink.backend.dto.ChatStartSpaceRequest;
+import com.wink.backend.dto.ChatSummaryResponse;
 import com.wink.backend.service.ChatService;
+import com.wink.backend.dto.ChatSearchResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
+
+import java.util.List;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -52,4 +59,16 @@ public class ChatController {
         return chatService.getMyChatHistory(sessionId);
     }
 
+    @Operation(summary = "공간의 순간 메시지 목록 조회", description = "sessionId를 기준으로 모든 메시지를 반환")
+    @GetMapping("/messages/space")
+    public ChatHistoryResponse getSpaceChatMessages(@RequestParam Long sessionId) {
+        return chatService.getSpaceChatHistory(sessionId);
+    }
+ 
+    @Operation(summary = "메시지 전송", description = "기존 세션 내 후속 채팅 입력 (가장 최근 세션만 가능)")
+    @PostMapping("/message")
+    public ChatMessageResponse sendMessage(@RequestBody ChatMessageRequest req) {
+        return chatService.sendMessage(req);
+    }
 }
+

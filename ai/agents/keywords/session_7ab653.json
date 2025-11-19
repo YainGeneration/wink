@@ -1,0 +1,76 @@
+{
+  "session_id": "7ab653",
+  "session_start": "2025-11-18 19:54:50",
+  "input_korean": [
+    "겨울밤 듣싶은 조용 잔잔한 발라드\u001b[D\u001b[D\u001b[D\u001b[A\u001b[B\u001b[B"
+  ],
+  "input_image": [
+    "/Users/eunjung/Desktop/wink/ai/images/test3.jpg"
+  ],
+  "english_text_from_agent1": [
+    "She wants to hear a quiet and soft ballad."
+  ],
+  "english_caption_from_agent2": [
+    "The image showcases a serene night scene in Venice, where the city is beautifully illuminated under the vast sky, with street lights dotting the landscape and adding to the warm, inviting ambiance."
+  ],
+  "merged_sentence": [
+    "Beneath the warm glow of Venetian streetlights mirroring the vast night sky, she closed her eyes, longing for a quiet ballad to drift on the gentle currents of the canals and fill the serene darkness."
+  ],
+  "english_keywords": [
+    [
+      "serene",
+      "romantic",
+      "nostalgia"
+    ]
+  ],
+  "recommended_songs": [
+    [
+      {
+        "id": "2oAPUnBerGoshpD7ueqwJW",
+        "track_name": "Jimi",
+        "artist_name": "Slightly Stoopid",
+        "recommend_score": 3.4731065006031994,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b273dc1886ac54cb45a8843404d7",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
+      },
+      {
+        "id": "4zwHUFfiBp8qLlSfh4POmu",
+        "track_name": "Abeja",
+        "artist_name": "Mndsgn",
+        "recommend_score": 3.2594920505165446,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b273a0b1d9c91c5cbcd2b38699cd",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/4zwHUFfiBp8qLlSfh4POmu"
+      },
+      {
+        "id": "0DhnpIeCaMp85Jyc39sUBy",
+        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
+        "artist_name": "Brad Breeck",
+        "recommend_score": 3.1522671949029926,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b2735b15504360a8dae75d9edf3b",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
+      },
+      {
+        "id": "0DhnpIeCaMp85Jyc39sUBy",
+        "track_name": "Gravity Falls Main Title Theme (from \"Gravity Falls\")",
+        "artist_name": "Brad Breeck",
+        "recommend_score": 3.1522671949029926,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b2735b15504360a8dae75d9edf3b",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/0DhnpIeCaMp85Jyc39sUBy"
+      },
+      {
+        "id": "27kGlAZVLGtgbWSuCbxXge",
+        "track_name": "奇術師のバイレ",
+        "artist_name": "Yoshihisa Hirano",
+        "recommend_score": 3.1170975331993045,
+        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b27334066102faed189fee1058f9",
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/27kGlAZVLGtgbWSuCbxXge"
+      }
+    ]
+  ],
+  "session_end": "2025-11-18 19:59:30"
+}
