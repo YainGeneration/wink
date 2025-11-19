@@ -17,9 +17,11 @@ import java.util.*;
 @Service
 public class GeminiService {
 
-    private static final String GEMINI_MODEL = "gemini-2.0-flash-exp";
-    private static final String GEMINI_URL =
-        "https://generativelanguage.googleapis.com/v1beta/models/" + GEMINI_MODEL + ":generateContent";
+private static final String GEMINI_MODEL = "gemini-2.0-flash-lite";
+
+private static final String GEMINI_URL =
+    "https://generativelanguage.googleapis.com/v1beta/models/" 
+    + GEMINI_MODEL + ":generateContent";
 
     @Value("${GEMINI_API_KEY:#{null}}")
     private String apiKey;
@@ -47,9 +49,9 @@ public class GeminiService {
                 return fallbackTopic(inputText);
             }
 
-            String prompt = "다음 문장의 핵심 주제를 한 문장으로 요약해줘. " +
+            String prompt = "입력된 문장애 있는 시간, 공간, 위치, 감정 상황 정보를 바탕으로 제목처럼 지어줘. " +
                     "꼭 필요한 문장 기호가 아닌 이상 넣지 마. " +
-                    "음악 분위기나 상황 중심으로 간결하게 표현해줘. 문장: \"" + inputText + "\"";
+                    "일반적으로 요약하지 말고 input text의 특성을 살려서 요약해 문장: \"" + inputText + "\"";
 
             String requestBody = String.format("""
                 {
@@ -237,6 +239,55 @@ public class GeminiService {
         } catch (Exception e) {
             e.printStackTrace();
             return List.of("오류", "발생");
+        }
+    }
+
+    /**
+     * 🎯 추가된 메서드: 단일 문장(최신 사용자 메시지) 요약
+     * @param inputText 요약할 단일 문장
+     * @return 요약된 결과
+     */
+    public String summarizeSentence(String inputText) {
+        if (inputText == null || inputText.isBlank()) {
+            return "메시지 내용이 없습니다.";
+        }
+
+        try {
+            if (apiKey == null || apiKey.isBlank()) {
+                return "Gemini API Key가 설정되지 않았습니다.";
+            }
+
+            String prompt = "다음 문장을 음악 감성과 관련된 핵심 키워드를 중심으로 5단어 이내로 요약해줘:\n" + inputText;
+
+            String requestBody = String.format("""
+                {
+                  "contents": [ { "parts": [ { "text": "%s" } ] } ]
+                }
+            """, prompt.replace("\"", "'"));
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(GEMINI_URL + "?key=" + apiKey))
+                    .timeout(Duration.ofSeconds(10))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                System.err.println("⚠️ 단일 문장 요약 실패 (" + response.statusCode() + ")");
+                return "단일 문장 요약 실패";
+            }
+
+            JsonNode root = mapper.readTree(response.body());
+            return root.path("candidates").get(0)
+                       .path("content").path("parts").get(0)
+                       .path("text").asText("요약 결과 없음");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "요약 중 오류 발생";
         }
     }
 }

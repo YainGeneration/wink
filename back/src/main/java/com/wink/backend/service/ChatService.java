@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ChatService {
@@ -107,7 +108,7 @@ public class ChatService {
             payload.put("sessionId", sessionId);
             payload.put("topic", topic);
             payload.put("inputText", req.getInputText());
-            payload.put("imageBase64", req.getImageBase64());   // ★ 변경 완료
+            payload.put("imageBase64", req.getImageBase64());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -308,5 +309,145 @@ public class ChatService {
                 .timestamp(msg.getCreatedAt())
                 .build();
     }
-}
 
+    // ================================
+    // ⑧ 메시지 내용 조회 + 요약 + 대표 메시지 API
+    // ================================
+    public ChatSummaryResponse getChatSummary(Long sessionId) {
+        ChatSession session = sessionRepo.findById(sessionId)
+                .orElseThrow(() -> new RuntimeException("Session not found: " + sessionId));
+
+        List<ChatMessage> messages = messageRepo.findBySessionIdOrderByCreatedAtAsc(sessionId);
+
+        if (messages.isEmpty()) {
+            throw new RuntimeException("No messages found for session: " + sessionId);
+        }
+
+        // 전체 메시지 → 프론트용 변환
+        List<ChatMessageResponse> messageResponses = new ArrayList<>();
+
+        for (ChatMessage msg : messages) {
+            List<String> keywords = new ArrayList<>();
+            List<AiResponseResponse.Recommendation> recs = new ArrayList<>();
+
+            try {
+                if (msg.getKeywordsJson() != null)
+                    keywords = mapper.readValue(msg.getKeywordsJson(), List.class);
+
+                if (msg.getRecommendationsJson() != null)
+                    recs = Arrays.asList(mapper.readValue(
+                            msg.getRecommendationsJson(),
+                            AiResponseResponse.Recommendation[].class
+                    ));
+            } catch (Exception ignored) {}
+
+            messageResponses.add(ChatMessageResponse.builder()
+                    .messageId(msg.getId())
+                    .sessionId(sessionId)
+                    .sender(msg.getSender())
+                    .text(msg.getText())
+                    .imageBase64(msg.getImageUrl() != null
+                            ? Arrays.asList(msg.getImageUrl().split(","))
+                            : null)
+                    .keywords(keywords)
+                    .recommendations(recs)
+                    .timestamp(msg.getCreatedAt())
+                    .build());
+        }
+
+        // 가장 최신 사용자 메시지
+        ChatMessage latestUserMsg = messages.stream()
+                .filter(m -> m.getSender().equals("user"))
+                .reduce((first, second) -> second)
+                .orElse(null);
+
+        String representativeText = (latestUserMsg != null) ? latestUserMsg.getText() : null;
+
+        List<String> representativeImages =
+                (latestUserMsg != null && latestUserMsg.getImageUrl() != null)
+                        ? Arrays.asList(latestUserMsg.getImageUrl().split(","))
+                        : null;
+
+        // 전체 요약 생성 (Gemini)
+        String fullConversationText = messages.stream()
+                .map(ChatMessage::getText)
+                .filter(Objects::nonNull)
+                .reduce((a, b) -> a + "\n" + b)
+                .orElse("");
+
+        String summary = geminiService.summarizeConversation(fullConversationText);
+
+        // 최신 메시지 요약
+        // TODO: GeminiService에 'summarizeSentence(String text)' 메서드를 실제로 구현해야 합니다.
+        String latestUserSummary = (representativeText != null) ? geminiService.summarizeSentence(representativeText) : null;
+
+        return ChatSummaryResponse.builder()
+                .sessionId(sessionId)
+                .topic(session.getTopic())
+                .latestUserSummary(latestUserSummary)
+                .summaryMode(ChatSummaryResponse.SummaryMode.builder()
+                        .representativeText(representativeText)
+                        .representativeImages(representativeImages)
+                        .summary(summary)
+                        .keywords(extractAllKeywords(messages))
+                        .recommendations(extractAllRecommendations(messages))
+                        .build())
+                .messages(messageResponses)
+                .timestamp(session.getStartTime())
+                .build();
+    }
+
+    // ================================
+    // 누락된 보조 메서드 추가
+    // ================================
+
+    /**
+     * 모든 ChatMessage에서 중복을 제거한 키워드를 추출했습니다.
+     * @param messages 채팅 메시지 목록
+     * @return 키워드 목록
+     */
+    private List<String> extractAllKeywords(List<ChatMessage> messages) {
+        Set<String> uniqueKeywords = new HashSet<>();
+        for (ChatMessage msg : messages) {
+            if (msg.getKeywordsJson() != null) {
+                try {
+                    List<String> keywords = mapper.readValue(msg.getKeywordsJson(), List.class);
+                    uniqueKeywords.addAll(keywords);
+                } catch (Exception ignored) {
+                    // JSON 파싱 오류는 무시합니다.
+                }
+            }
+        }
+        return new ArrayList<>(uniqueKeywords);
+    }
+
+    /**
+     * 모든 ChatMessage에서 중복을 제거한 추천 목록을 추출했습니다.
+     * @param messages 채팅 메시지 목록
+     * @return 추천 목록
+     */
+    private List<AiResponseResponse.Recommendation> extractAllRecommendations(List<ChatMessage> messages) {
+        // 중복 제거를 위해 Set을 사용하지만, Recommendation 객체에 equals/hashCode가 구현되어 있어야 제대로 동작했습니다.
+        // 여기서는 단순성을 위해 List로 반환하고, 노래 ID로 중복을 제거했습니다.
+        Map<Long, AiResponseResponse.Recommendation> uniqueRecommendations = new HashMap<>();
+
+        for (ChatMessage msg : messages) {
+            if (msg.getRecommendationsJson() != null) {
+                try {
+                    List<AiResponseResponse.Recommendation> recs = Arrays.asList(mapper.readValue(
+                            msg.getRecommendationsJson(),
+                            AiResponseResponse.Recommendation[].class
+                    ));
+                    for (AiResponseResponse.Recommendation rec : recs) {
+                        if (rec.getSongId() != null) {
+                            uniqueRecommendations.putIfAbsent(rec.getSongId(), rec);
+                        }
+                    }
+                } catch (Exception ignored) {
+                    // JSON 파싱 오류는 무시했습니다.
+                }
+            }
+        }
+        return new ArrayList<>(uniqueRecommendations.values());
+    }
+}

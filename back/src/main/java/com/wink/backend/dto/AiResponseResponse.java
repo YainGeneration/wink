@@ -1,16 +1,10 @@
 package com.wink.backend.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @Builder @AllArgsConstructor @NoArgsConstructor
 public class AiResponseResponse {
 
     private Long sessionId;
@@ -20,12 +14,12 @@ public class AiResponseResponse {
     private List<Recommendation> recommendations;
     private LocalDateTime timestamp;
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
+    /**
+     * AI 추천 노래 정보
+     */
+    @Getter @Setter @Builder @AllArgsConstructor @NoArgsConstructor
     public static class Recommendation {
-        private Long songId;         // ✅ songId가 없어도 null 허용
+        private Long songId;
         private String title;
         private String artist;
         private String albumCover;

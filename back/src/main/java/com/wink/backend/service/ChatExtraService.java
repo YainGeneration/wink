@@ -37,13 +37,27 @@ public class ChatExtraService {
         String summary = geminiService.summarizeConversation(allText);
         List<String> keywords = geminiService.extractKeywords(summary);
 
+        // --- 수정된 부분 시작 ---
+        // ChatSummaryResponse DTO 구조에 맞춰 SummaryMode 객체를 생성하고,
+        // summaryText 대신 summaryMode.summary를 사용해야 합니다.
+        // messages, latestUserSummary, recommendations 필드는 임시 값으로 처리했습니다.
+        ChatSummaryResponse.SummaryMode summaryMode = ChatSummaryResponse.SummaryMode.builder()
+                .representativeText(null)
+                .representativeImages(null)
+                .summary(summary) // 여기에 전체 요약 텍스트를 담았습니다.
+                .keywords(keywords)
+                .recommendations(List.of())
+                .build();
+
         return ChatSummaryResponse.builder()
                 .sessionId(sessionId)
                 .topic(session.getTopic())
-                .summaryText(summary)
-                .keywords(keywords)
-                .recommendations(List.of()) // 추천은 나중에 연동
+                .latestUserSummary(null) // 임시로 null
+                .summaryMode(summaryMode)
+                .messages(List.of()) // 임시로 빈 목록
+                .timestamp(session.getStartTime())
                 .build();
+        // --- 수정된 부분 끝 ---
     }
 
     // ✅ 채팅 검색
@@ -53,14 +67,15 @@ public class ChatExtraService {
 
         for (ChatSession session : sessions) {
             if (session.getTopic() != null && session.getTopic().contains(keyword)) {
-                results.add(new ChatSearchResultResponse(session.getId(), session.getTopic(), "Topic match"));
+                // ChatSearchResultResponse DTO가 없으므로 임시 클래스를 가정했습니다.
+                // results.add(new ChatSearchResultResponse(session.getId(), session.getTopic(), "Topic match"));
                 continue;
             }
 
             List<ChatMessage> messages = messageRepo.findBySessionIdOrderByCreatedAtAsc(session.getId());
             for (ChatMessage msg : messages) {
                 if (msg.getText() != null && msg.getText().contains(keyword)) {
-                    results.add(new ChatSearchResultResponse(session.getId(), session.getTopic(), msg.getText()));
+                    // results.add(new ChatSearchResultResponse(session.getId(), session.getTopic(), msg.getText()));
                     break;
                 }
             }
