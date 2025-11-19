@@ -65,14 +65,7 @@ def _load_retriever_resources():
 # =========================================================
 def get_song_recommendations(english_keywords: list[str], top_k: int = 5) -> list[dict]:
     """
-    영어 키워드 리스트를 기반으로 ChromaDB에서 유사한 노래를 검색합니다.
-    
-    Args:
-        english_keywords (list[str]): Agent 3가 추출한 키워드 (예: ["angry", "rock"])
-        top_k (int): 추천할 노래 개수
-
-    Returns:
-        list[dict]: 노래 메타데이터 딕셔너리의 리스트
+    RAG → (metadata) → Jamendo enrich → 반환
     """
     try:
         # 1. DB 및 모델 로드 (캐시 활용)
@@ -111,6 +104,9 @@ def get_song_recommendations(english_keywords: list[str], top_k: int = 5) -> lis
     
     
 # jamendo API 트랙 정보 가져오기
+
+JAMENDO_CLIENT_ID = "e0a6dcbf"
+
 def get_jamendo_track_info(track_id: str) -> dict:
     """
     Jamendo Public API로 track_id 정보를 조회한다.
@@ -158,8 +154,14 @@ def enrich_song_metadata(song_item: dict) -> dict:
     """
     RAG 검색 결과(song_item)에 Jamendo API 정보 추가
     """
-    track_id = str(song_item.get("track_id"))
-    jamendo_info = get_jamendo_track_info(track_id)
+    raw_id = str(song_item.get("track_id"))
+    clean_id = raw_id.replace("track_", "") # "track_12345" -> "12345"
+    
+    print("[DEBUG] raw_id =", raw_id)
+    print("[DEBUG] clean_id =", clean_id)
+    print(f"[DEBUG] Request URL = https://api.jamendo.com/v3.0/tracks/?client_id={JAMENDO_CLIENT_ID}&id={clean_id}")
+    
+    jamendo_info = get_jamendo_track_info(clean_id)
     return {
         **song_item,
         **jamendo_info
