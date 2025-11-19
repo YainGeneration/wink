@@ -66,6 +66,7 @@ const TopBar = styled.div`
   display: flex;
   justify-content: center;
   pointer-events: none;
+  z-index: 3;
 `;
 
 const BottomBar = styled.div`
@@ -153,7 +154,7 @@ const TabBar = styled.div<{ isRecommend: boolean }>`
   background-color: ${({ isRecommend }) =>
     isRecommend ? "rgba(255, 255, 255, 0.2)" : theme.colors.white};
   backdrop-filter: ${({ isRecommend }) =>
-    isRecommend ? "blur(30px)" : "none"};
+    isRecommend ? "blur(12px)" : "none"};
 `;
 
 // 탭 설정 배열
@@ -204,7 +205,7 @@ export default function BaseLayout({ children, showOverlay, backgroundColor }: P
   console.log(currentTrack)
   
   const currentPath = location.pathname;
-  const showPlayBar = currentPath === "/home";
+  const showPlayBar = currentPath === "/home" || currentPath === "/chat";
   const isRecommend = location.pathname === "/recommend";
 
   const prefixes = ['/home', '/chat'];
@@ -377,7 +378,7 @@ export default function BaseLayout({ children, showOverlay, backgroundColor }: P
         )}
 
         <BottomPlayerArea>
-          {showPlayBar && <PlayBar />}
+          {isChatMatch && <PlayBar />}
         
           <TabBar isRecommend={isRecommend}>
             {tabs.map((tab) => {

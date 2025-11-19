@@ -4,6 +4,7 @@ import theme from "../styles/theme";
 import search from "../assets/icons/search.svg"
 import pencil from "../assets/icons/pencil.svg"
 import AccordionMenu from "./AccordionMenu";
+import { useNavigate } from "react-router-dom";
 
 const SidebarWrap = styled.div<{ open: boolean }>`
   position: absolute;
@@ -40,6 +41,18 @@ const TopMenu = styled.div`
 `;
 
 export default function SideBar({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const navigate = useNavigate();
+
+  const handleSelectChattingSession = (sessionId: number) => {
+    navigate(`/chat/${sessionId}`);
+    onClose(); // 사이드바 닫기
+  };
+
+  const handleSelectHistorySession = (sessionId: number) => {
+    navigate(`/history/${sessionId}`);
+    onClose(); // 사이드바 닫기
+  };
+  
   return (
     <>
       <SidebarWrap open={open}>
@@ -54,12 +67,13 @@ export default function SideBar({ open, onClose }: { open: boolean; onClose: () 
 
         <AccordionMenu title="나의 순간">
           {/* 나의 순간에 들어갈 내용 (리스트, 버튼 등) */}
-          <button>
+          <button onClick={() => handleSelectChattingSession(45)}>
             <S.Body1>
-              밤 산책 감성
+              해질녘 집중력 증폭 음악
+              {/* 세션id = 45 */}
             </S.Body1>
           </button>
-          <button>
+          <button onClick={() => handleSelectHistorySession(40)}>
             <S.Body1>
               독서 중 재즈 추천
             </S.Body1>
