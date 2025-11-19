@@ -44,7 +44,7 @@ const theme: DefaultTheme = {
     },
     shadow: {
       default: "0px 0px 20px 0px rgba(0, 0, 0, 0.05)",
-      pin: "0px 0px 10px 0px rgba(0, 0, 0, 0.3)"
+      pin: "0px 0px 10px 0px rgba(0, 0, 0, 0.3)",
     },
 };
 

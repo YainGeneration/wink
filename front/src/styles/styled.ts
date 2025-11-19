@@ -27,7 +27,7 @@ S.Smalltext = styled.div`
     ${typography.st}
 `;
 S.Padding16px = styled.div`
-    padding: 16px;
+    padding: 0px 16px;
 `;
 
 export default S;

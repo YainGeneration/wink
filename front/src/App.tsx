@@ -8,6 +8,8 @@ import WinkSplash from "./pages/WinkSplash";
 import { useEffect, useState } from "react";
 import AppLayout from "./layouts/AppLayout";
 import BaseLayout from "./layouts/BaseLayout";
+import { MusicPlayerProvider } from "./components/MusicPlayerContext";
+import GlobalAudio from "./components/GlobalAudio";
 
 function App(){
   const [showSplash, setShowSplash] = useState(
@@ -51,24 +53,27 @@ function App(){
   return (
     <BrowserRouter>
       <ThemeProvider theme={theme}>
-        <GlobalStyle />
-        {/* AppLayout으로 모든 페이지 감싸기 */}
-        <AppLayout backgroundColor="#fff">
-          {/* BaseLayout: StatusBar, HomeIndicator, Overlay 포함 */}
-          <BaseLayout showOverlay={showOverlay}>
-            <AnimatePresence mode="wait">
-              {showSplash ? (
-                <WinkSplash onDone={
-                  () => {
-                    setShowSplash(false);
-                    sessionStorage.setItem("splashSeen", "true");
-                }} stepMs={1200} />
-              ) : (
-                <AppRoutes setShowOverlay={setShowOverlay} />
-              )}
-            </AnimatePresence>
-          </BaseLayout>
-        </AppLayout>
+        <MusicPlayerProvider>
+          <GlobalStyle />
+          <GlobalAudio />
+          {/* AppLayout으로 모든 페이지 감싸기 */}
+          <AppLayout backgroundColor="#fff">
+            {/* BaseLayout: StatusBar, HomeIndicator, Overlay 포함 */}
+            <BaseLayout showOverlay={showOverlay}>
+              <AnimatePresence mode="wait">
+                {showSplash ? (
+                  <WinkSplash onDone={
+                    () => {
+                      setShowSplash(false);
+                      sessionStorage.setItem("splashSeen", "true");
+                  }} stepMs={1200} />
+                ) : (
+                  <AppRoutes setShowOverlay={setShowOverlay} />
+                )}
+              </AnimatePresence>
+            </BaseLayout>
+          </AppLayout>
+        </MusicPlayerProvider>
       </ThemeProvider>
     </BrowserRouter>
   );

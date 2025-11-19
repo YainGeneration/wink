@@ -1,13 +1,15 @@
-// src/layouts/AppLayout.tsx
 import styled from "styled-components";
 import statusBar from "../assets/ui/StatusBar.svg";
 import homeIndicator from "../assets/ui/HomeIndicator.svg";
 import theme from "../styles/theme";
 import S from "../styles/styled.ts";
 import pause from "../assets/icons/player-pause.svg";
+import play from "../assets/icons/player-play.svg";
 import back from "../assets/icons/player-skip-back.svg";
 import forward from "../assets/icons/player-skip-forward.svg";
 import playlist from "../assets/icons/playlist.svg";
+import wave from "../assets/icons/wave.svg";
+import upWhite from "../assets/icons/arrow-up-white.svg";
 import home from "../assets/icons/home.svg"
 import homeFill from "../assets/icons/home-fill.svg"
 import mapPin from "../assets/icons/map-pin.svg"
@@ -18,11 +20,14 @@ import dashboard from "../assets/icons/layout-dashboard.svg"
 import dashboardFill from "../assets/icons/layout-dashboard-fill.svg"
 import user from "../assets/icons/user.svg"
 import userFill from "../assets/icons/user-fill.svg"
-import sugarAlbumCover from "../assets/img/sugar_album_cover.jpg"
-import { head } from "framer-motion/client";
+import plusG600 from "../assets/icons/plus-g600.svg"
 import { useLocation, useNavigate } from "react-router-dom"; 
-import { useMemo } from "react";
-
+import { useRef, useState, useEffect, useMemo } from "react";
+import { useMusicPlayer } from "../components/MusicPlayerContext.tsx";
+import PlayBar from "../components/PlayBar";
+import DefaultHeader from "../components/DefaultHeader.tsx";
+import SideBar from "../components/SideBar.tsx";
+import AddPhoto from "../components/BottomSheet/AddPhoto.tsx";
 
 type Props = {
   children: React.ReactNode;
@@ -44,7 +49,6 @@ const LayoutWrap = styled.div<{ backgroundColor?: string }>`
 
 const Content = styled.main`
   width: 100%;
-  padding: 58px 0px 0px;
   height: 100%
 `;
 
@@ -80,17 +84,39 @@ const Overlay = styled.div`
 
 // 채팅 입력바
 const ChatInput = styled.div`
+  height: max-content;
+  padding: 8px 4px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
   width: 90%;
   background-color: ${theme.colors.white};
   border: 1px solid ${theme.colors.grayscale.g100};
-  height: 46px;
   position: absolute;
   bottom: 170px;
-  border-radius: 23px;
+  border-radius: 22px;
   box-shadow: ${theme.shadow.default};
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
+
+   & input {
+    border: none;
+    outline: none;
+  }
+
+  & .imgWrapper {
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0px 16px 16px;
+    gap: 8px;
+
+    & img {
+      width: 114px;
+      height: 114px;
+      border-radius: 10px;
+      margin-top: 6px;
+    }
+  }
 `
 
 // 플레이바 + 탭바 감싸는 Wrapper
@@ -107,19 +133,6 @@ const BottomPlayerArea = styled.div`
   z-index: 3; /* Overlay보다 위에 있어야 함 */
   pointer-events: auto;
   box-shadow: ${theme.shadow.default}
-`;
-
-// 추가: 음악 플레이바
-const PlayerBar = styled.div`
-  height: 76px;
-  padding: 8px 16px 0px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-direction: column;
-
-  background-color: ${({ theme }) => theme.colors.white};
 `;
 
 // 추가: 탭바 (하단 navigation)
@@ -171,155 +184,221 @@ const tabs = [
 
 export default function BaseLayout({ children, showOverlay }: Props) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { currentTrack } = useMusicPlayer();
+  console.log(currentTrack)
+  
   const currentPath = location.pathname;
-
-  const isHomePage = currentPath === "/home";
+  const showPlayBar = currentPath === "/home";
 
   const prefixes = ['/home', '/chat'];
-  const isMatch = useMemo(() => {
+  const isChatMatch = useMemo(() => {
     return prefixes.some(prefix => currentPath.startsWith(prefix));
   }, [currentPath, prefixes]);
 
-  const navigate = useNavigate();
-  
+  const [isSideBarOpen, setSideBarOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [addPhotoSheetOpen, setAddPhotoSheetOpen] = useState(false);
+
+
+
+
+  // 오디오 재생 진행바 상태
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+
+   // currentTrack 변경될 때마다 audio 재생
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.load(); // 재생 준비까지만
+      // audioRef.current.play(); // 자동재생 막기
+    }
+  }, [currentTrack]);
+
+
   return (
-    <LayoutWrap>
-      <TopBar>
-        <img src={statusBar} alt="statusBar" />
-      </TopBar>
+    <>
+      
+      <LayoutWrap>
+        <SideBar open={isSideBarOpen} onClose={() => setSideBarOpen(false)} />
+        <AddPhoto
+          open={addPhotoSheetOpen}
+          onClose={() => setAddPhotoSheetOpen(false)}
+          onSelect={(img) => setSelectedImage(img)} // 선택한 이미지들 세팅
+        />
 
-      <Content>{children}</Content>
+        <TopBar>
+          <img src={statusBar} alt="statusBar" />
+        </TopBar>
 
-      { isMatch && (
-        <ChatInput>
-          <div>
-            <img src="" alt="" />
-          </div>
-          <button></button>
-          <input type="text" />
-          <button></button>
-        </ChatInput>
-      )}
+        <div style={{ width: "100%", padding: "16px" }}>
 
-      <BottomPlayerArea>
-        {isHomePage && (
-          <PlayerBar>
+          <DefaultHeader onMenuClick={() => setSideBarOpen(true)} />
+        </div>
+
+        <Content>{children}</Content>
+
+        { isChatMatch && (
+          <ChatInput>
+            {/* 
+            이 자리에 아래와 같이 AddPhoto에서 선택한 사진들이 들어가야 함
+            <div className="imgWrapper">
+              <img src="https://picsum.photos/id/1011/200/200" alt="" />
+            </div> */}
+
+            {/* 선택된 이미지가 있으면 표시 */}
+            {selectedImage && (
+              <div className="imgWrapper"
+                style={{
+                  // width: "100px",
+                  // overflow: "hidden",
+                  // borderRadius: "6px",
+                  // marginLeft: "8px"
+                  // display: flex;
+                  // width: 100%;
+                  // justify-content: flex-start;
+                  // padding: 0px 16px 16px;
+                }}
+              >
+                <img
+                  src={selectedImage}
+                  alt=""
+                />
+              </div>
+            )}
+
+
+
             <div
               style={{
                 display: "flex",
-                alignContent: "center",
-                justifyContent: "space-between",
-                width: "100%",
-                paddingTop: "10px"
-              }}
+                flexDirection: "row",
+                alignItems: "center",
+                width: "100%"
+              }}  
             >
-              <div>
-                {/* <img src="" alt="" /> */}
+                {/* 현재 재생중인 앨범 커버 */}
                 <div
                   style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    gap: "11px",
-                    
+                    width: "30px",
+                    height: "30px",
+                    position: "relative",
+                    overflow: "hidden",
+                    borderRadius: "20px",
+                    marginLeft: "8px",
                   }}
                 >
-                  <div
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "4px",
-                      overflow: "hidden"
+                  <img 
+                    src={currentTrack.image} alt="" 
+                    style={{ 
+                      width: "100%", 
+                      height: "100%", 
+                      objectFit: "cover",
+                      filter: "brightness(80%)",
                     }}
-                  >
-                    <img src={sugarAlbumCover} alt=""
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover"
-                      }}
-                    />
-                  </div>
-                  <div
+                  />
+                  <img
+                    src={wave}
+                    alt="icon"
                     style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center"
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
                     }}
-                  >
-                    <S.Caption>노래 제목</S.Caption>
-                    <div style={{color: theme.colors.grayscale.g600}}>
-                      <S.Smalltext>가수 이름</S.Smalltext>
-                    </div>
-                  </div>
-                  
+                  />
                 </div>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  gap: "12px",
-                  alignContent: "center",
-                  flexWrap: "unset"
-                }}
-              >
-                <button><img src={back} alt="" /></button>
-                <button><img src={pause} alt="" /></button>
-                <button><img src={forward} alt="" /></button>
-                <button><img src={playlist} alt="" /></button>
-              </div>
-            </div>
-
-            {/* 재생바 */}
-            <div>
-              
-            </div>
-          </PlayerBar>
-        )}
-        
-
-        <TabBar>
-          {tabs.map((tab) => {
-            const isActive = location.pathname === tab.path;
-
-            return (
-              <button
-                key={tab.path}
-                onClick={() => navigate(tab.path)}   // 클릭 시 라우팅
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: "2px",
-                  background: "none",
-                  border: "none",
-                }}
-              >
-                <img 
-                  src={isActive ? tab.iconFill : tab.icon}  // 아이콘 Fill 적용
-                  alt={tab.label}
-                />
-                <S.Smalltext
+                <button
                   style={{
-                    color: isActive
-                      ? theme.colors.black
-                      : theme.colors.grayscale.g500
+                    width: "30px",
+                    height: "30px",
+                    overflow: "hidden",
+                    borderRadius: "20px",
+                    marginLeft: "6px",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    display: "flex",
+                    border: `1px solid ${theme.colors.grayscale.g100}`
+                  }}
+                  
+                  onClick={() => setAddPhotoSheetOpen(true)}
+                >
+                  <img src={plusG600} alt="" 
+                    style={{ width: "24px", height: "24px", objectFit: "cover" }}
+                  />
+                </button>
+                <input type="text" 
+                  style={{flex: "1", marginLeft: "10px"}}
+                  placeholder="오늘은 어떤 노래를 들어볼까요?"/>
+                <button
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    overflow: "hidden",
+                    borderRadius: "20px",
+                    marginRight: "10px",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    display: "flex",
+                    backgroundColor: theme.colors.primary,
                   }}
                 >
-                  {tab.label}
-                </S.Smalltext>
-              </button>
-            );
-          })}
-        </TabBar>
+                  <img src={upWhite} alt="" 
+                    style={{ width: "24px", height: "24px", objectFit: "cover" }}
+                  />
+                </button>
+            </div>
+            
+          </ChatInput>
+        )}
 
-      </BottomPlayerArea>
+        <BottomPlayerArea>
+          {showPlayBar && <PlayBar />}
+        
+          <TabBar>
+            {tabs.map((tab) => {
+              const isActive = location.pathname === tab.path;
 
-      <BottomBar>
-        <img src={homeIndicator} alt="homeIndicator" />
-      </BottomBar>
+              return (
+                <button
+                  key={tab.path}
+                  onClick={() => navigate(tab.path)}   // 클릭 시 라우팅
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "2px",
+                    background: "none",
+                    border: "none",
+                  }}
+                >
+                  <img 
+                    src={isActive ? tab.iconFill : tab.icon}  // 아이콘 Fill 적용
+                    alt={tab.label}
+                  />
+                  <S.Smalltext
+                    style={{
+                      color: isActive
+                        ? theme.colors.black
+                        : theme.colors.grayscale.g500
+                    }}
+                  >
+                    {tab.label}
+                  </S.Smalltext>
+                </button>
+              );
+            })}
+          </TabBar>
 
-      {showOverlay && <Overlay />}
-    </LayoutWrap>
+        </BottomPlayerArea>
+
+        <BottomBar>
+          <img src={homeIndicator} alt="homeIndicator" />
+        </BottomBar>
+
+        {showOverlay && <Overlay />}
+      </LayoutWrap>
+    </>
+    
   );
 }

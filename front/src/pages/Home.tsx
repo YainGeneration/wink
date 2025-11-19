@@ -23,7 +23,6 @@ export default function Home({ setShowOverlay }: HomeProps) {
   
   return (
     <S.Padding16px>
-      <DefaultHeader/>
         <div style={{marginLeft: "14px"}}>
           <div>
             <S.Heading2>지금 어떤 순간을</S.Heading2>
@@ -68,8 +67,8 @@ export default function Home({ setShowOverlay }: HomeProps) {
         </div>
       
       
-      <button onClick={openSheet} style={{position: "relative", zIndex: 1000}}>사진 추가하기</button>
-      <button onClick={closeSheet} style={{position: "relative", zIndex: 1000}}>사진 닫기</button>
+      {/* <button onClick={openSheet} style={{position: "relative", zIndex: 1000}}>사진 추가하기</button>
+      <button onClick={closeSheet} style={{position: "relative", zIndex: 1000}}>사진 닫기</button> */}
     </S.Padding16px>
   );
 }
