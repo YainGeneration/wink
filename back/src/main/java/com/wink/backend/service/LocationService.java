@@ -79,10 +79,8 @@ public class LocationService {
 
         Random rand = new Random();
 
-        int minPeople = 15;
-        int maxPeople = 50;
-        int peopleCount = rand.nextInt(maxPeople - minPeople + 1) + minPeople; 
-        // → 15 ~ 50 사이 랜덤
+        int peopleCount = 5; // 다섯 명 고정
+
 
         // ----- 장르별 곡 풀 -----
         List<String[]> kpop = List.of(

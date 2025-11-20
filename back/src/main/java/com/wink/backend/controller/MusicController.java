@@ -23,39 +23,39 @@ public class MusicController {
         return musicService.getMusicDetail(songId);
     }
 
-    @Operation(summary = "음악 재생")
-    @PostMapping("/play")
-    public MusicControlButton playMusic(@RequestParam Long songId, @RequestParam Long sessionId) {
-        return musicService.playMusic(songId, sessionId);
-    }
+    // @Operation(summary = "음악 재생")
+    // @PostMapping("/play")
+    // public MusicControlButton playMusic(@RequestParam Long songId, @RequestParam Long sessionId) {
+    //     return musicService.playMusic(songId, sessionId);
+    // }
 
-    @Operation(summary = "일시정지")
-    @PostMapping("/pause")
-    public MusicControlButton pauseMusic(@RequestParam Long songId, @RequestParam Long sessionId) {
-        return musicService.pauseMusic(songId, sessionId);
-    }
+    // @Operation(summary = "일시정지")
+    // @PostMapping("/pause")
+    // public MusicControlButton pauseMusic(@RequestParam Long songId, @RequestParam Long sessionId) {
+    //     return musicService.pauseMusic(songId, sessionId);
+    // }
 
-    @Operation(summary = "다음 곡 재생")
-    @PostMapping("/next")
-    public MusicControlButton nextMusic(@RequestParam Long songId, @RequestParam Long sessionId) {
-        return musicService.nextMusic(songId, sessionId);
-    }
+    // @Operation(summary = "다음 곡 재생")
+    // @PostMapping("/next")
+    // public MusicControlButton nextMusic(@RequestParam Long songId, @RequestParam Long sessionId) {
+    //     return musicService.nextMusic(songId, sessionId);
+    // }
     
-    @Operation(summary = "이전 곡 재생")
-    @PostMapping("/prev")
-    public MusicControlButton prevMusic(@RequestParam Long songId, @RequestParam Long sessionId) {
-        return musicService.prevMusic(songId, sessionId);
-    }
+    // @Operation(summary = "이전 곡 재생")
+    // @PostMapping("/prev")
+    // public MusicControlButton prevMusic(@RequestParam Long songId, @RequestParam Long sessionId) {
+    //     return musicService.prevMusic(songId, sessionId);
+    // }
 
-    @Operation(summary = "반복 재생 토글", description = "반복 재생을 켜거나 끕니다.")
-    @PostMapping("/repeat")
-    public String toggleRepeat() {
-        return musicService.toggleRepeatMode();
-    }
+    // @Operation(summary = "반복 재생 토글", description = "반복 재생을 켜거나 끕니다.")
+    // @PostMapping("/repeat")
+    // public String toggleRepeat() {
+    //     return musicService.toggleRepeatMode();
+    // }
 
-    @Operation(summary = "좋아요 추가")
-    @PostMapping("/like")
-    public MusicDetailResponse likeSong(@RequestParam Long songId) {
-        return musicService.likeSong(songId);
-    }
+    // @Operation(summary = "좋아요 추가")
+    // @PostMapping("/like")
+    // public MusicDetailResponse likeSong(@RequestParam Long songId) {
+    //     return musicService.likeSong(songId);
+    // }
 }
