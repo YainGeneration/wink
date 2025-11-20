@@ -485,6 +485,47 @@ if __name__ == "__main__":
     choice = input("\n새 대화를 시작하려면 'new' 입력 (기존 이어하기는 Enter): ").strip().lower()
 
     # ... (기존 세션 아카이빙 및 새 세션 시작 로직은 동일)
+    if choice == "new":
+        # 1) 기존 active_session.json 백업
+        if os.path.exists(active_session_path):
+            try:
+                with open(active_session_path, "r", encoding="utf-8") as f:
+                    old_data = json.load(f)
+                end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                old_data["session_end"] = end_time
+
+                archive_name = f"session_{uuid.uuid4().hex[:6]}.json"
+                archive_path = os.path.join(SAVE_DIR, archive_name)
+
+                with open(archive_path, "w", encoding="utf-8") as f:
+                    json.dump(old_data, f, ensure_ascii=False, indent=2)
+
+                print(f"🗂️ 세션 보관 완료: {archive_name} (session_end: {end_time})")
+
+            except Exception as e:
+                print(f"⚠️ 세션 아카이빙 오류: {e}")
+
+            # 2) 🔥 이 줄이 새로운 세션이 정상 생성되게 하는 핵심!
+            os.remove(active_session_path)
+
+        # 3) 새로운 세션 파일 생성
+        new_session = {
+            "session_id": uuid.uuid4().hex[:6],
+            "session_start": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "input_korean": [],
+            "input_image": [],
+            "english_text_from_agent1": [],
+            "english_caption_from_agent2": [],
+            "merged_sentence": [],
+            "english_keywords": [],
+            "recommended_songs": []
+        }
+
+        with open(active_session_path, "w", encoding="utf-8") as f:
+            json.dump(new_session, f, ensure_ascii=False, indent=2)
+
+        print(f"🆕 새 세션 생성 완료!")
+
 
     # ------------------------------------------------
     # ✨ 모드 선택 로직 추가

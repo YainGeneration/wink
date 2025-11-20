@@ -43,10 +43,11 @@ const GlobalStyle = createGlobalStyle`
 
     /* 스크롤바 커스텀 */
     ::-webkit-scrollbar {
-        width: 6px;
+        width: 0px;
     }
     ::-webkit-scrollbar-thumb {
-        background-color: ${({ theme }) => theme.colors.grayscale.g200};
+        // background-color: ${({ theme }) => theme.colors.grayscale.g200};
+        background-color: transparent;
         border-radius: 4px;
     }
 `;

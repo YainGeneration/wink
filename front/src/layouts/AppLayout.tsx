@@ -46,12 +46,12 @@ const Wrapper = styled.div<{ backgroundColor?: string }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  // background-color: ${({ backgroundColor }) => backgroundColor};
   width: 393px; /* iPhone 14 width */
   height: 852px; /* iPhone 14 height */
   margin: 0 auto;
-  // border-radius: 20px;
   box-shadow: 0 0 20px 0px rgba(0, 0, 0, 0.1);
+  // overflow-y: auto;
+  // overflow-x: hidden;
   overflow: hidden;
   margin-top: 40px;
 `;
