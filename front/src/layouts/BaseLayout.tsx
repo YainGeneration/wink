@@ -55,7 +55,10 @@ const LayoutWrap = styled.div<{ backgroundColor?: string }>`
 
 const Content = styled.main`
   width: 100%;
-  height: 100%
+  // height: 100%;
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 70px; /* PlayBar/TabBar 공간 확보 */
 `;
 
 const TopBar = styled.div`
@@ -245,11 +248,7 @@ export default function BaseLayout({ children, showOverlay, backgroundColor }: P
       
       <LayoutWrap backgroundColor={backgroundColor}>
         <SideBar open={isSideBarOpen} onClose={() => setSideBarOpen(false)} />
-        <AddPhoto
-          open={addPhotoSheetOpen}
-          onClose={() => setAddPhotoSheetOpen(false)}
-          onSelect={(img) => setSelectedImage(img)} // 선택한 이미지들 세팅
-        />
+        
 
         <TopBar>
           <img src={statusBar} alt="statusBar" />
@@ -261,7 +260,14 @@ export default function BaseLayout({ children, showOverlay, backgroundColor }: P
           </div>
         )}
 
-        <Content>{children}</Content>
+        <Content>
+          {children}
+          <AddPhoto
+            open={addPhotoSheetOpen}
+            onClose={() => setAddPhotoSheetOpen(false)}
+            onSelect={(img) => setSelectedImage(img)} // 선택한 이미지들 세팅
+          />
+        </Content>
 
         { isChatMatch && (
           <ChatInput>

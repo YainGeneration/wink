@@ -22,7 +22,7 @@ const AppRoutes = ({ setShowOverlay }: AppRoutesProps) => {
       <Route path="/chat/:sessionId" element={<ChatPage />} />
 
       {/* (선택) 과거 대화 보기 */}
-      <Route path="/history/:id" element={<HistoryDetail />} />
+      <Route path="/history/:sessionId" element={<HistoryDetail />} />
 
       {/* 주변 */}
       <Route path="/nearby" element={<NearBy />} />

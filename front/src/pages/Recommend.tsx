@@ -54,7 +54,7 @@ export default function Recommend() {
     position: relative;
     left: 20%;
     top: 110px;
-    z-index: 10;
+    z-index: 2;
     overflow: hidden;
 
     & img.cover {
