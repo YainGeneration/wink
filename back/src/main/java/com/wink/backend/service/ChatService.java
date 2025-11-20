@@ -1,5 +1,8 @@
 package com.wink.backend.service;
 
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wink.backend.dto.*;
 import com.wink.backend.entity.ChatMessage;
 import com.wink.backend.entity.ChatSession;
@@ -9,9 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -23,51 +24,106 @@ public class ChatService {
     private final ChatMessageRepository messageRepo;
     private final RestTemplate restTemplate;
     private final ObjectMapper mapper = new ObjectMapper();
+    private final ImageService imageService;
+
 
     @Value("${ai.server.url}")
     private String aiServerUrl;
 
     public ChatService(ChatSessionRepository sessionRepo,
-                       GeminiService geminiService,
-                       ChatMessageRepository messageRepo) {
+                    GeminiService geminiService,
+                    ChatMessageRepository messageRepo,
+                    ImageService imageService) {
         this.sessionRepo = sessionRepo;
         this.geminiService = geminiService;
         this.messageRepo = messageRepo;
+        this.imageService = imageService;
         this.restTemplate = new RestTemplate();
     }
 
-    // ✅ 나의 순간
-    public ChatStartResponse startMy(ChatStartMyRequest req) {
+
+    // =====================================================
+    // 🚀 공통: 이전 세션 종료 (같은 타입만)
+    // =====================================================
+    private void endPreviousSessions(String type) {
+        List<ChatSession> sessions = sessionRepo.findByTypeOrderByStartTimeDesc(type);
+        for (ChatSession s : sessions) {
+            if (!Boolean.TRUE.equals(s.getIsEnded())) {
+                s.setIsEnded(true);
+                s.setEndTime(LocalDateTime.now());
+                sessionRepo.save(s);
+            }
+        }
+    }
+
+    // =====================================================
+    // ① 나의 순간 시작 (→ 사용자 메시지 저장 + 바로 AI 응답 생성)
+    // =====================================================
+    // 반환 타입: AiResponseResponse
+    public AiResponseResponse startMy(ChatStartMyRequest req) {
+
+        endPreviousSessions("MY"); // 같은 타입 모두 종료
+
         ChatSession session = new ChatSession();
         session.setType("MY");
         session.setStartTime(LocalDateTime.now());
+        session.setIsEnded(false);
 
+        // 🔥 제미나이 기반 주제 생성
         String topic = geminiService.extractTopic(req.getInputText());
         session.setTopic(topic);
-        sessionRepo.save(session);
 
-        return new ChatStartResponse(
-                session.getId(),
-                session.getType(),
-                session.getTopic(),
-                "Gemini 기반 주제 추출 완료",
-                session.getStartTime()
-        );
+        sessionRepo.save(session); // 세션 저장
+
+        // 1. 첫 사용자 메시지 저장 (텍스트 + 이미지)
+        ChatMessage userMsg = new ChatMessage();
+        userMsg.setSession(session);
+        userMsg.setSender("user");
+        userMsg.setText(req.getInputText());
+        if (req.getImageBase64() != null && !req.getImageBase64().isBlank()) {
+            try {
+                String fileName = imageService.saveBase64Image(req.getImageBase64());
+                userMsg.setImageUrl(fileName);
+            } catch (IOException e) {
+                e.printStackTrace();
+                userMsg.setImageUrl(null);
+            }
+        }
+        messageRepo.save(userMsg); // 채팅 내용 저장 완료
+
+        // 2. AI 응답 생성 요청 (이미지도 함께 전달)
+        AiResponseRequest aiReq = new AiResponseRequest();
+        aiReq.setSessionId(session.getId());
+        aiReq.setInputText(req.getInputText());
+        aiReq.setImageBase64(req.getImageBase64());
+
+        // 3. AI 응답을 받아 바로 반환
+        return generateAiResponse(aiReq);
     }
 
-    // ✅ 공간의 순간
-    public ChatStartResponse startSpace(ChatStartSpaceRequest req) {
+    // =====================================================
+    // ② 공간의 순간 시작 (→ 사용자 메시지 저장 + 바로 AI 응답 생성)
+    // =====================================================
+    // 반환 타입: AiResponseResponse
+    public AiResponseResponse startSpace(ChatStartSpaceRequest req) {
+
+        endPreviousSessions("SPACE"); // 같은 타입 모두 종료
+
         ChatSession session = new ChatSession();
         session.setType("SPACE");
         session.setStartTime(LocalDateTime.now());
+        session.setIsEnded(false);
 
+        // [수정 완료] 주변 음악 요약 변수를 메서드 시작 부분에서 초기화
         String nearbySummary = "";
         if (req.getNearbyMusic() != null && !req.getNearbyMusic().isEmpty()) {
             nearbySummary = req.getNearbyMusic().stream()
                     .map(m -> m.getTitle() + " - " + m.getArtist())
-                    .reduce((a, b) -> a + ", " + b).orElse("");
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse("");
         }
 
+        // 🔥 장소 기반 프롬프트
         String prompt = String.format(
                 "📍장소명: %s (%s)\n🎧 주변 음악: %s\n이 장소의 분위기와 어울리는 음악적 주제를 한 문장으로 요약해줘.",
                 req.getLocation().getPlaceName(),
@@ -77,18 +133,32 @@ public class ChatService {
 
         String topic = geminiService.extractTopic(prompt);
         session.setTopic(topic);
-        sessionRepo.save(session);
 
-        return new ChatStartResponse(
-                session.getId(),
-                session.getType(),
-                session.getTopic(),
-                "Gemini 기반 공간 주제 생성 완료",
-                session.getStartTime()
-        );
+        sessionRepo.save(session); // 세션 저장
+
+        String initialText = String.format("%s에 왔습니다.", req.getLocation().getPlaceName());
+
+        // 1. 첫 사용자 메시지 저장 (장소명)
+        ChatMessage userMsg = new ChatMessage();
+        userMsg.setSession(session);
+        userMsg.setSender("user");
+        userMsg.setText(initialText);
+        // 공간의 순간은 현재 이미지 X (필요하면 ChatStartSpaceRequest에 imageBase64 추가 후 동일 처리)
+        messageRepo.save(userMsg); // 채팅 내용 저장 완료
+
+        // 2. AI 응답 생성 요청
+        AiResponseRequest aiReq = new AiResponseRequest();
+        aiReq.setSessionId(session.getId());
+        aiReq.setInputText(initialText);
+        aiReq.setImageBase64(null);
+
+        // 3. AI 응답을 받아 바로 반환
+        return generateAiResponse(aiReq);
     }
 
-    // ✅ AI 서버 호출
+    // =====================================================
+    // ③ AI 응답 생성 (AI 메시지 저장)
+    // =====================================================
     public AiResponseResponse generateAiResponse(AiResponseRequest req) {
         try {
             Long sessionId = req.getSessionId();
@@ -96,77 +166,129 @@ public class ChatService {
                     .orElseThrow(() -> new RuntimeException("Session not found: " + sessionId));
 
             String topic = session.getTopic();
-            ObjectMapper mapper = new ObjectMapper();
 
+            // AI 서버 요청 payload
             Map<String, Object> payload = new HashMap<>();
             payload.put("sessionId", sessionId);
             payload.put("topic", topic);
             payload.put("inputText", req.getInputText());
-            payload.put("imageUrls", req.getImageUrls());
+            payload.put("imageBase64", req.getImageBase64());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
 
-            System.out.println("🚀 Flask 요청: " + aiServerUrl);
-            System.out.println("📦 Payload: " + mapper.writeValueAsString(payload));
-
             ResponseEntity<String> response = restTemplate.exchange(
                     aiServerUrl, HttpMethod.POST, entity, String.class);
 
-            System.out.println("📥 Flask 응답: " + response.getStatusCode());
-            System.out.println("📦 Body: " + response.getBody());
-
-            ChatMessage userMsg = new ChatMessage();
-            userMsg.setSession(session);
-            userMsg.setSender("user");
-            userMsg.setText(req.getInputText());
-            if (req.getImageUrls() != null && !req.getImageUrls().isEmpty()) {
-                userMsg.setImageUrl(String.join(",", req.getImageUrls()));
+            if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
+                throw new RuntimeException("AI Server Error");
             }
-            messageRepo.save(userMsg);
 
-            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                JsonNode root = mapper.readTree(response.getBody());
+            JsonNode root = mapper.readTree(response.getBody());
 
-                List<String> keywords = mapper.convertValue(
-                        root.path("keywords"),
-                        mapper.getTypeFactory().constructCollectionType(List.class, String.class)
-                );
-                keywords = geminiService.translateKeywords(keywords);
+            // -----------------------------
+            // 1) 텍스트 관련 필드 파싱
+            // -----------------------------
+            String mergedSentence = root.path("mergedSentence").asText("");
+            String interpretedSentence = geminiService.interpretMergedSentence(mergedSentence);
 
-                List<AiResponseResponse.Recommendation> recs = new ArrayList<>();
-                for (JsonNode songNode : root.path("recommendations")) {
-                    recs.add(AiResponseResponse.Recommendation.builder()
-                            .songId(songNode.has("songId") ? songNode.path("songId").asLong() : null)
-                            .title(songNode.path("title").asText(""))
-                            .artist(songNode.path("artist").asText(""))
-                            .albumCover(songNode.path("albumCover").asText(""))
-                            .previewUrl(songNode.path("previewUrl").asText(""))
-                            .build());
+            // 새로 추가: english_text / english_caption
+            String englishText = root.path("english_text").asText(null);
+            String englishCaption = root.path("english_caption").asText(null);
+
+            // 이미지 설명 한국어 버전 (최우선: AI가 직접 준 imageDescriptionKo, 없으면 Gemini 번역)
+            String imageDescriptionKo = null;
+            if (root.hasNonNull("imageDescriptionKo")
+                    && !root.path("imageDescriptionKo").asText("").isBlank()) {
+                imageDescriptionKo = root.path("imageDescriptionKo").asText();
+            } else if (englishCaption != null && !englishCaption.isBlank()) {
+                try {
+                    // GeminiService에 translateToKorean(String text) 메서드가 있다고 가정
+                    imageDescriptionKo = geminiService.translateToKorean(englishCaption);
+                } catch (Exception e) {
+                    // 번역 실패 시에도 전체 흐름이 죽지 않도록 로그만 찍고 null 유지
+                    e.printStackTrace();
+                }
+            }
+
+            // 키워드 파싱 + 한국어 번역
+            List<String> keywords = mapper.convertValue(
+                    root.path("keywords"),
+                    mapper.getTypeFactory().constructCollectionType(List.class, String.class)
+            );
+            keywords = geminiService.translateKeywords(keywords);
+
+            // -----------------------------
+            // 2) 추천곡 목록 파싱
+            // -----------------------------
+            List<AiResponseResponse.Recommendation> recs = new ArrayList<>();
+
+            for (JsonNode songNode : root.path("recommendations")) {
+
+                long durationMs = songNode.path("durationMs").asLong(0);
+
+                long durationSec = 0;               // ★ 먼저 선언
+                String durationFormatted = null;    // ★ 먼저 선언
+
+                if (durationMs > 0) {
+                    durationSec = durationMs / 1000;   // ms → sec
+                    long minutes = durationSec / 60;
+                    long seconds = durationSec % 60;
+                    durationFormatted = String.format("%02d분 %02d초", minutes, seconds);
                 }
 
-                String aiMessage = root.path("aiMessage").asText("AI 추천 결과입니다.");
+                recs.add(AiResponseResponse.Recommendation.builder()
+                    .songId(songNode.path("songId").asText(null))
+                    .title(songNode.path("title").asText(""))
+                    .artist(songNode.path("artist").asText(""))
+                    .albumCover(songNode.path("albumCover").asText(""))
+                    .previewUrl(songNode.path("previewUrl").asText(""))
 
-                ChatMessage aiMsg = new ChatMessage();
-                aiMsg.setSession(session);
-                aiMsg.setSender("ai");
-                aiMsg.setText(aiMessage);
-                aiMsg.setKeywordsJson(mapper.writeValueAsString(keywords));
-                aiMsg.setRecommendationsJson(mapper.writeValueAsString(recs));
-                messageRepo.save(aiMsg);
+                    .durationMs(durationMs)             // ★ 원래 ms 그대로 저장
+                    .durationFormatted(durationFormatted)  // ★ 변환된 포맷 저장
 
-                return AiResponseResponse.builder()
-                        .sessionId(sessionId)
-                        .topic(topic)
-                        .keywords(keywords)
-                        .aiMessage(aiMessage)
-                        .recommendations(recs)
-                        .timestamp(LocalDateTime.now())
-                        .build();
+                    .trackUrl(songNode.path("trackUrl").asText(null))
+                    .spotifyEmbedUrl(songNode.path("spotify_embed_url").asText(null))
+                    .build()
+                );
             }
 
-            throw new RuntimeException("AI server returned " + response.getStatusCode());
+            String aiMessage = root.path("aiMessage").asText("AI 추천 결과입니다.");
+
+            // -----------------------------
+            // 3) AI 메시지 DB에 저장
+            // -----------------------------
+            ChatMessage aiMsg = new ChatMessage();
+            aiMsg.setSession(session);
+            aiMsg.setSender("ai");
+            aiMsg.setText(aiMessage);
+            aiMsg.setKeywordsJson(mapper.writeValueAsString(keywords));
+            aiMsg.setRecommendationsJson(mapper.writeValueAsString(recs));
+            aiMsg.setMergedSentence(mergedSentence);
+            aiMsg.setInterpretedSentence(interpretedSentence);
+            // englishText / englishCaption / imageDescriptionKo는
+            // 지금은 DB에 안 넣고 응답에만 포함 (필요하면 엔티티 필드 추가해서 저장 가능)
+            messageRepo.save(aiMsg);
+
+            // -----------------------------
+            // 4) 프론트로 반환할 응답 생성
+            // -----------------------------
+            return AiResponseResponse.builder()
+                    .sessionId(sessionId)
+                    .topic(topic)
+                    .keywords(keywords)
+                    .aiMessage(aiMessage)
+                    .mergedSentence(mergedSentence)
+                    .interpretedSentence(interpretedSentence)
+
+                    .englishText(englishText)
+                    .englishCaption(englishCaption)
+                    .imageDescriptionKo(imageDescriptionKo)
+
+                    .recommendations(recs)
+                    .timestamp(LocalDateTime.now())
+                    .build();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -175,190 +297,288 @@ public class ChatService {
                     .topic("추천 생성 실패")
                     .keywords(List.of("error"))
                     .aiMessage("AI 추천 서버와 통신 중 오류가 발생했습니다.")
+                    .mergedSentence(null)
+                    .interpretedSentence(null)
+                    .englishText(null)
+                    .englishCaption(null)
+                    .imageDescriptionKo(null)
                     .recommendations(List.of())
                     .timestamp(LocalDateTime.now())
                     .build();
         }
     }
 
-    // ✅ 나의 순간 히스토리 조회
-    public ChatHistoryResponse getMyChatHistory(Long sessionId) {
-        return buildChatHistory(sessionId, "MY");
-    }
+    // =====================================================
+    // ④ 세션 전체 메시지 조회 (모든 세션 허용)
+    // =====================================================
+    public ChatHistoryResponse getChatFullHistory(Long sessionId) {
 
-    // ✅ 공간의 순간 히스토리 조회
-    public ChatHistoryResponse getSpaceChatHistory(Long sessionId) {
-        return buildChatHistory(sessionId, "SPACE");
-    }
-
-    // ✅ 공통 히스토리 생성 로직
-    private ChatHistoryResponse buildChatHistory(Long sessionId, String expectedType) {
         ChatSession session = sessionRepo.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Session not found: " + sessionId));
+                .orElseThrow(() -> new RuntimeException("Session not found"));
 
-        if (!expectedType.equals(session.getType())) {
-            throw new RuntimeException("잘못된 세션 타입입니다. (" + session.getType() + ")");
-        }
-
+        // [수정]: 최신 세션 체크 로직 제거 (모든 세션의 전체 기록 조회 허용)
         List<ChatMessage> messages = messageRepo.findBySessionIdOrderByCreatedAtAsc(sessionId);
-        List<ChatMessageResponse> messageResponses = new ArrayList<>();
 
+        List<ChatMessageResponse> list = new ArrayList<>();
         for (ChatMessage msg : messages) {
+
             List<String> keywords = new ArrayList<>();
             List<AiResponseResponse.Recommendation> recs = new ArrayList<>();
             try {
                 if (msg.getKeywordsJson() != null)
                     keywords = mapper.readValue(msg.getKeywordsJson(), List.class);
+
                 if (msg.getRecommendationsJson() != null)
-                    recs = Arrays.asList(mapper.readValue(
-                            msg.getRecommendationsJson(),
-                            AiResponseResponse.Recommendation[].class
-                    ));
+                    recs = Arrays.asList(
+                            mapper.readValue(msg.getRecommendationsJson(),
+                                    AiResponseResponse.Recommendation[].class)
+                    );
             } catch (Exception ignored) {}
 
-            messageResponses.add(ChatMessageResponse.builder()
+            list.add(ChatMessageResponse.builder()
                     .messageId(msg.getId())
+                    .sessionId(sessionId)
                     .sender(msg.getSender())
                     .text(msg.getText())
+                    .imageBase64(msg.getImageUrl() != null
+                            ? List.of("http://localhost:8080/chat-images/" + msg.getImageUrl())
+                            : null
+                        )
                     .keywords(keywords)
                     .recommendations(recs)
+                    // [추가] ChatMessageResponse에 mergedSentence와 interpretedSentence가 있다고 가정하고 매핑
+                    .mergedSentence(msg.getMergedSentence())
+                    .interpretedSentence(msg.getInterpretedSentence())
                     .timestamp(msg.getCreatedAt())
                     .build());
         }
 
         return ChatHistoryResponse.builder()
-                .sessionId(session.getId())
+                .sessionId(sessionId)
                 .type(session.getType())
                 .topic(session.getTopic())
-                .messages(messageResponses)
+                .isLatest(true) // 이 필드는 클라이언트에서 판단할 수 있도록 true로 유지
+                .messages(list)
                 .build();
     }
 
-    // ✅ 메시지 전송 (가장 최신 세션만 허용)
-    public ChatMessageResponse sendMessage(ChatMessageRequest req) {
-        Long sessionId = req.getSessionId();
-        ChatSession session = sessionRepo.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Session not found: " + sessionId));
-
-        // 🔒 최신 세션만 허용
-        Optional<ChatSession> latestSession = sessionRepo.findTopByTypeOrderByStartTimeDesc(session.getType());
-        if (latestSession.isEmpty() || !Objects.equals(latestSession.get().getId(), sessionId)) {
-            throw new RuntimeException("Only the latest session allows new messages.");
-        }
-
-        ChatMessage msg = new ChatMessage();
-        msg.setSession(session);
-        msg.setSender("user");
-        msg.setText(req.getText());
-        if (req.getImageUrls() != null && !req.getImageUrls().isEmpty()) {
-            msg.setImageUrl(String.join(",", req.getImageUrls()));
-        }
-        messageRepo.save(msg);
-
-        return ChatMessageResponse.builder()
-                .messageId(msg.getId())
-                .sender(msg.getSender())
-                .text(msg.getText())
-                .timestamp(msg.getCreatedAt())
-                .build();
-    }
-
-        // ✅ 대화 요약 기능 (히스토리용)
+    // =====================================================
+    // ⑤ 요약 조회 (활성화되지 않은 세션만 허용)
+    // =====================================================
     public ChatSummaryResponse getChatSummary(Long sessionId) {
+
         ChatSession session = sessionRepo.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Session not found: " + sessionId));
+                .orElseThrow(() -> new RuntimeException("Session not found"));
 
-        // 모든 메시지 텍스트 결합
-        List<ChatMessage> messages = messageRepo.findBySessionIdOrderByCreatedAtAsc(sessionId);
-        String allText = messages.stream()
-                .map(ChatMessage::getText)
-                .filter(Objects::nonNull)
-                .reduce("", (a, b) -> a + "\n" + b);
+        // 1. 🔥 활성 세션 차단 로직 (최신 세션은 요약 불가)
+        Optional<ChatSession> latest =
+                sessionRepo.findTopByTypeOrderByStartTimeDesc(session.getType());
 
-        // 제미나이로 요약 요청
-        String summary = geminiService.summarizeConversation(allText);
-        // 제미나이로 키워드 요청하는게 아니라 ai가 보내준 keyword 받아오는 걸로 수정
-        List<String> keywords = geminiService.extractKeywords(summary);
+        if (latest.isPresent() && Objects.equals(latest.get().getId(), sessionId)) {
+            // 활성화된 최신 세션일 경우 차단
+            throw new RuntimeException("활성화된 세션 (" + sessionId + ")에 대해서는 채팅 요약을 요청할 수 없습니다. 전체 기록 조회 엔드포인트를 사용해야 합니다.");
+        }
 
-        // AI 추천 결과 중 가장 마지막 메시지 가져오기
-        List<AiResponseResponse.Recommendation> recs = new ArrayList<>();
-        Optional<ChatMessage> lastAiMsg = messages.stream()
-                .filter(m -> "ai".equals(m.getSender()))
-                .reduce((first, second) -> second); // 마지막 ai 메시지
+        // --- 이전 세션에 대한 요약 생성 로직 시작 (try-catch로 안정화) ---
         try {
-            if (lastAiMsg.isPresent() && lastAiMsg.get().getRecommendationsJson() != null) {
-                recs = Arrays.asList(mapper.readValue(
-                        lastAiMsg.get().getRecommendationsJson(),
-                        AiResponseResponse.Recommendation[].class
-                ));
-            }
-        } catch (Exception ignored) {}
+            // 2. 메시지 로드
+            List<ChatMessage> messages =
+                    messageRepo.findBySessionIdOrderByCreatedAtAsc(sessionId);
 
-        return ChatSummaryResponse.builder()
-                .sessionId(sessionId)
-                .topic(session.getTopic())
-                .summaryText(summary)
-                .keywords(keywords)
-                .recommendations(recs)
-                .build();
-    }
-
-    // ✅ 채팅 검색 기능
-    public List<ChatSearchResultResponse> searchChat(String keyword) {
-        List<ChatSession> sessions = sessionRepo.findAll();
-        List<ChatSearchResultResponse> results = new ArrayList<>();
-
-        for (ChatSession session : sessions) {
-            // 1️⃣ 세션 주제에 포함
-            if (session.getTopic() != null && session.getTopic().contains(keyword)) {
-                results.add(new ChatSearchResultResponse(session.getId(), session.getTopic(), "주제에서 일치"));
-                continue;
+            if (messages.isEmpty()) {
+                throw new RuntimeException("메시지가 없습니다.");
             }
 
-            // 2️⃣ 메시지 본문에 포함
-            List<ChatMessage> messages = messageRepo.findBySessionIdOrderByCreatedAtAsc(session.getId());
-            for (ChatMessage msg : messages) {
-                if (msg.getText() != null && msg.getText().contains(keyword)) {
-                    results.add(new ChatSearchResultResponse(session.getId(), session.getTopic(), msg.getText()));
-                    break;
+            // 세션 종료 시간
+            LocalDateTime endTime = (session.getIsEnded() != null && session.getIsEnded())
+                    ? session.getEndTime() : null;
+
+            // 대표 user 메시지 (가장 마지막 user 메시지)
+            ChatMessage lastUserMsg = messages.stream()
+                    .filter(m -> m.getSender().equals("user"))
+                    .reduce((a, b) -> b).orElse(null);
+
+            String repText = lastUserMsg != null ? lastUserMsg.getText() : null;
+
+            // 🖼️ repImages 정리 (사진 정보 가져오기)
+            List<String> repImages = new ArrayList<>();
+
+            if (lastUserMsg != null) {
+                String fileName = lastUserMsg.getImageUrl();
+                if (fileName != null && !fileName.isBlank()) {
+                    repImages.add("http://localhost:8080/chat-images/" + fileName);
                 }
             }
-        }
 
-        return results;
+            // 전체 대화 병합
+            String full = messages.stream()
+                    .map(ChatMessage::getText)
+                    .filter(Objects::nonNull)
+                    .reduce((a, b) -> a + "\n" + b)
+                    .orElse("");
+
+            // Gemini를 사용한 대화 요약
+            String summary = geminiService.summarizeConversation(full);
+            String latestUserSummary =
+                    repText != null ? geminiService.summarizeSentence(repText) : null;
+
+            // 마지막 AI 메시지
+            ChatMessage lastAi = messages.stream()
+                    .filter(m -> m.getSender().equals("ai"))
+                    .reduce((a, b) -> b).orElse(null);
+
+            List<String> keywords = new ArrayList<>();
+            List<AiResponseResponse.Recommendation> recs = new ArrayList<>();
+            String merged = null;
+            String interpreted = null;
+
+            if (lastAi != null) {
+                try {
+                    if (lastAi.getKeywordsJson() != null)
+                        keywords = mapper.readValue(lastAi.getKeywordsJson(), List.class);
+
+                    if (lastAi.getRecommendationsJson() != null)
+                        recs = Arrays.asList(
+                                mapper.readValue(lastAi.getRecommendationsJson(),
+                                        AiResponseResponse.Recommendation[].class));
+
+                    merged = lastAi.getMergedSentence();
+                    interpreted = lastAi.getInterpretedSentence();
+
+                } catch (Exception ignored) {} // 내부 JSON 파싱 오류는 무시
+            }
+
+            ChatSummaryResponse.SummaryMode mode =
+                    ChatSummaryResponse.SummaryMode.builder()
+                            .summary(summary)
+                            .keywords(keywords)
+                            .recommendations(recs)
+                            .mergedSentence(merged)
+                            .interpretedSentence(interpreted)
+                            .build();
+
+            return ChatSummaryResponse.builder()
+                    .sessionId(sessionId)
+                    .type(session.getType())
+                    .topic(session.getTopic())
+                    .isLatest(false)
+                    .representativeText(repText)
+                    .representativeImages(repImages)
+                    .latestUserSummary(latestUserSummary)
+                    .summaryMode(mode)
+                    .timestamp(session.getStartTime())
+                    .endTime(endTime)
+                    .build();
+
+        } catch (Exception e) {
+            // 🔥 요약 처리 중 발생하는 모든 예외를 잡아서 안정적인 오류 응답 반환
+            e.printStackTrace();
+            return ChatSummaryResponse.builder()
+                    .sessionId(sessionId)
+                    .type(session.getType())
+                    .topic("요약 처리 오류")
+                    .isLatest(false)
+                    .representativeText("요약 데이터 로드 중 오류 발생: " + e.getMessage())
+                    .summaryMode(ChatSummaryResponse.SummaryMode.builder()
+                            .summary("데이터 처리 중 오류가 발생했습니다.")
+                            .build())
+                    .timestamp(LocalDateTime.now())
+                    .build();
+        }
     }
-    // ✅ 메시지 전송 (신규)
+
+    // =====================================================
+    // ⑥ 후속 메시지 전송 (user → AI 호출)
+    // =====================================================
     public ChatMessageResponse sendUserMessage(ChatMessageRequest req) {
         Long sessionId = req.getSessionId();
+
         ChatSession session = sessionRepo.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Session not found: " + sessionId));
+                .orElseThrow(() -> new RuntimeException("Session not found"));
 
-        // 🔒 최신 세션만 허용 (기존 방식 유지)
-        Optional<ChatSession> latestSession = sessionRepo.findTopByTypeOrderByStartTimeDesc(session.getType());
-        if (latestSession.isEmpty() || !Objects.equals(latestSession.get().getId(), sessionId)) {
-            throw new RuntimeException("Only the latest session allows new messages.");
+        // 최신 세션인지 체크
+        Optional<ChatSession> latest =
+                sessionRepo.findTopByTypeOrderByStartTimeDesc(session.getType());
+
+        if (latest.isEmpty() || !Objects.equals(latest.get().getId(), sessionId)) {
+            throw new RuntimeException("이전 세션에는 후속 메시지를 보낼 수 없습니다.");
         }
 
-        // ✅ 메시지 저장
-        ChatMessage msg = new ChatMessage();
-        msg.setSession(session);
-        msg.setSender(req.getSender() != null ? req.getSender() : "user");
-        msg.setText(req.getText());
-        if (req.getImageUrls() != null && !req.getImageUrls().isEmpty()) {
-            msg.setImageUrl(String.join(",", req.getImageUrls()));
+        // ① 사용자 메시지 저장
+        ChatMessage userMsg = new ChatMessage();
+        userMsg.setSession(session);
+        userMsg.setSender("user");
+        userMsg.setText(req.getText());
+        if (req.getImageBase64() != null && !req.getImageBase64().isBlank()) {
+            try {
+                String fileName = imageService.saveBase64Image(req.getImageBase64());
+                userMsg.setImageUrl(fileName);
+            } catch (IOException e) {
+                e.printStackTrace();
+                userMsg.setImageUrl(null);
+            }
         }
-        messageRepo.save(msg);
 
-        // ✅ 응답 DTO 생성
+        messageRepo.save(userMsg);
+
+        // ② AI 호출
+        AiResponseRequest aiReq = new AiResponseRequest();
+        aiReq.setSessionId(sessionId);
+        aiReq.setInputText(req.getText());
+        aiReq.setImageBase64(req.getImageBase64());
+
+        AiResponseResponse aiRes = generateAiResponse(aiReq);
+
+        // ③ 사용자 메시지 기준 응답 반환
         return ChatMessageResponse.builder()
-                .messageId(msg.getId())
+                .messageId(userMsg.getId())
                 .sessionId(sessionId)
-                .sender(msg.getSender())
-                .text(msg.getText())
-                .keywords(null)              // AI 응답 아님 → null
-                .recommendations(null)       // AI 응답 아님 → null
-                .timestamp(msg.getCreatedAt())
+                .sender("user")
+                .text(req.getText())
+                .imageBase64(req.getImageBase64() != null && !req.getImageBase64().isBlank()
+                        ? List.of(req.getImageBase64()) : null)
+                .keywords(aiRes.getKeywords())
+                .recommendations(aiRes.getRecommendations())
+                .mergedSentence(aiRes.getMergedSentence())
+                .interpretedSentence(aiRes.getInterpretedSentence())
+                .timestamp(userMsg.getCreatedAt())
                 .build();
     }
 
+    // =====================================================
+    // ⑦ 세션 목록 조회 (isEnded, endTime 정보 추가)
+    // =====================================================
+    public List<ChatSessionSummaryResponse> getSessionList(String type) {
+        List<ChatSession> sessions = sessionRepo.findByTypeOrderByStartTimeDesc(type);
+
+        List<ChatSessionSummaryResponse> list = new ArrayList<>();
+
+        for (ChatSession s : sessions) {
+
+            Optional<ChatMessage> lastMsg =
+                    messageRepo.findTopBySessionIdOrderByCreatedAtDesc(s.getId());
+
+            String latestMsg = lastMsg.map(ChatMessage::getText).orElse("");
+
+            list.add(ChatSessionSummaryResponse.builder()
+                    .sessionId(s.getId())
+                    .type(s.getType())
+                    .topic(s.getTopic())
+                    .latestMessage(latestMsg)
+                    .createdAt(s.getStartTime())
+                    .isEnded(s.getIsEnded() != null && s.getIsEnded())
+                    .endTime(s.getEndTime())
+                    .build());
+        }
+
+        return list;
+    }
+
+    public List<ChatSessionSummaryResponse> getMySessionList() {
+        return getSessionList("MY");
+    }
+
+    public List<ChatSessionSummaryResponse> getSpaceSessionList() {
+        return getSessionList("SPACE");
+    }
 }

@@ -1,25 +1,29 @@
 package com.wink.backend.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.wink.backend.config.SingleBase64Deserializer;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
 public class ChatMessageRequest {
-    private Long sessionId;           // 현재 대화 세션 ID
-    private String sender;
-    private String text;              // 사용자가 보낸 텍스트
-    private List<String> imageUrls;   // 첨부 이미지 (있다면)
+
+    private Long sessionId;     // 세션 ID
+    private String text;        // 사용자 메시지 텍스트
+
+    @JsonDeserialize(using = SingleBase64Deserializer.class)
+    private String imageBase64; // Base64 문자열
 
     @Override
     public String toString() {
         return "ChatMessageRequest{" +
                 "sessionId=" + sessionId +
-                ", sender='" + sender +
                 ", text='" + text + '\'' +
-                ", imageUrls=" + imageUrls +
+                ", imageBase64='" + 
+                     (imageBase64 != null ? "length=" + imageBase64.length() : null)
+                     + '\'' +
                 '}';
     }
 }

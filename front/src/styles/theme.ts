@@ -13,6 +13,7 @@ const theme: DefaultTheme = {
       error: "#FF584D",
       white: "#FFFFFF",
       black: "#121212",
+      black_light: "#222222",
       grayscale: {
         g50: "#F7F8F9",
         g100: "#E8EBED",
@@ -44,7 +45,7 @@ const theme: DefaultTheme = {
     },
     shadow: {
       default: "0px 0px 20px 0px rgba(0, 0, 0, 0.05)",
-      pin: "0px 0px 10px 0px rgba(0, 0, 0, 0.3)"
+      pin: "0px 0px 10px 0px rgba(0, 0, 0, 0.3)",
     },
 };
 

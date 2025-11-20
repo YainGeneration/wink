@@ -106,7 +106,7 @@ export default WinkSplash;
 const SplashWrapper = styled.div`
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   overflow: hidden; /* circle이 확장돼도 스크롤 안 생기게 */
   display: flex;
   align-items: center;
