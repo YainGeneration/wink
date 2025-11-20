@@ -304,11 +304,7 @@ private static final String GEMINI_URL =
                     "직역하지 말고 문맥의 분위기, 감정, 정서를 담아 한 문장으로 표현해줘:\n" 
                     + mergedSentence;
 
-            // String requestBody = String.format("""
-            //     {
-            //     "contents": [ { "parts": [ { "text": "%s" } ] } ]
-            //     }
-            // """, prompt.replace("\"", "'"));
+            // ... (HTTP 요청 본문 구성 및 HttpClient 설정 코드 생략)
 
             Map<String, Object> jsonBody = Map.of(
                     "contents", List.of(
@@ -330,9 +326,15 @@ private static final String GEMINI_URL =
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            
+            // [수정]: 오류 발생 시 상세 상태 코드 출력
             if (response.statusCode() != 200) {
-                System.err.println("⚠️ mergedSentence 해석 실패 (" + response.statusCode() + ")");
-                return "감성 해석 생성 실패";
+                System.err.println("⚠️ mergedSentence 해석 실패: HTTP Status Code " + response.statusCode());
+                // 필요하다면 응답 본문까지 출력하여 Gemini의 에러 메시지 확인
+                // System.err.println("Gemini Error Body: " + response.body()); 
+                
+                // HTTP 실패와 일반 오류 메시지를 분리하여 반환
+                return "감성 해석 생성 실패 (HTTP:" + response.statusCode() + ")";
             }
 
             JsonNode root = mapper.readTree(response.body());
@@ -341,8 +343,10 @@ private static final String GEMINI_URL =
                     .path("text").asText("해석 결과 없음");
 
         } catch (Exception e) {
+            // [수정]: 일반 오류 발생 시, 오류 로그와 메시지 분리
             e.printStackTrace();
-            return "감성 해석 중 오류 발생";
+            System.err.println("❌ 감성 해석 중 일반 오류 발생: " + e.getMessage());
+            return "감성 해석 중 오류 발생 (Exception)";
         }
     }
 
