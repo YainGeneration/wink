@@ -7,50 +7,78 @@ import AppRoutes from "./AppRoutes";
 import WinkSplash from "./pages/WinkSplash";
 import { useEffect, useState } from "react";
 import AppLayout from "./layouts/AppLayout";
+import BaseLayout from "./layouts/BaseLayout";
+import { MusicPlayerProvider } from "./components/MusicPlayerContext";
+import GlobalAudio from "./components/GlobalAudio";
+import {APIProvider} from '@vis.gl/react-google-maps';
 
 function App(){
-  const [showSplash, setShowSplash] = useState(false);
+  const [showSplash, setShowSplash] = useState(
+    () => !sessionStorage.getItem("splashSeen")
+  );
   const [isChecking, setIsChecking] = useState(true);
+  const [showOverlay, setShowOverlay] = useState(false);
+
+  // useEffect(() => {
+  //   // 스플래시를 이미 본 적 있는지 확인
+  //   const splashSeen = sessionStorage.getItem("splashSeen");
+
+  //   if (!splashSeen) {
+  //     setShowSplash(true);
+  //     // 2~3초 후 스플래시 닫기
+  //     const timer = setTimeout(() => {
+  //       setShowSplash(false);
+  //       sessionStorage.setItem("splashSeen", "true");
+  //       setIsChecking(false);
+  //     }, 5000);
+  //     return () => clearTimeout(timer);
+  //   } else {
+  //     // 이미 본 적 있다면 바로 false로
+  //     setShowSplash(false);
+  //     setIsChecking(false);
+  //   }
+  // }, []);
 
   useEffect(() => {
-    // 스플래시를 이미 본 적 있는지 확인
-    const splashSeen = sessionStorage.getItem("splashSeen");
+    if (!showSplash) return;
 
-    if (!splashSeen) {
-      setShowSplash(true);
-      // 2~3초 후 스플래시 닫기
-      setTimeout(() => {
-        setShowSplash(false);
-        sessionStorage.setItem("splashSeen", "true");
-        setIsChecking(false);
-      }, 3000); // 스플래시 지속 시간
-    } else {
-      // 이미 본 적 있다면 바로 false로
+    const timer = setTimeout(() => {
       setShowSplash(false);
-      setIsChecking(false);
-    }
-  }, []);
+      sessionStorage.setItem("splashSeen", "true");
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [showSplash]);
+
 
   return (
     <BrowserRouter>
       <ThemeProvider theme={theme}>
-        <GlobalStyle />
-        {/* AppLayout으로 모든 페이지 감싸기 */}
-        <AppLayout>
-          <AppRoutes />
-          <AnimatePresence>
-            {showSplash ? (
-              <WinkSplash
-                onDone={() => setShowSplash(false)}
-                stepMs={1200}
-              />
-            ) : (<AppRoutes />
-            )}
-          </AnimatePresence>
-        </AppLayout>
+        <MusicPlayerProvider>
+          <GlobalStyle />
+          <GlobalAudio />
+          {/* AppLayout으로 모든 페이지 감싸기 */}
+          {/* 여기 backgroundColor 수정 필요. 페이지에 맞춰 바뀔 수 있어야 함 */}
+          <AppLayout>
+            {/* BaseLayout: StatusBar, HomeIndicator, Overlay 포함 */}
+            <BaseLayout showOverlay={showOverlay}>
+              <AnimatePresence mode="wait">
+                {showSplash ? (
+                  <WinkSplash onDone={
+                    () => {
+                      setShowSplash(false);
+                      sessionStorage.setItem("splashSeen", "true");
+                  }} stepMs={1200} />
+                ) : (
+                  <AppRoutes setShowOverlay={setShowOverlay} />
+                )}
+              </AnimatePresence>
+            </BaseLayout>
+          </AppLayout>
+        </MusicPlayerProvider>
       </ThemeProvider>
     </BrowserRouter>
   );
 }
 
-export default App
+export default App;

@@ -13,6 +13,7 @@ declare module "styled-components" {
       error: string;
       white: string;
       black: string;
+      black_light: string;
       grayscale: {
         g50: string;
         g100: string;

@@ -1,4 +1,6 @@
-const BasicContainer = () => {
+import React from 'react';
+
+const My = () => {
     return (
         <div>
             
@@ -6,4 +8,4 @@ const BasicContainer = () => {
     );
 };
 
-export default BasicContainer;
+export default My;

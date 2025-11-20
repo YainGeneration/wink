@@ -20,7 +20,6 @@ const GlobalStyle = createGlobalStyle`
     html, body {
         width: 100%;
         height: 100%;
-        font-family: 'Pretendard';
         background-color: ${({ theme }) => theme.colors.white};
         display: flex;
         justify-content: center;
@@ -28,7 +27,7 @@ const GlobalStyle = createGlobalStyle`
 
     #root {
         width: 393px;
-        min-height: 852px;
+        height: 852px;
     }
 
     a {
@@ -44,10 +43,10 @@ const GlobalStyle = createGlobalStyle`
 
     /* 스크롤바 커스텀 */
     ::-webkit-scrollbar {
-        width: 8px;
+        width: 6px;
     }
     ::-webkit-scrollbar-thumb {
-        background-color: ${({ theme }) => theme.colors.grayscale.g600};
+        background-color: ${({ theme }) => theme.colors.grayscale.g200};
         border-radius: 4px;
     }
 `;
