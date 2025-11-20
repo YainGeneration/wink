@@ -84,7 +84,7 @@ Respond *only* with the final combined English sentence.
 """
     
     messages = [{"role": "user", "content": prompt.strip()}]
-    payload = {"model": GEMMA3_MODEL, "messages": messages, "stream": False, "format": "text"}
+    payload = {"model": GEMMA3_MODEL, "messages": messages, "stream": False}
     try:
         res = requests.post(f"{OLLAMA_URL}/api/chat", json=payload, timeout=60)
         res.raise_for_status()

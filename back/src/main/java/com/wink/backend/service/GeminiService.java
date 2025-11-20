@@ -301,7 +301,7 @@ private static final String GEMINI_URL =
 
             String prompt =
                     "다음 문장을 자연스러운 한국어 감성 문장으로 해석해줘. " +
-                    "직역하지 말고 문맥의 분위기, 감정, 정서를 담아 한 문장으로 표현해줘:\n" 
+                    "직역하지 말고 문맥의 분위기, 감정, 정서를 담아 한 문장으로 표현하되, '~해서 추천합니다.' 형식으로 출력해줘':\n" 
                     + mergedSentence;
 
             // ... (HTTP 요청 본문 구성 및 HttpClient 설정 코드 생략)
@@ -347,6 +347,60 @@ private static final String GEMINI_URL =
             e.printStackTrace();
             System.err.println("❌ 감성 해석 중 일반 오류 발생: " + e.getMessage());
             return "감성 해석 중 오류 발생 (Exception)";
+        }
+    }
+    /**
+     * 🎨 이미지 캡션(english_caption)을 자연스러운 한국어 문장으로 번역
+     */
+    public String translateToKorean(String englishText) {
+
+        if (englishText == null || englishText.isBlank()) {
+            return null;
+        }
+
+        try {
+            if (apiKey == null || apiKey.isBlank()) {
+                return englishText; // fallback: 영어 그대로 반환
+            }
+
+            String prompt = "다음 영어 문장을 자연스러운 한국어 문장으로 번역해줘. " +
+                    "직역 말고 분위기와 감정을 살려서 부드럽게 표현해줘:\n" + englishText;
+
+            Map<String, Object> jsonBody = Map.of(
+                    "contents", List.of(
+                            Map.of(
+                                    "parts", List.of(
+                                            Map.of("text", prompt)
+                                    )
+                            )
+                    )
+            );
+
+            String requestBody = mapper.writeValueAsString(jsonBody);
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(GEMINI_URL + "?key=" + apiKey))
+                    .timeout(Duration.ofSeconds(10))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                System.err.println("⚠️ translateToKorean 실패 (" + response.statusCode() + ")");
+                return englishText; // fallback
+            }
+
+            JsonNode root = mapper.readTree(response.body());
+            return root.path("candidates").get(0)
+                    .path("content").path("parts").get(0)
+                    .path("text").asText(englishText);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return englishText; // fallback
         }
     }
 

@@ -1,5 +1,6 @@
 package com.wink.backend.service;
 
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wink.backend.dto.*;
@@ -11,7 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -23,18 +24,23 @@ public class ChatService {
     private final ChatMessageRepository messageRepo;
     private final RestTemplate restTemplate;
     private final ObjectMapper mapper = new ObjectMapper();
+    private final ImageService imageService;
+
 
     @Value("${ai.server.url}")
     private String aiServerUrl;
 
     public ChatService(ChatSessionRepository sessionRepo,
-                       GeminiService geminiService,
-                       ChatMessageRepository messageRepo) {
+                    GeminiService geminiService,
+                    ChatMessageRepository messageRepo,
+                    ImageService imageService) {
         this.sessionRepo = sessionRepo;
         this.geminiService = geminiService;
         this.messageRepo = messageRepo;
+        this.imageService = imageService;
         this.restTemplate = new RestTemplate();
     }
+
 
     // =====================================================
     // 🚀 공통: 이전 세션 종료 (같은 타입만)
@@ -69,20 +75,29 @@ public class ChatService {
 
         sessionRepo.save(session); // 세션 저장
 
-        // **변경: 1. 첫 사용자 메시지 저장**
+        // 1. 첫 사용자 메시지 저장 (텍스트 + 이미지)
         ChatMessage userMsg = new ChatMessage();
         userMsg.setSession(session);
         userMsg.setSender("user");
         userMsg.setText(req.getInputText());
+        if (req.getImageBase64() != null && !req.getImageBase64().isBlank()) {
+            try {
+                String fileName = imageService.saveBase64Image(req.getImageBase64());
+                userMsg.setImageUrl(fileName);
+            } catch (IOException e) {
+                e.printStackTrace();
+                userMsg.setImageUrl(null);
+            }
+        }
         messageRepo.save(userMsg); // 채팅 내용 저장 완료
 
-        // **변경: 2. AI 응답 생성 요청**
+        // 2. AI 응답 생성 요청 (이미지도 함께 전달)
         AiResponseRequest aiReq = new AiResponseRequest();
         aiReq.setSessionId(session.getId());
         aiReq.setInputText(req.getInputText());
-        aiReq.setImageBase64(null);
+        aiReq.setImageBase64(req.getImageBase64());
 
-        // **변경: 3. AI 응답을 받아 바로 반환**
+        // 3. AI 응답을 받아 바로 반환
         return generateAiResponse(aiReq);
     }
 
@@ -100,7 +115,7 @@ public class ChatService {
         session.setIsEnded(false);
 
         // [수정 완료] 주변 음악 요약 변수를 메서드 시작 부분에서 초기화
-        String nearbySummary = ""; 
+        String nearbySummary = "";
         if (req.getNearbyMusic() != null && !req.getNearbyMusic().isEmpty()) {
             nearbySummary = req.getNearbyMusic().stream()
                     .map(m -> m.getTitle() + " - " + m.getArtist())
@@ -108,7 +123,7 @@ public class ChatService {
                     .orElse("");
         }
 
-        // 🔥 네가 만든 장소 기반 프롬프트 그대로 적용 (이제 nearbySummary 접근 가능)
+        // 🔥 장소 기반 프롬프트
         String prompt = String.format(
                 "📍장소명: %s (%s)\n🎧 주변 음악: %s\n이 장소의 분위기와 어울리는 음악적 주제를 한 문장으로 요약해줘.",
                 req.getLocation().getPlaceName(),
@@ -123,20 +138,21 @@ public class ChatService {
 
         String initialText = String.format("%s에 왔습니다.", req.getLocation().getPlaceName());
 
-        // **변경: 1. 첫 사용자 메시지 저장 (장소명)**
+        // 1. 첫 사용자 메시지 저장 (장소명)
         ChatMessage userMsg = new ChatMessage();
         userMsg.setSession(session);
         userMsg.setSender("user");
         userMsg.setText(initialText);
+        // 공간의 순간은 현재 이미지 X (필요하면 ChatStartSpaceRequest에 imageBase64 추가 후 동일 처리)
         messageRepo.save(userMsg); // 채팅 내용 저장 완료
 
-        // **변경: 2. AI 응답 생성 요청**
+        // 2. AI 응답 생성 요청
         AiResponseRequest aiReq = new AiResponseRequest();
         aiReq.setSessionId(session.getId());
         aiReq.setInputText(initialText);
         aiReq.setImageBase64(null);
 
-        // **변경: 3. AI 응답을 받아 바로 반환**
+        // 3. AI 응답을 받아 바로 반환
         return generateAiResponse(aiReq);
     }
 
@@ -171,30 +187,78 @@ public class ChatService {
 
             JsonNode root = mapper.readTree(response.getBody());
 
-            // AI 결과 파싱
+            // -----------------------------
+            // 1) 텍스트 관련 필드 파싱
+            // -----------------------------
             String mergedSentence = root.path("mergedSentence").asText("");
             String interpretedSentence = geminiService.interpretMergedSentence(mergedSentence);
 
+            // 새로 추가: english_text / english_caption
+            String englishText = root.path("english_text").asText(null);
+            String englishCaption = root.path("english_caption").asText(null);
+
+            // 이미지 설명 한국어 버전 (최우선: AI가 직접 준 imageDescriptionKo, 없으면 Gemini 번역)
+            String imageDescriptionKo = null;
+            if (root.hasNonNull("imageDescriptionKo")
+                    && !root.path("imageDescriptionKo").asText("").isBlank()) {
+                imageDescriptionKo = root.path("imageDescriptionKo").asText();
+            } else if (englishCaption != null && !englishCaption.isBlank()) {
+                try {
+                    // GeminiService에 translateToKorean(String text) 메서드가 있다고 가정
+                    imageDescriptionKo = geminiService.translateToKorean(englishCaption);
+                } catch (Exception e) {
+                    // 번역 실패 시에도 전체 흐름이 죽지 않도록 로그만 찍고 null 유지
+                    e.printStackTrace();
+                }
+            }
+
+            // 키워드 파싱 + 한국어 번역
             List<String> keywords = mapper.convertValue(
                     root.path("keywords"),
                     mapper.getTypeFactory().constructCollectionType(List.class, String.class)
             );
             keywords = geminiService.translateKeywords(keywords);
 
+            // -----------------------------
+            // 2) 추천곡 목록 파싱
+            // -----------------------------
             List<AiResponseResponse.Recommendation> recs = new ArrayList<>();
+
             for (JsonNode songNode : root.path("recommendations")) {
+
+                long durationMs = songNode.path("durationMs").asLong(0);
+
+                long durationSec = 0;               // ★ 먼저 선언
+                String durationFormatted = null;    // ★ 먼저 선언
+
+                if (durationMs > 0) {
+                    durationSec = durationMs / 1000;   // ms → sec
+                    long minutes = durationSec / 60;
+                    long seconds = durationSec % 60;
+                    durationFormatted = String.format("%02d분 %02d초", minutes, seconds);
+                }
+
                 recs.add(AiResponseResponse.Recommendation.builder()
-                        .songId(songNode.path("songId").asText(null))
-                        .title(songNode.path("title").asText(""))
-                        .artist(songNode.path("artist").asText(""))
-                        .albumCover(songNode.path("albumCover").asText(""))
-                        .previewUrl(songNode.path("previewUrl").asText(""))
-                        .build());
+                    .songId(songNode.path("songId").asText(null))
+                    .title(songNode.path("title").asText(""))
+                    .artist(songNode.path("artist").asText(""))
+                    .albumCover(songNode.path("albumCover").asText(""))
+                    .previewUrl(songNode.path("previewUrl").asText(""))
+
+                    .durationMs(durationMs)             // ★ 원래 ms 그대로 저장
+                    .durationFormatted(durationFormatted)  // ★ 변환된 포맷 저장
+
+                    .trackUrl(songNode.path("trackUrl").asText(null))
+                    .spotifyEmbedUrl(songNode.path("spotify_embed_url").asText(null))
+                    .build()
+                );
             }
 
             String aiMessage = root.path("aiMessage").asText("AI 추천 결과입니다.");
 
-            // AI 메시지 저장
+            // -----------------------------
+            // 3) AI 메시지 DB에 저장
+            // -----------------------------
             ChatMessage aiMsg = new ChatMessage();
             aiMsg.setSession(session);
             aiMsg.setSender("ai");
@@ -203,8 +267,13 @@ public class ChatService {
             aiMsg.setRecommendationsJson(mapper.writeValueAsString(recs));
             aiMsg.setMergedSentence(mergedSentence);
             aiMsg.setInterpretedSentence(interpretedSentence);
+            // englishText / englishCaption / imageDescriptionKo는
+            // 지금은 DB에 안 넣고 응답에만 포함 (필요하면 엔티티 필드 추가해서 저장 가능)
             messageRepo.save(aiMsg);
 
+            // -----------------------------
+            // 4) 프론트로 반환할 응답 생성
+            // -----------------------------
             return AiResponseResponse.builder()
                     .sessionId(sessionId)
                     .topic(topic)
@@ -212,6 +281,11 @@ public class ChatService {
                     .aiMessage(aiMessage)
                     .mergedSentence(mergedSentence)
                     .interpretedSentence(interpretedSentence)
+
+                    .englishText(englishText)
+                    .englishCaption(englishCaption)
+                    .imageDescriptionKo(imageDescriptionKo)
+
                     .recommendations(recs)
                     .timestamp(LocalDateTime.now())
                     .build();
@@ -223,6 +297,11 @@ public class ChatService {
                     .topic("추천 생성 실패")
                     .keywords(List.of("error"))
                     .aiMessage("AI 추천 서버와 통신 중 오류가 발생했습니다.")
+                    .mergedSentence(null)
+                    .interpretedSentence(null)
+                    .englishText(null)
+                    .englishCaption(null)
+                    .imageDescriptionKo(null)
                     .recommendations(List.of())
                     .timestamp(LocalDateTime.now())
                     .build();
@@ -262,8 +341,9 @@ public class ChatService {
                     .sender(msg.getSender())
                     .text(msg.getText())
                     .imageBase64(msg.getImageUrl() != null
-                            ? List.of(msg.getImageUrl())
-                            : null)
+                            ? List.of("http://localhost:8080/chat-images/" + msg.getImageUrl())
+                            : null
+                        )
                     .keywords(keywords)
                     .recommendations(recs)
                     // [추가] ChatMessageResponse에 mergedSentence와 interpretedSentence가 있다고 가정하고 매핑
@@ -310,7 +390,6 @@ public class ChatService {
             }
 
             // 세션 종료 시간
-            // [확인]: isEnded가 true일 때만 endTime을 반환합니다.
             LocalDateTime endTime = (session.getIsEnded() != null && session.getIsEnded())
                     ? session.getEndTime() : null;
 
@@ -320,11 +399,15 @@ public class ChatService {
                     .reduce((a, b) -> b).orElse(null);
 
             String repText = lastUserMsg != null ? lastUserMsg.getText() : null;
-            
+
             // 🖼️ repImages 정리 (사진 정보 가져오기)
             List<String> repImages = new ArrayList<>();
-            if (lastUserMsg != null && lastUserMsg.getImageUrl() != null && !lastUserMsg.getImageUrl().isBlank()) {
-                repImages.add(lastUserMsg.getImageUrl());
+
+            if (lastUserMsg != null) {
+                String fileName = lastUserMsg.getImageUrl();
+                if (fileName != null && !fileName.isBlank()) {
+                    repImages.add("http://localhost:8080/chat-images/" + fileName);
+                }
             }
 
             // 전체 대화 병합
@@ -383,11 +466,10 @@ public class ChatService {
                     .representativeImages(repImages)
                     .latestUserSummary(latestUserSummary)
                     .summaryMode(mode)
-                    // [확인]: 시작 시간과 종료 시간을 모두 반환합니다.
-                    .timestamp(session.getStartTime()) 
+                    .timestamp(session.getStartTime())
                     .endTime(endTime)
                     .build();
-            
+
         } catch (Exception e) {
             // 🔥 요약 처리 중 발생하는 모든 예외를 잡아서 안정적인 오류 응답 반환
             e.printStackTrace();
@@ -428,8 +510,15 @@ public class ChatService {
         userMsg.setSender("user");
         userMsg.setText(req.getText());
         if (req.getImageBase64() != null && !req.getImageBase64().isBlank()) {
-            userMsg.setImageUrl(req.getImageBase64());
+            try {
+                String fileName = imageService.saveBase64Image(req.getImageBase64());
+                userMsg.setImageUrl(fileName);
+            } catch (IOException e) {
+                e.printStackTrace();
+                userMsg.setImageUrl(null);
+            }
         }
+
         messageRepo.save(userMsg);
 
         // ② AI 호출
@@ -450,9 +539,8 @@ public class ChatService {
                         ? List.of(req.getImageBase64()) : null)
                 .keywords(aiRes.getKeywords())
                 .recommendations(aiRes.getRecommendations())
-                // [수정]: DTO에 필드가 있다고 가정하고 매핑
-                .mergedSentence(aiRes.getMergedSentence()) 
-                .interpretedSentence(aiRes.getInterpretedSentence()) 
+                .mergedSentence(aiRes.getMergedSentence())
+                .interpretedSentence(aiRes.getInterpretedSentence())
                 .timestamp(userMsg.getCreatedAt())
                 .build();
     }
@@ -477,11 +565,9 @@ public class ChatService {
                     .type(s.getType())
                     .topic(s.getTopic())
                     .latestMessage(latestMsg)
-                    // [반영]: 시작 시간
-                    .createdAt(s.getStartTime()) 
-                    // 🔥 [추가]: isEnded 상태와 종료 시간
+                    .createdAt(s.getStartTime())
                     .isEnded(s.getIsEnded() != null && s.getIsEnded())
-                    .endTime(s.getEndTime()) 
+                    .endTime(s.getEndTime())
                     .build());
         }
 
