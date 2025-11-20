@@ -51,9 +51,10 @@ public class ChatService {
     }
 
     // =====================================================
-    // ① 나의 순간 시작
+    // ① 나의 순간 시작 (→ 사용자 메시지 저장 + 바로 AI 응답 생성)
     // =====================================================
-    public ChatStartResponse startMy(ChatStartMyRequest req) {
+    // 반환 타입: AiResponseResponse
+    public AiResponseResponse startMy(ChatStartMyRequest req) {
 
         endPreviousSessions("MY"); // 같은 타입 모두 종료
 
@@ -62,25 +63,34 @@ public class ChatService {
         session.setStartTime(LocalDateTime.now());
         session.setIsEnded(false);
 
-        // 🔥 제미나이 기반 주제 생성 (너가 만든 로직 그대로)
+        // 🔥 제미나이 기반 주제 생성
         String topic = geminiService.extractTopic(req.getInputText());
         session.setTopic(topic);
 
-        sessionRepo.save(session);
+        sessionRepo.save(session); // 세션 저장
 
-        return new ChatStartResponse(
-                session.getId(),
-                session.getType(),
-                session.getTopic(),
-                "Gemini 기반 주제 추출 완료",
-                session.getStartTime()
-        );
+        // **변경: 1. 첫 사용자 메시지 저장**
+        ChatMessage userMsg = new ChatMessage();
+        userMsg.setSession(session);
+        userMsg.setSender("user");
+        userMsg.setText(req.getInputText());
+        messageRepo.save(userMsg); // 채팅 내용 저장 완료
+
+        // **변경: 2. AI 응답 생성 요청**
+        AiResponseRequest aiReq = new AiResponseRequest();
+        aiReq.setSessionId(session.getId());
+        aiReq.setInputText(req.getInputText());
+        aiReq.setImageBase64(null);
+
+        // **변경: 3. AI 응답을 받아 바로 반환**
+        return generateAiResponse(aiReq);
     }
 
     // =====================================================
-    // ② 공간의 순간 시작
+    // ② 공간의 순간 시작 (→ 사용자 메시지 저장 + 바로 AI 응답 생성)
     // =====================================================
-    public ChatStartResponse startSpace(ChatStartSpaceRequest req) {
+    // 반환 타입: AiResponseResponse
+    public AiResponseResponse startSpace(ChatStartSpaceRequest req) {
 
         endPreviousSessions("SPACE"); // 같은 타입 모두 종료
 
@@ -89,8 +99,8 @@ public class ChatService {
         session.setStartTime(LocalDateTime.now());
         session.setIsEnded(false);
 
-        // 주변 음악 요약
-        String nearbySummary = "";
+        // [수정 완료] 주변 음악 요약 변수를 메서드 시작 부분에서 초기화
+        String nearbySummary = ""; 
         if (req.getNearbyMusic() != null && !req.getNearbyMusic().isEmpty()) {
             nearbySummary = req.getNearbyMusic().stream()
                     .map(m -> m.getTitle() + " - " + m.getArtist())
@@ -98,7 +108,7 @@ public class ChatService {
                     .orElse("");
         }
 
-        // 🔥 네가 만든 장소 기반 프롬프트 그대로 적용
+        // 🔥 네가 만든 장소 기반 프롬프트 그대로 적용 (이제 nearbySummary 접근 가능)
         String prompt = String.format(
                 "📍장소명: %s (%s)\n🎧 주변 음악: %s\n이 장소의 분위기와 어울리는 음악적 주제를 한 문장으로 요약해줘.",
                 req.getLocation().getPlaceName(),
@@ -109,15 +119,25 @@ public class ChatService {
         String topic = geminiService.extractTopic(prompt);
         session.setTopic(topic);
 
-        sessionRepo.save(session);
+        sessionRepo.save(session); // 세션 저장
 
-        return new ChatStartResponse(
-                session.getId(),
-                session.getType(),
-                session.getTopic(),
-                "Gemini 기반 공간 주제 생성 완료",
-                session.getStartTime()
-        );
+        String initialText = String.format("%s에 왔습니다.", req.getLocation().getPlaceName());
+
+        // **변경: 1. 첫 사용자 메시지 저장 (장소명)**
+        ChatMessage userMsg = new ChatMessage();
+        userMsg.setSession(session);
+        userMsg.setSender("user");
+        userMsg.setText(initialText);
+        messageRepo.save(userMsg); // 채팅 내용 저장 완료
+
+        // **변경: 2. AI 응답 생성 요청**
+        AiResponseRequest aiReq = new AiResponseRequest();
+        aiReq.setSessionId(session.getId());
+        aiReq.setInputText(initialText);
+        aiReq.setImageBase64(null);
+
+        // **변경: 3. AI 응답을 받아 바로 반환**
+        return generateAiResponse(aiReq);
     }
 
     // =====================================================
@@ -267,19 +287,18 @@ public class ChatService {
     }
 
     // =====================================================
-    // ⑤ 요약 조회 (최신 세션 제외)
+    // ⑤ 요약 조회 (최신 세션 포함하여 상세 히스토리 내보내기)
     // =====================================================
     public ChatSummaryResponse getChatSummary(Long sessionId) {
 
         ChatSession session = sessionRepo.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
 
-        Optional<ChatSession> latest =
-                sessionRepo.findTopByTypeOrderByStartTimeDesc(session.getType());
-
-        if (latest.isPresent() && Objects.equals(latest.get().getId(), sessionId)) {
-            throw new RuntimeException("최신 세션은 요약 페이지를 사용할 수 없습니다.");
-        }
+        // [변경]: 최신 세션 여부로 조회 제한하지 않음
+        // Optional<ChatSession> latest = sessionRepo.findTopByTypeOrderByStartTimeDesc(session.getType());
+        // if (latest.isPresent() && Objects.equals(latest.get().getId(), sessionId)) {
+        //     throw new RuntimeException("최신 세션은 요약 페이지를 사용할 수 없습니다.");
+        // }
 
         List<ChatMessage> messages =
                 messageRepo.findBySessionIdOrderByCreatedAtAsc(sessionId);
@@ -288,12 +307,17 @@ public class ChatService {
             throw new RuntimeException("메시지가 없습니다.");
         }
 
-        // 대표 user 메시지
+        // 세션 종료 시간 (종료되지 않은 세션이면 null)
+        LocalDateTime endTime = (session.getIsEnded() != null && session.getIsEnded())
+                ? session.getEndTime() : null;
+
+        // 대표 user 메시지 (가장 마지막 user 메시지)
         ChatMessage lastUserMsg = messages.stream()
                 .filter(m -> m.getSender().equals("user"))
                 .reduce((a, b) -> b).orElse(null);
 
         String repText = lastUserMsg != null ? lastUserMsg.getText() : null;
+        // 사용자 이미지 (lastUserMsg의 imageUrl 사용)
         List<String> repImages =
                 (lastUserMsg != null && lastUserMsg.getImageUrl() != null)
                         ? List.of(lastUserMsg.getImageUrl())
@@ -306,6 +330,7 @@ public class ChatService {
                 .reduce((a, b) -> a + "\n" + b)
                 .orElse("");
 
+        // Gemini를 사용한 대화 요약
         String summary = geminiService.summarizeConversation(full);
         String latestUserSummary =
                 repText != null ? geminiService.summarizeSentence(repText) : null;
@@ -314,6 +339,8 @@ public class ChatService {
         ChatMessage lastAi = messages.stream()
                 .filter(m -> m.getSender().equals("ai"))
                 .reduce((a, b) -> b).orElse(null);
+
+        // ... (AI 정보 파싱 로직은 동일)
 
         List<String> keywords = new ArrayList<>();
         List<AiResponseResponse.Recommendation> recs = new ArrayList<>();
@@ -336,6 +363,7 @@ public class ChatService {
             } catch (Exception ignored) {}
         }
 
+
         ChatSummaryResponse.SummaryMode mode =
                 ChatSummaryResponse.SummaryMode.builder()
                         .summary(summary)
@@ -349,12 +377,13 @@ public class ChatService {
                 .sessionId(sessionId)
                 .type(session.getType())
                 .topic(session.getTopic())
-                .isLatest(false)
+                .isLatest(false) // 요약 페이지는 기본적으로 isLatest=false로 처리
                 .representativeText(repText)
                 .representativeImages(repImages)
                 .latestUserSummary(latestUserSummary)
                 .summaryMode(mode)
-                .timestamp(session.getStartTime())
+                .timestamp(session.getStartTime()) // 대화 시작 시간
+                .endTime(endTime) // [추가] 대화 종료 시간
                 .build();
     }
 
