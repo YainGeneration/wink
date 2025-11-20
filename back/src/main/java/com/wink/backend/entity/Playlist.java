@@ -11,17 +11,19 @@ import java.util.List;
 @Entity
 @Getter @Setter
 public class Playlist {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 어떤 채팅 세션에서 저장한 재생목록인지 (선택)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "session_id")
     private ChatSession session;
 
-    private String name; // 예: "AI Recommendations"
+    private String name; // topic 이름
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name = "timestamp") // ← DB 컬럼명 명확히 지정 (추천)
+    private LocalDateTime timestamp = LocalDateTime.now();
 
     @OneToMany(mappedBy = "playlist", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlaylistItem> items = new ArrayList<>();

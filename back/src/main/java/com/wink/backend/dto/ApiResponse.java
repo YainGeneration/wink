@@ -1,7 +1,10 @@
 package com.wink.backend.dto;
+
 import lombok.*;
 
-@Getter @Setter @AllArgsConstructor @NoArgsConstructor
+@Getter @Setter 
+@AllArgsConstructor 
+@NoArgsConstructor
 public class ApiResponse {
     private boolean success;
     private String message;

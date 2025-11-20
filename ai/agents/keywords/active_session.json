@@ -13,7 +13,8 @@
     "숙명여자대학교에 왔습니다.",
     "숙명여자대학교에 왔습니다.",
     "추운 겨울 해가 지고 있을 때 듣기 좋은 노래 추천해줘",
-    "숙명여자대학교에 왔습니다."
+    "숙명여자대학교에 왔습니다.",
+    "조금 더 신나는 노래로 추천해줘"
   ],
   "input_image": [
     "",
@@ -27,6 +28,7 @@
     "",
     "",
     "/tmp/wink_img_7502db3148804d4bb69456847954bf4c.png",
+    "",
     ""
   ],
   "english_text_from_agent1": [
@@ -41,7 +43,8 @@
     "I have come to Suffraget University.",
     "I have come to Suffraget University.",
     "When the cold winter sun sets, I would like to recommend a good song.",
-    "I have come to Suffraget University."
+    "I have come to Suffraget University.",
+    "Recommend a little more exciting song."
   ],
   "english_caption_from_agent2": [
     "",
@@ -55,6 +58,7 @@
     "",
     "",
     "The image captures a serene and warm scene at sunset, with the city skyline glowing under the soft hues of the setting sun against the backdrop of a clear evening sky.",
+    "",
     ""
   ],
   "merged_sentence": [
@@ -69,7 +73,8 @@
     "I have come to Suffraget University.",
     "I have come to Suffraget University.",
     "When the cold winter sun sets, I would like to recommend a good song that evokes a serene and warm atmosphere, particularly suited for a peaceful evening at the university or while reflecting on a city skyline glowing under the soft hues of sunset.",
-    "The user repeatedly expresses a desire for warm, ambient, and peaceful music, initially linked to cityscapes and sunsets, evolving to a serene atmosphere suitable for peaceful evenings at Suffraget University."
+    "The user repeatedly expresses a desire for warm, ambient, and peaceful music, initially linked to cityscapes and sunsets, evolving to a serene atmosphere suitable for peaceful evenings at Suffraget University.",
+    "The user now desires a more exciting song, while still maintaining a warm, ambient, and peaceful atmosphere reminiscent of cityscapes, sunsets, or serene evenings at Suffraget University."
   ],
   "english_keywords": [
     [
@@ -151,6 +156,13 @@
     ],
     [
       "winter",
+      "warm",
+      "ambient",
+      "peaceful",
+      "dreamy"
+    ],
+    [
+      "city",
       "warm",
       "ambient",
       "peaceful",
@@ -684,6 +696,50 @@
         "instrument_tags": "synthesizer",
         "mood_tags": "dream relaxing",
         "similarity_score": 0.5244353495158082
+      }
+    ],
+    [
+      {
+        "mood_tags": "dream relaxing",
+        "path": "68/770168.mp3",
+        "instrument_tags": "electricpiano synthesizer",
+        "track_id": "track_0770168",
+        "track_name": "Annita_Frisina__Delicato__NatureSilent",
+        "duration": 258.8,
+        "url": "http://www.jamendo.com/track/770168",
+        "genre_tags": "ambient",
+        "artist_name": "Annita Frisina",
+        "album_name": "Delicato",
+        "releasedate": "2011-04-29",
+        "similarity_score": 0.49574598359706873
+      },
+      {
+        "url": "http://www.jamendo.com/track/1080597",
+        "album_name": "Terraquarium",
+        "track_id": "track_1080597",
+        "instrument_tags": "synthesizer",
+        "duration": 212.1,
+        "releasedate": "2013-11-16",
+        "artist_name": "RoeAudionews",
+        "mood_tags": "dream relaxing",
+        "genre_tags": "ambient",
+        "path": "97/1080597.mp3",
+        "track_name": "Blue mountains",
+        "similarity_score": 0.49574598359706873
+      },
+      {
+        "album_name": "Fly (Preview)",
+        "releasedate": "2014-03-15",
+        "genre_tags": "ambient chillout",
+        "url": "http://www.jamendo.com/track/1109811",
+        "duration": 147.6,
+        "track_id": "track_1109811",
+        "artist_name": "Udo Vismann",
+        "mood_tags": "dream relaxing soft",
+        "track_name": "Ocean of Faces ",
+        "path": "11/1109811.mp3",
+        "instrument_tags": "drummachine piano synthesizer violin",
+        "similarity_score": 0.4900394461558671
       }
     ]
   ]
