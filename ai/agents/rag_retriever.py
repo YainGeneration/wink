@@ -19,9 +19,9 @@ SCRIPT_DIR = os.path.dirname(__file__)       # .../ai/rag
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)   # .../ai
 
 # 임베딩 설정 다시 보기
-DB_PERSIST_DIR = os.path.join(PROJECT_ROOT, "rag/chroma_db_all-MiniLM-L6-v2")
+DB_PERSIST_DIR = os.path.join(PROJECT_ROOT, "rag/chroma_db_all-MiniLM-l6-v2")
 COLLECTION_NAME = "jamendo_songs"
-EMBED_MODEL_NAME = "all-MiniLM-L6-v2"
+EMBED_MODEL_NAME = "all-MiniLM-l6-v2"
 
 
 # =========================================================
@@ -153,6 +153,18 @@ def get_song_recommendations(english_keywords: list[str], top_k: int = 5):
     )[:top_k]
 
     return sorted_final
+
+# 외부에서 RAG DB 접근 시 사용
+def get_vector_db():
+    """외부에서 RAG DB를 직접 사용하도록 반환."""
+    vector_db, _ = _load_retriever_resources()
+    return vector_db
+
+# 문장 임베딩하여 벡터 변환
+def embed_text(text: str):
+    """문장을 임베딩하여 벡터 반환."""
+    _, embed = _load_retriever_resources()
+    return embed.embed_query(text)
 
 
 # =========================================================
