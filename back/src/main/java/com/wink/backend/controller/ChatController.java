@@ -21,18 +21,17 @@ public class ChatController {
     // -----------------------------------
     // ① 새 채팅 시작
     // -----------------------------------
-    @Operation(summary = "새 채팅 시작 (나의 순간)")
+    @Operation(summary = "새 채팅 시작 (나의 순간) → 바로 AI 응답 반환")
     @PostMapping("/start/my")
-    public ChatStartResponse startMy(@RequestBody ChatStartMyRequest req) {
+    public AiResponseResponse startMy(@RequestBody ChatStartMyRequest req) {
         return chatService.startMy(req);
     }
 
-    @Operation(summary = "새 채팅 시작 (공간의 순간)")
+    @Operation(summary = "새 채팅 시작 (공간의 순간) → 바로 AI 응답 반환")
     @PostMapping("/start/space")
-    public ChatStartResponse startSpace(@RequestBody ChatStartSpaceRequest req) {
+    public AiResponseResponse startSpace(@RequestBody ChatStartSpaceRequest req) {
         return chatService.startSpace(req);
     }
-
     // -----------------------------------
     // ② AI 호출
     // -----------------------------------

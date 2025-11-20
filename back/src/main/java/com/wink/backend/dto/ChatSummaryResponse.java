@@ -31,7 +31,11 @@ public class ChatSummaryResponse {
     // 요약/키워드/추천/문장 묶음
     private SummaryMode summaryMode;
 
+    // 대화 시작 시간
     private LocalDateTime timestamp;
+    
+    // 🔥 [추가]: 대화 종료 시간
+    private LocalDateTime endTime; 
 
     @Getter
     @Setter
