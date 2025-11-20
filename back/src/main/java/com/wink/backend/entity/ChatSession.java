@@ -2,6 +2,7 @@ package com.wink.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,15 +17,27 @@ public class ChatSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String type; // "MY" or "SPACE"
+    // "MY" 또는 "SPACE"
+    private String type;
+
+    // Gemini가 뽑은 주제
     private String topic;
 
-    private LocalDateTime startTime;  // ✅ 추가
+    // 세션 시작/종료 시각
+    private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    // optional: 세션이 생성될 때 기본값 지정
+    // 진행 중(false) / 종료(true) 표시
+    @Column(nullable = false)
+    private Boolean isEnded = false;
+
     @PrePersist
     public void onCreate() {
-        this.startTime = LocalDateTime.now();
+        if (this.startTime == null) {
+            this.startTime = LocalDateTime.now();
+        }
+        if (this.isEnded == null) {
+            this.isEnded = false;
+        }
     }
 }

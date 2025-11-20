@@ -1,21 +1,12 @@
 package com.wink.backend.controller;
+// import com.wink.backend.entity.ChatSession; // ChatController에서는 사용하지 않으므로 제거
 
-import com.wink.backend.dto.AiResponseRequest;
-import com.wink.backend.dto.AiResponseResponse;
-import com.wink.backend.dto.ChatHistoryResponse;
-import com.wink.backend.dto.ChatMessageRequest;
-import com.wink.backend.dto.ChatMessageResponse;
-import com.wink.backend.dto.ChatStartMyRequest;
-import com.wink.backend.dto.ChatStartResponse;
-import com.wink.backend.dto.ChatStartSpaceRequest;
-import com.wink.backend.dto.ChatSummaryResponse;
+import com.wink.backend.dto.*;
 import com.wink.backend.service.ChatService;
-import com.wink.backend.dto.ChatSearchResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -28,47 +19,84 @@ public class ChatController {
         this.chatService = chatService;
     }
 
-    @Operation(summary = "새 채팅 시작 (나의 순간)", description = "입력된 문장에서 핵심 키워드로 topic 추출")
+    // -----------------------------------
+    // ① 새 채팅 시작
+    // -----------------------------------
+    @Operation(summary = "새 채팅 시작 (나의 순간) → 바로 AI 응답 반환")
     @PostMapping("/start/my")
-    public ChatStartResponse startMy(@RequestBody ChatStartMyRequest req) {
+    public AiResponseResponse startMy(@RequestBody ChatStartMyRequest req) {
         return chatService.startMy(req);
     }
 
-    @Operation(summary = "새 채팅 시작 (공간의 순간)", description = "장소/사진/주변 음악 정보를 기반으로 공간 분위기 topic 설정")
+    @Operation(summary = "새 채팅 시작 (공간의 순간) → 바로 AI 응답 반환")
     @PostMapping("/start/space")
-    public ChatStartResponse startSpace(@RequestBody ChatStartSpaceRequest req) {
+    public AiResponseResponse startSpace(@RequestBody ChatStartSpaceRequest req) {
         return chatService.startSpace(req);
     }
-
-    @Operation(summary = "AI 추천 응답 생성", description = "AI 추천 서버와 연동하여 추천곡/키워드/분위기 분석 결과 반환")
+    // -----------------------------------
+    // ② AI 호출
+    // -----------------------------------
+    @Operation(summary = "AI 추천 응답 생성")
     @PostMapping("/ai-response")
     public AiResponseResponse generateAiResponse(@RequestBody AiResponseRequest req) {
-        // ✅ Flask(Agent3 통합 파이프라인) 서버 호출
         return chatService.generateAiResponse(req);
     }
 
-    @Operation(summary = "나의 순간 채팅 기록 조회", description = "특정 세션의 메시지 목록을 반환")
-    @GetMapping("/history/my/{sessionId}")
-    public ChatHistoryResponse getMyChatHistory(@PathVariable Long sessionId) {
-        return chatService.getMyChatHistory(sessionId);
-    }
-
-    @Operation(summary = "나의 순간 메시지 목록 조회", description = "sessionId를 기준으로 모든 메시지를 반환")
-    @GetMapping("/messages/my")
-    public ChatHistoryResponse getMyChatMessages(@RequestParam Long sessionId) {
-        return chatService.getMyChatHistory(sessionId);
-    }
-
-    @Operation(summary = "공간의 순간 메시지 목록 조회", description = "sessionId를 기준으로 모든 메시지를 반환")
-    @GetMapping("/messages/space")
-    public ChatHistoryResponse getSpaceChatMessages(@RequestParam Long sessionId) {
-        return chatService.getSpaceChatHistory(sessionId);
-    }
- 
-    @Operation(summary = "메시지 전송", description = "기존 세션 내 후속 채팅 입력 (가장 최근 세션만 가능)")
+    // -----------------------------------
+    // ③ 후속 메시지 보내기 (최신 세션만 가능)
+    // -----------------------------------
+    @Operation(summary = "메시지 전송 (최신 세션만)")
     @PostMapping("/message")
-    public ChatMessageResponse sendMessage(@RequestBody ChatMessageRequest req) {
-        return chatService.sendMessage(req);
+    public ChatMessageResponse sendUserMessage(@RequestBody ChatMessageRequest req) {
+        return chatService.sendUserMessage(req);
+    }
+
+    // -----------------------------------
+    // ④ 세션 전체 기록 조회 (모든 세션 가능)
+    // -----------------------------------
+    @Operation(summary = "채팅 전체 기록 조회 (모든 세션)")
+    @GetMapping("/{sessionId}/full")
+    public ChatHistoryResponse getFullChat(@PathVariable Long sessionId) {
+        return chatService.getChatFullHistory(sessionId);
+    }
+
+    // -----------------------------------
+    // ⑤ 최신이 아닌 세션 요약 조회
+    // -----------------------------------
+    @Operation(summary = "세션 요약 조회 (비활성화된 세션만)")
+    @GetMapping("/{sessionId}/summary")
+    public ChatSummaryResponse getSummary(@PathVariable Long sessionId) {
+        // ChatService에서 활성화된 세션에 대한 요청을 차단함
+        return chatService.getChatSummary(sessionId);
+    }
+
+    // -----------------------------------
+    // ⑥ 세션 목록 조회
+    // -----------------------------------
+    @Operation(summary = "나의 순간 세션 목록 조회")
+    @GetMapping("/sessions/my")
+    public List<ChatSessionSummaryResponse> getMySessions() {
+        return chatService.getMySessionList();
+    }
+
+    @Operation(summary = "공간의 순간 세션 목록 조회")
+    @GetMapping("/sessions/space")
+    public List<ChatSessionSummaryResponse> getSpaceSessions() {
+        return chatService.getSpaceSessionList();
+    }
+
+    // -----------------------------------
+    // ⑦ (프론트 편의를 위해) history/my / history/space는 full로 통일
+    // -----------------------------------
+    @Operation(summary = "나의 순간 전체 기록 조회")
+    @GetMapping("/history/my/{sessionId}")
+    public ChatHistoryResponse getMyHistory(@PathVariable Long sessionId) {
+        return chatService.getChatFullHistory(sessionId);
+    }
+
+    @Operation(summary = "공간의 순간 전체 기록 조회")
+    @GetMapping("/history/space/{sessionId}")
+    public ChatHistoryResponse getSpaceHistory(@PathVariable Long sessionId) {
+        return chatService.getChatFullHistory(sessionId);
     }
 }
-

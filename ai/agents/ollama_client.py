@@ -1,37 +1,59 @@
+# ollama_client.py
 import requests
+import base64
 import json
-import ast  # 안전한 문자열 → 객체 변환용
+import os
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "gemma3:27b"
+OLLAMA_URL = "http://localhost:11434"
+MODEL = "llava"   # llava:latest 자동 매칭됨
 
-def query_ollama(prompt: str) -> str:
-    payload = {"model": MODEL_NAME, "prompt": prompt}
-    response = requests.post(OLLAMA_URL, json=payload, stream=True)
-
-    output_parts = []  # 안전하게 문자열 조각 누적
-    for line in response.iter_lines():
-        if line:
-            try:
-                data = json.loads(line)
-                resp = data.get("response", "")
-                if isinstance(resp, list):
-                    resp = " ".join(map(str, resp))
-                elif not isinstance(resp, str):
-                    resp = str(resp)
-                output_parts.append(resp)
-            except Exception as e:
-                print("⚠️ JSON 파싱 실패:", e)
-                continue
-
-    output = " ".join(output_parts).strip()
-
-    # ✅ Ollama가 리스트 형태 문자열을 보낼 경우에도 방어
+def encode_image_to_base64(image_path: str) -> str:
+    """이미지 파일을 Base64로 변환"""
     try:
-        parsed = ast.literal_eval(output)
-        if isinstance(parsed, list):
-            output = " ".join(map(str, parsed))
-    except Exception:
-        pass
+        with open(image_path, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+    except Exception as e:
+        print(f"⚠️ 이미지 Base64 변환 실패: {e}")
+        return None
 
-    return output
+
+def ask_llava(prompt: str, image_path: str = None) -> str:
+    """LLaVA 호출 (이미지 + 텍스트)"""
+
+    # 메시지 구성
+    messages = []
+
+    # 이미지 포함 시 멀티파트 메시지 생성
+    if image_path and os.path.exists(image_path):
+        base64_img = encode_image_to_base64(image_path)
+        if base64_img:
+            messages.append({
+                "role": "user",
+                "content": [
+                    { "type": "text", "text": prompt },
+                    { "type": "image", "image": base64_img }
+                ]
+            })
+        else:
+            # 이미지 실패 → 텍스트만
+            messages.append({ "role": "user", "content": prompt })
+    else:
+        # 이미지 없는 경우
+        messages.append({ "role": "user", "content": prompt })
+
+    payload = {
+        "model": MODEL,
+        "messages": messages,
+        "stream": False
+    }
+
+    try:
+        res = requests.post(OLLAMA_URL, json=payload)
+        data = res.json()
+
+        # 최신 Ollama JSON 구조
+        return data["message"]["content"]
+
+    except Exception as e:
+        print("🔥 LLaVA 호출 실패:", e)
+        return ""

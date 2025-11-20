@@ -30,5 +30,12 @@ public class ChatMessage {
     @Column(columnDefinition = "TEXT")
     private String recommendationsJson;
 
+    @Column(columnDefinition = "TEXT")
+    private String mergedSentence;
+
+    @Column(columnDefinition = "TEXT")
+    private String interpretedSentence;
+
+
     private LocalDateTime createdAt = LocalDateTime.now();
 }

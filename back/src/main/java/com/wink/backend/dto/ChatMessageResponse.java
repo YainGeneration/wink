@@ -13,7 +13,10 @@ public class ChatMessageResponse {
     private Long sessionId; 
     private String sender;
     private String text;
+    private List<String> imageBase64;
     private List<String> keywords;
     private List<AiResponseResponse.Recommendation> recommendations;
+    private String mergedSentence;
+    private String interpretedSentence;
     private LocalDateTime timestamp;
 }

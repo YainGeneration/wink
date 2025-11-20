@@ -1,5 +1,7 @@
 package com.wink.backend.service;
 
+import java.util.Collections;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wink.backend.dto.*;
@@ -14,9 +16,14 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.HashSet;
 
 
-    // ✅ 1. 주소 → 좌표 검색 (Kakao API 사용)
 @Service
 public class LocationService {
 
@@ -73,11 +80,86 @@ public class LocationService {
 
     // ✅ 2. 주변 음악 조회 (현재는 mock 유지)
     public List<NearbyMusicResponse> getNearbyMusic(double lat, double lng) {
-        return List.of(
-                new NearbyMusicResponse(1L, "사용자1", "Love Dive", "IVE", "cover1.jpg", lat + 0.001, lng + 0.001),
-                new NearbyMusicResponse(2L, "사용자2", "ETA", "NewJeans", "cover2.jpg", lat - 0.001, lng - 0.001)
+
+        Random rand = new Random();
+        int peopleCount = 5;
+
+        // ----- POP 곡 풀 -----
+        List<String[]> pop = List.of(
+            new String[]{"As It Was", "Harry Styles"},
+            new String[]{"Anti-Hero", "Taylor Swift"},
+            new String[]{"Blinding Lights", "The Weeknd"},
+            new String[]{"Good 4 U", "Olivia Rodrigo"},
+            new String[]{"Peaches", "Justin Bieber"},
+            new String[]{"Levitating", "Dua Lipa"},
+            new String[]{"Shivers", "Ed Sheeran"},
+            new String[]{"Stay", "The Kid LAROI"},
+            new String[]{"Monaco", "Bad Bunny"}
         );
+
+        // ----- JPOP 곡 풀 -----
+        List<String[]> jpop = Arrays.asList(
+            new String[]{"Pretender", "Official Hige Dandism"},
+            new String[]{"Nandemonaiya", "RADWIMPS"},
+            new String[]{"Lemon", "Kenshi Yonezu"}
+        );
+
+        // ----- POP + JPOP 전체 풀 -----
+        List<String[]> songPool = new ArrayList<>();
+        songPool.addAll(pop);
+        songPool.addAll(jpop);
+
+        // 곡이 5곡 이상인지 체크 (문제 없음)
+        if (songPool.size() < peopleCount) {
+            throw new RuntimeException("곡의 개수가 peopleCount보다 적습니다.");
+        }
+
+        // 곡 중복 방지 → 리스트 전체 shuffle
+        Collections.shuffle(songPool);
+
+        // 이제 songPool.get(i) 로 0~4까지 5곡이 모두 다르게 나옴
+
+        // ----- 이미지 중복 방지 -----
+        Set<Integer> usedImageNumbers = new HashSet<>();
+
+        List<NearbyMusicResponse> result = new ArrayList<>();
+
+        for (int i = 1; i <= peopleCount; i++) {
+
+            // 위치 랜덤 offset
+            double offsetLat = (rand.nextDouble() * 0.0018) - 0.0009;
+            double offsetLng = (rand.nextDouble() * 0.0018) - 0.0009;
+
+            double newLat = lat + offsetLat;
+            double newLng = lng + offsetLng;
+
+            // 중복 없는 곡 선택
+            String[] song = songPool.get(i - 1); // shuffle된 순서대로 배정됨
+
+            // 중복되지 않는 랜덤 이미지 번호 생성
+            int randomImageNumber;
+            do {
+                randomImageNumber = rand.nextInt(10000) + 1;
+            } while (usedImageNumbers.contains(randomImageNumber));
+
+            usedImageNumbers.add(randomImageNumber);
+
+            String profileImageUrl = "https://picsum.photos/200/200?random=" + randomImageNumber;
+
+            result.add(new NearbyMusicResponse(
+                    (long) i,
+                    "사용자" + i,
+                    song[0],           // title
+                    song[1],           // artist
+                    profileImageUrl,
+                    newLat,
+                    newLng
+            ));
+        }
+
+        return result;
     }
+
 
     // ✅ 3. 특정 사용자 음악 상세 조회 (mock 유지)
     public MusicDetailResponse getNearbyUserMusic(Long userId) {
