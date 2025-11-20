@@ -20,9 +20,10 @@ PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)   # .../ai
 
 # 임베딩 설정 다시 보기
 DB_PERSIST_DIR = os.path.join(PROJECT_ROOT, "rag/chroma_db_all-MiniLM-l6-v2")
+# DB_PERSIST_DIR = os.path.join(PROJECT_ROOT, "rag/chroma_db_all-mpnet-base-v2")
 COLLECTION_NAME = "jamendo_songs"
 EMBED_MODEL_NAME = "all-MiniLM-l6-v2"
-
+# EMBED_MODEL_NAME = "all-mpnet-base-v2"
 
 # =========================================================
 # 2. 전역 캐시
