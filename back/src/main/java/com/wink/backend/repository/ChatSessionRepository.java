@@ -20,4 +20,7 @@ public interface ChatSessionRepository extends JpaRepository<ChatSession, Long> 
     List<ChatSession> findByTypeAndIsEndedFalseOrderByStartTimeDesc(String type);
 
     Optional<ChatSession> findTopByTypeAndIsEndedFalseOrderByStartTimeDesc(String type);
+
+    List<ChatSession> findByTypeAndIsEndedTrueOrderByStartTimeDesc(String type);
+
 }

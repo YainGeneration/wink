@@ -108,7 +108,7 @@ def recommend():
         response_data = {
             "sessionId": session_id,
             "title": topic,
-            "aiMessage": f"'{topic}'에 대한 음악 추천 결과입니다.",
+            "aiMessage": f"'요청하신 음악 추천 결과입니다.",
             "english_text": english_text,
             "english_caption": english_caption,
             "mergedSentence": merged_sentence,

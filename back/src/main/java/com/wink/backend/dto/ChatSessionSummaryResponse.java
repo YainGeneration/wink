@@ -16,5 +16,7 @@ public class ChatSessionSummaryResponse {
     private String topic;
     private String latestMessage;
     private LocalDateTime createdAt;
+    private boolean isEnded;
+    private LocalDateTime endTime;
 
 }

@@ -1,4 +1,5 @@
 package com.wink.backend.controller;
+// import com.wink.backend.entity.ChatSession; // ChatController에서는 사용하지 않으므로 제거
 
 import com.wink.backend.dto.*;
 import com.wink.backend.service.ChatService;
@@ -51,9 +52,9 @@ public class ChatController {
     }
 
     // -----------------------------------
-    // ④ 세션 전체 기록 조회 (최신 세션만 가능)
+    // ④ 세션 전체 기록 조회 (모든 세션 가능)
     // -----------------------------------
-    @Operation(summary = "채팅 전체 기록 조회")
+    @Operation(summary = "채팅 전체 기록 조회 (모든 세션)")
     @GetMapping("/{sessionId}/full")
     public ChatHistoryResponse getFullChat(@PathVariable Long sessionId) {
         return chatService.getChatFullHistory(sessionId);
@@ -62,9 +63,10 @@ public class ChatController {
     // -----------------------------------
     // ⑤ 최신이 아닌 세션 요약 조회
     // -----------------------------------
-    @Operation(summary = "세션 요약 조회")
+    @Operation(summary = "세션 요약 조회 (비활성화된 세션만)")
     @GetMapping("/{sessionId}/summary")
     public ChatSummaryResponse getSummary(@PathVariable Long sessionId) {
+        // ChatService에서 활성화된 세션에 대한 요청을 차단함
         return chatService.getChatSummary(sessionId);
     }
 
@@ -86,11 +88,13 @@ public class ChatController {
     // -----------------------------------
     // ⑦ (프론트 편의를 위해) history/my / history/space는 full로 통일
     // -----------------------------------
+    @Operation(summary = "나의 순간 전체 기록 조회")
     @GetMapping("/history/my/{sessionId}")
     public ChatHistoryResponse getMyHistory(@PathVariable Long sessionId) {
         return chatService.getChatFullHistory(sessionId);
     }
 
+    @Operation(summary = "공간의 순간 전체 기록 조회")
     @GetMapping("/history/space/{sessionId}")
     public ChatHistoryResponse getSpaceHistory(@PathVariable Long sessionId) {
         return chatService.getChatFullHistory(sessionId);

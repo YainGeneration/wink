@@ -230,21 +230,14 @@ public class ChatService {
     }
 
     // =====================================================
-    // ④ 최신 세션 전체 메시지 조회
+    // ④ 세션 전체 메시지 조회 (모든 세션 허용)
     // =====================================================
     public ChatHistoryResponse getChatFullHistory(Long sessionId) {
 
         ChatSession session = sessionRepo.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
 
-        // 최신 세션인지 체크
-        Optional<ChatSession> latest =
-                sessionRepo.findTopByTypeOrderByStartTimeDesc(session.getType());
-
-        if (latest.isEmpty() || !Objects.equals(latest.get().getId(), sessionId)) {
-            throw new RuntimeException("최신 세션만 전체 대화 조회 가능합니다.");
-        }
-
+        // [수정]: 최신 세션 체크 로직 제거 (모든 세션의 전체 기록 조회 허용)
         List<ChatMessage> messages = messageRepo.findBySessionIdOrderByCreatedAtAsc(sessionId);
 
         List<ChatMessageResponse> list = new ArrayList<>();
@@ -273,6 +266,9 @@ public class ChatService {
                             : null)
                     .keywords(keywords)
                     .recommendations(recs)
+                    // [추가] ChatMessageResponse에 mergedSentence와 interpretedSentence가 있다고 가정하고 매핑
+                    .mergedSentence(msg.getMergedSentence())
+                    .interpretedSentence(msg.getInterpretedSentence())
                     .timestamp(msg.getCreatedAt())
                     .build());
         }
@@ -281,110 +277,132 @@ public class ChatService {
                 .sessionId(sessionId)
                 .type(session.getType())
                 .topic(session.getTopic())
-                .isLatest(true)
+                .isLatest(true) // 이 필드는 클라이언트에서 판단할 수 있도록 true로 유지
                 .messages(list)
                 .build();
     }
 
     // =====================================================
-    // ⑤ 요약 조회 (최신 세션 포함하여 상세 히스토리 내보내기)
+    // ⑤ 요약 조회 (활성화되지 않은 세션만 허용)
     // =====================================================
     public ChatSummaryResponse getChatSummary(Long sessionId) {
 
         ChatSession session = sessionRepo.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
 
-        // [변경]: 최신 세션 여부로 조회 제한하지 않음
-        // Optional<ChatSession> latest = sessionRepo.findTopByTypeOrderByStartTimeDesc(session.getType());
-        // if (latest.isPresent() && Objects.equals(latest.get().getId(), sessionId)) {
-        //     throw new RuntimeException("최신 세션은 요약 페이지를 사용할 수 없습니다.");
-        // }
+        // 1. 🔥 활성 세션 차단 로직 (최신 세션은 요약 불가)
+        Optional<ChatSession> latest =
+                sessionRepo.findTopByTypeOrderByStartTimeDesc(session.getType());
 
-        List<ChatMessage> messages =
-                messageRepo.findBySessionIdOrderByCreatedAtAsc(sessionId);
-
-        if (messages.isEmpty()) {
-            throw new RuntimeException("메시지가 없습니다.");
+        if (latest.isPresent() && Objects.equals(latest.get().getId(), sessionId)) {
+            // 활성화된 최신 세션일 경우 차단
+            throw new RuntimeException("활성화된 세션 (" + sessionId + ")에 대해서는 채팅 요약을 요청할 수 없습니다. 전체 기록 조회 엔드포인트를 사용해야 합니다.");
         }
 
-        // 세션 종료 시간 (종료되지 않은 세션이면 null)
-        LocalDateTime endTime = (session.getIsEnded() != null && session.getIsEnded())
-                ? session.getEndTime() : null;
+        // --- 이전 세션에 대한 요약 생성 로직 시작 (try-catch로 안정화) ---
+        try {
+            // 2. 메시지 로드
+            List<ChatMessage> messages =
+                    messageRepo.findBySessionIdOrderByCreatedAtAsc(sessionId);
 
-        // 대표 user 메시지 (가장 마지막 user 메시지)
-        ChatMessage lastUserMsg = messages.stream()
-                .filter(m -> m.getSender().equals("user"))
-                .reduce((a, b) -> b).orElse(null);
+            if (messages.isEmpty()) {
+                throw new RuntimeException("메시지가 없습니다.");
+            }
 
-        String repText = lastUserMsg != null ? lastUserMsg.getText() : null;
-        // 사용자 이미지 (lastUserMsg의 imageUrl 사용)
-        List<String> repImages =
-                (lastUserMsg != null && lastUserMsg.getImageUrl() != null)
-                        ? List.of(lastUserMsg.getImageUrl())
-                        : null;
+            // 세션 종료 시간
+            // [확인]: isEnded가 true일 때만 endTime을 반환합니다.
+            LocalDateTime endTime = (session.getIsEnded() != null && session.getIsEnded())
+                    ? session.getEndTime() : null;
 
-        // 전체 대화 요약
-        String full = messages.stream()
-                .map(ChatMessage::getText)
-                .filter(Objects::nonNull)
-                .reduce((a, b) -> a + "\n" + b)
-                .orElse("");
+            // 대표 user 메시지 (가장 마지막 user 메시지)
+            ChatMessage lastUserMsg = messages.stream()
+                    .filter(m -> m.getSender().equals("user"))
+                    .reduce((a, b) -> b).orElse(null);
 
-        // Gemini를 사용한 대화 요약
-        String summary = geminiService.summarizeConversation(full);
-        String latestUserSummary =
-                repText != null ? geminiService.summarizeSentence(repText) : null;
+            String repText = lastUserMsg != null ? lastUserMsg.getText() : null;
+            
+            // 🖼️ repImages 정리 (사진 정보 가져오기)
+            List<String> repImages = new ArrayList<>();
+            if (lastUserMsg != null && lastUserMsg.getImageUrl() != null && !lastUserMsg.getImageUrl().isBlank()) {
+                repImages.add(lastUserMsg.getImageUrl());
+            }
 
-        // 마지막 AI 메시지 정보
-        ChatMessage lastAi = messages.stream()
-                .filter(m -> m.getSender().equals("ai"))
-                .reduce((a, b) -> b).orElse(null);
+            // 전체 대화 병합
+            String full = messages.stream()
+                    .map(ChatMessage::getText)
+                    .filter(Objects::nonNull)
+                    .reduce((a, b) -> a + "\n" + b)
+                    .orElse("");
 
-        // ... (AI 정보 파싱 로직은 동일)
+            // Gemini를 사용한 대화 요약
+            String summary = geminiService.summarizeConversation(full);
+            String latestUserSummary =
+                    repText != null ? geminiService.summarizeSentence(repText) : null;
 
-        List<String> keywords = new ArrayList<>();
-        List<AiResponseResponse.Recommendation> recs = new ArrayList<>();
-        String merged = null;
-        String interpreted = null;
+            // 마지막 AI 메시지
+            ChatMessage lastAi = messages.stream()
+                    .filter(m -> m.getSender().equals("ai"))
+                    .reduce((a, b) -> b).orElse(null);
 
-        if (lastAi != null) {
-            try {
-                if (lastAi.getKeywordsJson() != null)
-                    keywords = mapper.readValue(lastAi.getKeywordsJson(), List.class);
+            List<String> keywords = new ArrayList<>();
+            List<AiResponseResponse.Recommendation> recs = new ArrayList<>();
+            String merged = null;
+            String interpreted = null;
 
-                if (lastAi.getRecommendationsJson() != null)
-                    recs = Arrays.asList(
-                            mapper.readValue(lastAi.getRecommendationsJson(),
-                                    AiResponseResponse.Recommendation[].class));
+            if (lastAi != null) {
+                try {
+                    if (lastAi.getKeywordsJson() != null)
+                        keywords = mapper.readValue(lastAi.getKeywordsJson(), List.class);
 
-                merged = lastAi.getMergedSentence();
-                interpreted = lastAi.getInterpretedSentence();
+                    if (lastAi.getRecommendationsJson() != null)
+                        recs = Arrays.asList(
+                                mapper.readValue(lastAi.getRecommendationsJson(),
+                                        AiResponseResponse.Recommendation[].class));
 
-            } catch (Exception ignored) {}
+                    merged = lastAi.getMergedSentence();
+                    interpreted = lastAi.getInterpretedSentence();
+
+                } catch (Exception ignored) {} // 내부 JSON 파싱 오류는 무시
+            }
+
+            ChatSummaryResponse.SummaryMode mode =
+                    ChatSummaryResponse.SummaryMode.builder()
+                            .summary(summary)
+                            .keywords(keywords)
+                            .recommendations(recs)
+                            .mergedSentence(merged)
+                            .interpretedSentence(interpreted)
+                            .build();
+
+            return ChatSummaryResponse.builder()
+                    .sessionId(sessionId)
+                    .type(session.getType())
+                    .topic(session.getTopic())
+                    .isLatest(false)
+                    .representativeText(repText)
+                    .representativeImages(repImages)
+                    .latestUserSummary(latestUserSummary)
+                    .summaryMode(mode)
+                    // [확인]: 시작 시간과 종료 시간을 모두 반환합니다.
+                    .timestamp(session.getStartTime()) 
+                    .endTime(endTime)
+                    .build();
+            
+        } catch (Exception e) {
+            // 🔥 요약 처리 중 발생하는 모든 예외를 잡아서 안정적인 오류 응답 반환
+            e.printStackTrace();
+            return ChatSummaryResponse.builder()
+                    .sessionId(sessionId)
+                    .type(session.getType())
+                    .topic("요약 처리 오류")
+                    .isLatest(false)
+                    .representativeText("요약 데이터 로드 중 오류 발생: " + e.getMessage())
+                    .summaryMode(ChatSummaryResponse.SummaryMode.builder()
+                            .summary("데이터 처리 중 오류가 발생했습니다.")
+                            .build())
+                    .timestamp(LocalDateTime.now())
+                    .build();
         }
-
-
-        ChatSummaryResponse.SummaryMode mode =
-                ChatSummaryResponse.SummaryMode.builder()
-                        .summary(summary)
-                        .keywords(keywords)
-                        .recommendations(recs)
-                        .mergedSentence(merged)
-                        .interpretedSentence(interpreted)
-                        .build();
-
-        return ChatSummaryResponse.builder()
-                .sessionId(sessionId)
-                .type(session.getType())
-                .topic(session.getTopic())
-                .isLatest(false) // 요약 페이지는 기본적으로 isLatest=false로 처리
-                .representativeText(repText)
-                .representativeImages(repImages)
-                .latestUserSummary(latestUserSummary)
-                .summaryMode(mode)
-                .timestamp(session.getStartTime()) // 대화 시작 시간
-                .endTime(endTime) // [추가] 대화 종료 시간
-                .build();
     }
 
     // =====================================================
@@ -432,12 +450,15 @@ public class ChatService {
                         ? List.of(req.getImageBase64()) : null)
                 .keywords(aiRes.getKeywords())
                 .recommendations(aiRes.getRecommendations())
+                // [수정]: DTO에 필드가 있다고 가정하고 매핑
+                .mergedSentence(aiRes.getMergedSentence()) 
+                .interpretedSentence(aiRes.getInterpretedSentence()) 
                 .timestamp(userMsg.getCreatedAt())
                 .build();
     }
 
     // =====================================================
-    // ⑦ 세션 목록 조회
+    // ⑦ 세션 목록 조회 (isEnded, endTime 정보 추가)
     // =====================================================
     public List<ChatSessionSummaryResponse> getSessionList(String type) {
         List<ChatSession> sessions = sessionRepo.findByTypeOrderByStartTimeDesc(type);
@@ -456,7 +477,11 @@ public class ChatService {
                     .type(s.getType())
                     .topic(s.getTopic())
                     .latestMessage(latestMsg)
-                    .createdAt(s.getStartTime())
+                    // [반영]: 시작 시간
+                    .createdAt(s.getStartTime()) 
+                    // 🔥 [추가]: isEnded 상태와 종료 시간
+                    .isEnded(s.getIsEnded() != null && s.getIsEnded())
+                    .endTime(s.getEndTime()) 
                     .build());
         }
 

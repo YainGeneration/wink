@@ -15,7 +15,14 @@
     "해 질 때 집중 잘 되는 노래 추천해줘",
     "조금 더 밝은 노래도 추천해줘",
     "숙명여자대학교에 왔습니다.",
-    "조금 더 밝은 노래도 추천해줘"
+    "조금 더 밝은 노래도 추천해줘",
+    "학교 교정을 걸으면서 들을만한 노래 추천해줘",
+    "학교 교정을 걸으면서 들을만한 노래 추천해줘",
+    "학교 교정을 걸으면서 들을만한 노래 추천해줘",
+    "학교 교정에 누워있을 때 들을만한 노래 추천해줘",
+    "새벽에 일찍 일어나서 운동할 때 들으면 힘이 나는 노래 추천해줘",
+    "서울 용산구 청파동2가 53-12에 왔습니다.",
+    "학교에서 집에 가고 싶을 때 노래 추천해줘"
   ],
   "input_image": [
     "/tmp/wink_img_9f05865ca442474f84af9ac44010e0c9.png",
@@ -29,6 +36,13 @@
     "/tmp/wink_img_8b7c7c82650b4935883ff6beba12a1f8.png",
     "/tmp/wink_img_359faf022194403ca4c9d63927e7ebe2.png",
     "/tmp/wink_img_dc4a3fb0f72b4c0bb4286cd09ec0c724.png",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
     "",
     "",
     "",
@@ -49,7 +63,14 @@
     "I would like to recommend a song you might enjoy when it gets dark.",
     "I recommend a brighter song if possible.",
     "I have come to Suffraget University.",
-    "I recommend a brighter song if possible."
+    "I recommend a brighter song if possible.",
+    "I would like to hear a song recommendation while walking in school.",
+    "I would like to hear a song recommendation while walking in school.",
+    "I would like to hear a song recommendation while walking in school.",
+    "Please recommend a song you can listen to when lying in school corridors.",
+    "I would like a song recommendation that you feel strong when exercising.",
+    "Seoul Yongsan-gu Chhap-dong 53-12 has arrived.",
+    "When I want to go home from school, please recommend a song."
   ],
   "english_caption_from_agent2": [
     "The image depicts a breathtaking sunset over a sprawling cityscape, with warm hues reflecting off the buildings and creating an atmosphere of tranquility and wonder.",
@@ -63,6 +84,13 @@
     "The image captures a vibrant cityscape at dusk, with the warm glow of sunset casting a beautiful orange hue over the buildings, creating a tranquil yet lively atmosphere.",
     "This image captures the tranquil beauty of a bustling city at dusk, with a stunning sunset that casts warm hues over the urban landscape.",
     "The image captures a serene cityscape at sunset, where the warm orange hues of the sky are reflected off the buildings, creating a tranquil yet vibrant scene.",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
     "",
     "",
     "",
@@ -83,7 +111,14 @@
     "I would like to recommend a song you might enjoy when it gets dark, while the image captures a serene cityscape at sunset, where the warm orange hues of the sky are reflected off the buildings, creating a tranquil yet vibrant scene.",
     "I recommend a brighter song if possible, while the image captures a serene cityscape at sunset, where the warm orange hues of the sky are reflected off the buildings, creating a tranquil yet vibrant scene.",
     "I have come to Suffraget University, while no visual context is provided.",
-    "I recommend a brighter song if possible, while the image captures a serene cityscape at sunset, where the warm orange hues of the sky are reflected off the buildings, creating a tranquil yet vibrant scene."
+    "I recommend a brighter song if possible, while the image captures a serene cityscape at sunset, where the warm orange hues of the sky are reflected off the buildings, creating a tranquil yet vibrant scene.",
+    "I would like to hear a song recommendation while walking in school, while no visual context is provided.",
+    "I would like to hear a song recommendation while walking in school, while no visual context is provided.",
+    "I would like to hear a song recommendation while walking in school, while no visual context is provided.",
+    "Please recommend a song you can listen to when lying in school corridors, while no visual context is provided.",
+    "I would like a song recommendation that you feel strong when exercising, while no visual context is provided.",
+    "“Seoul Yongsan-gu Chhap-dong 53-12 has arrived, while no visual context is provided.”",
+    "“When I want to go home from school, please recommend a song,” while no visual context is provided."
   ],
   "english_keywords": [
     [
@@ -190,6 +225,55 @@
       "warm",
       "vibrant",
       "tranquil"
+    ],
+    [
+      "school",
+      "walking",
+      "ambient",
+      "calm",
+      "thoughtful"
+    ],
+    [
+      "school",
+      "walking",
+      "ambient",
+      "calm",
+      "thoughtful"
+    ],
+    [
+      "school",
+      "walking",
+      "ambient",
+      "calm",
+      "thoughtful"
+    ],
+    [
+      "corridors",
+      "quiet",
+      "ambient",
+      "lonely",
+      "introspective"
+    ],
+    [
+      "exercise",
+      "strong",
+      "energetic",
+      "motivating",
+      "powerful"
+    ],
+    [
+      "seoul",
+      "visual",
+      "context",
+      "arrived",
+      "location"
+    ],
+    [
+      "home",
+      "school",
+      "recommend",
+      "song",
+      "provided"
     ]
   ],
   "recommended_songs": [
@@ -896,6 +980,335 @@
         "album_cover_url": null,
         "preview_url": null,
         "spotify_embed_url": "https://open.spotify.com/embed/track/04zrPERrSO4CfyargthKJ9"
+      }
+    ],
+    [
+      {
+        "id": "5CGS4UovzA7ftCJkLVXQju",
+        "track_name": "I Love Kanye",
+        "artist_name": "Kanye West",
+        "recommend_score": 0.20618235989190317,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/5CGS4UovzA7ftCJkLVXQju"
+      },
+      {
+        "id": "4JLI9AgtAXutJvjlXgZBoR",
+        "track_name": "French Inhale",
+        "artist_name": "bsd.u",
+        "recommend_score": 0.20496875741364134,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/4JLI9AgtAXutJvjlXgZBoR"
+      },
+      {
+        "id": "2oAPUnBerGoshpD7ueqwJW",
+        "track_name": "Jimi",
+        "artist_name": "Slightly Stoopid",
+        "recommend_score": 0.20247685169377966,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
+      },
+      {
+        "id": "3m2aDCqn8eT5ElXDUiboGU",
+        "track_name": "Get Dripped (feat. Playboi Carti)",
+        "artist_name": "Lil Yachty",
+        "recommend_score": 0.20234021365755406,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/3m2aDCqn8eT5ElXDUiboGU"
+      },
+      {
+        "id": "2qib0282oGZPZWyJHqJaVi",
+        "track_name": "Trick Me - Club Mix",
+        "artist_name": "Kelis",
+        "recommend_score": 0.2017837291913554,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2qib0282oGZPZWyJHqJaVi"
+      }
+    ],
+    [
+      {
+        "id": "5CGS4UovzA7ftCJkLVXQju",
+        "track_name": "I Love Kanye",
+        "artist_name": "Kanye West",
+        "recommend_score": 0.24753142577739679,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/5CGS4UovzA7ftCJkLVXQju"
+      },
+      {
+        "id": "3m2aDCqn8eT5ElXDUiboGU",
+        "track_name": "Get Dripped (feat. Playboi Carti)",
+        "artist_name": "Lil Yachty",
+        "recommend_score": 0.24324904495681604,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/3m2aDCqn8eT5ElXDUiboGU"
+      },
+      {
+        "id": "4JLI9AgtAXutJvjlXgZBoR",
+        "track_name": "French Inhale",
+        "artist_name": "bsd.u",
+        "recommend_score": 0.24309287296876958,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/4JLI9AgtAXutJvjlXgZBoR"
+      },
+      {
+        "id": "2qib0282oGZPZWyJHqJaVi",
+        "track_name": "Trick Me - Club Mix",
+        "artist_name": "Kelis",
+        "recommend_score": 0.2406225813997487,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2qib0282oGZPZWyJHqJaVi"
+      },
+      {
+        "id": "2FTeQQ5Rg9tBpgpTF5mnhE",
+        "track_name": "Still Think About You",
+        "artist_name": "A Boogie Wit da Hoodie",
+        "recommend_score": 0.23907017493415497,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2FTeQQ5Rg9tBpgpTF5mnhE"
+      }
+    ],
+    [
+      {
+        "id": "5CGS4UovzA7ftCJkLVXQju",
+        "track_name": "I Love Kanye",
+        "artist_name": "Kanye West",
+        "recommend_score": 0.28306290694389574,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/5CGS4UovzA7ftCJkLVXQju"
+      },
+      {
+        "id": "3m2aDCqn8eT5ElXDUiboGU",
+        "track_name": "Get Dripped (feat. Playboi Carti)",
+        "artist_name": "Lil Yachty",
+        "recommend_score": 0.2784148289111417,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/3m2aDCqn8eT5ElXDUiboGU"
+      },
+      {
+        "id": "4JLI9AgtAXutJvjlXgZBoR",
+        "track_name": "French Inhale",
+        "artist_name": "bsd.u",
+        "recommend_score": 0.2757333089693953,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/4JLI9AgtAXutJvjlXgZBoR"
+      },
+      {
+        "id": "2qib0282oGZPZWyJHqJaVi",
+        "track_name": "Trick Me - Club Mix",
+        "artist_name": "Kelis",
+        "recommend_score": 0.2739303943282431,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2qib0282oGZPZWyJHqJaVi"
+      },
+      {
+        "id": "2FTeQQ5Rg9tBpgpTF5mnhE",
+        "track_name": "Still Think About You",
+        "artist_name": "A Boogie Wit da Hoodie",
+        "recommend_score": 0.27248892158109417,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2FTeQQ5Rg9tBpgpTF5mnhE"
+      }
+    ],
+    [
+      {
+        "id": "5CGS4UovzA7ftCJkLVXQju",
+        "track_name": "I Love Kanye",
+        "artist_name": "Kanye West",
+        "recommend_score": 0.3319663433867414,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/5CGS4UovzA7ftCJkLVXQju"
+      },
+      {
+        "id": "4JLI9AgtAXutJvjlXgZBoR",
+        "track_name": "French Inhale",
+        "artist_name": "bsd.u",
+        "recommend_score": 0.3285092530729246,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/4JLI9AgtAXutJvjlXgZBoR"
+      },
+      {
+        "id": "3m2aDCqn8eT5ElXDUiboGU",
+        "track_name": "Get Dripped (feat. Playboi Carti)",
+        "artist_name": "Lil Yachty",
+        "recommend_score": 0.322275180733266,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/3m2aDCqn8eT5ElXDUiboGU"
+      },
+      {
+        "id": "703Y8dw2MMfEodrw5D6hDd",
+        "track_name": "Old Roots New Trees",
+        "artist_name": "Made in M",
+        "recommend_score": 0.3199765623367139,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/703Y8dw2MMfEodrw5D6hDd"
+      },
+      {
+        "id": "2oAPUnBerGoshpD7ueqwJW",
+        "track_name": "Jimi",
+        "artist_name": "Slightly Stoopid",
+        "recommend_score": 0.31849634702376384,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
+      }
+    ],
+    [
+      {
+        "id": "5CGS4UovzA7ftCJkLVXQju",
+        "track_name": "I Love Kanye",
+        "artist_name": "Kanye West",
+        "recommend_score": 0.3499321097398821,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/5CGS4UovzA7ftCJkLVXQju"
+      },
+      {
+        "id": "4JLI9AgtAXutJvjlXgZBoR",
+        "track_name": "French Inhale",
+        "artist_name": "bsd.u",
+        "recommend_score": 0.34355864384195445,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/4JLI9AgtAXutJvjlXgZBoR"
+      },
+      {
+        "id": "3m2aDCqn8eT5ElXDUiboGU",
+        "track_name": "Get Dripped (feat. Playboi Carti)",
+        "artist_name": "Lil Yachty",
+        "recommend_score": 0.3421785057399387,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/3m2aDCqn8eT5ElXDUiboGU"
+      },
+      {
+        "id": "3lXyAQ0kekAvY5LodpWmUs",
+        "track_name": "Ten Duel Commandments",
+        "artist_name": "Lin-Manuel Miranda",
+        "recommend_score": 0.3365240670710388,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/3lXyAQ0kekAvY5LodpWmUs"
+      },
+      {
+        "id": "2qib0282oGZPZWyJHqJaVi",
+        "track_name": "Trick Me - Club Mix",
+        "artist_name": "Kelis",
+        "recommend_score": 0.33572171136064305,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2qib0282oGZPZWyJHqJaVi"
+      }
+    ],
+    [
+      {
+        "id": "5CGS4UovzA7ftCJkLVXQju",
+        "track_name": "I Love Kanye",
+        "artist_name": "Kanye West",
+        "recommend_score": 0.3337250573278926,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/5CGS4UovzA7ftCJkLVXQju"
+      },
+      {
+        "id": "4JLI9AgtAXutJvjlXgZBoR",
+        "track_name": "French Inhale",
+        "artist_name": "bsd.u",
+        "recommend_score": 0.3298902791884614,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/4JLI9AgtAXutJvjlXgZBoR"
+      },
+      {
+        "id": "3m2aDCqn8eT5ElXDUiboGU",
+        "track_name": "Get Dripped (feat. Playboi Carti)",
+        "artist_name": "Lil Yachty",
+        "recommend_score": 0.3243262603265765,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/3m2aDCqn8eT5ElXDUiboGU"
+      },
+      {
+        "id": "703Y8dw2MMfEodrw5D6hDd",
+        "track_name": "Old Roots New Trees",
+        "artist_name": "Made in M",
+        "recommend_score": 0.32099461843941507,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/703Y8dw2MMfEodrw5D6hDd"
+      },
+      {
+        "id": "2oAPUnBerGoshpD7ueqwJW",
+        "track_name": "Jimi",
+        "artist_name": "Slightly Stoopid",
+        "recommend_score": 0.3199266597160873,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
+      }
+    ],
+    [
+      {
+        "id": "4JLI9AgtAXutJvjlXgZBoR",
+        "track_name": "French Inhale",
+        "artist_name": "bsd.u",
+        "recommend_score": 0.36519771719951843,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/4JLI9AgtAXutJvjlXgZBoR"
+      },
+      {
+        "id": "5CGS4UovzA7ftCJkLVXQju",
+        "track_name": "I Love Kanye",
+        "artist_name": "Kanye West",
+        "recommend_score": 0.36037203307702087,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/5CGS4UovzA7ftCJkLVXQju"
+      },
+      {
+        "id": "703Y8dw2MMfEodrw5D6hDd",
+        "track_name": "Old Roots New Trees",
+        "artist_name": "Made in M",
+        "recommend_score": 0.355733065305612,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/703Y8dw2MMfEodrw5D6hDd"
+      },
+      {
+        "id": "2oAPUnBerGoshpD7ueqwJW",
+        "track_name": "Jimi",
+        "artist_name": "Slightly Stoopid",
+        "recommend_score": 0.3523984888222002,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW"
+      },
+      {
+        "id": "3m2aDCqn8eT5ElXDUiboGU",
+        "track_name": "Get Dripped (feat. Playboi Carti)",
+        "artist_name": "Lil Yachty",
+        "recommend_score": 0.3518618603710465,
+        "album_cover_url": null,
+        "preview_url": null,
+        "spotify_embed_url": "https://open.spotify.com/embed/track/3m2aDCqn8eT5ElXDUiboGU"
       }
     ]
   ]
