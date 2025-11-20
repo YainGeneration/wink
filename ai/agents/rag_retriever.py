@@ -18,7 +18,8 @@ from langchain_huggingface import HuggingFaceEmbeddings
 SCRIPT_DIR = os.path.dirname(__file__)       # .../ai/rag
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)   # .../ai
 
-DB_PERSIST_DIR = os.path.join(PROJECT_ROOT, "rag/chroma_db")
+# 임베딩 설정 다시 보기
+DB_PERSIST_DIR = os.path.join(PROJECT_ROOT, "rag/chroma_db_all-MiniLM-L6-v2")
 COLLECTION_NAME = "jamendo_songs"
 EMBED_MODEL_NAME = "all-MiniLM-L6-v2"
 
