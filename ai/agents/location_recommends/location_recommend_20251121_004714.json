@@ -1,0 +1,31 @@
+{
+  "timestamp": "2025-11-21 00:47:14",
+  "input_korean": "위치: 숙대입구역",
+  "input_image": "(Base64 Data)",
+  "english_text_from_agent1": null,
+  "english_caption_from_agent2": "Here’s a description of the image:\n\nThe photo shows two charming snowmen standing on a bright, snowy landscape. The background features a range of snow-capped mountains under a clear, blue sky with fluffy white clouds. \n\nThe two snowmen are brightly colored – one is dressed in a blue knitted hat and scarf, and the other wears a red knitted hat and scarf. They’re both made of snow and have small, round coal eyes and red carrot noses.  The snow is pristine and untouched, suggesting a fresh snowfall. It's a very cheerful and wintery scene., taken near 숙대입구역.",
+  "merged_sentence": null,
+  "english_keywords": [
+    "snowmen",
+    "wintery",
+    "cheerful",
+    "fresh",
+    "snow"
+  ],
+  "recommended_songs": [
+    {
+      "instrument_tags": "",
+      "duration": 216.0,
+      "track_name": "Charming christmas (Extended)",
+      "track_id": "track_1393180",
+      "releasedate": "2016-11-15",
+      "artist_name": "OnionAudioProduction",
+      "url": "http://www.jamendo.com/track/1393180",
+      "path": "80/1393180.mp3",
+      "mood_tags": "christmas energetic inspiring positive upbeat",
+      "album_name": "Inspiring christmas",
+      "genre_tags": "pop popfolk progressive",
+      "similarity_score": 0.3595105011165034
+    }
+  ]
+}

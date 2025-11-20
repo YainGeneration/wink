@@ -154,6 +154,18 @@ def get_song_recommendations(english_keywords: list[str], top_k: int = 5):
 
     return sorted_final
 
+# 외부에서 RAG DB 접근 시 사용
+def get_vector_db():
+    """외부에서 RAG DB를 직접 사용하도록 반환."""
+    vector_db, _ = _load_retriever_resources()
+    return vector_db
+
+# 문장 임베딩하여 벡터 변환
+def embed_text(text: str):
+    """문장을 임베딩하여 벡터 반환."""
+    _, embed = _load_retriever_resources()
+    return embed.embed_query(text)
+
 
 # =========================================================
 # 6. 단독 실행 테스트

@@ -1,0 +1,293 @@
+{
+  "session_id": "6d1b94",
+  "session_start": "2025-11-20 22:49:18",
+  "session_end": "2025-11-21 00:24:07",
+  "input_korean": [
+    "",
+    "눈 오는 날",
+    "아아ㅏ",
+    "부들부들",
+    "ㅇㄴㄹㅁㄴㅇㅁㄹㅇㄴ"
+  ],
+  "input_image": [
+    "/Users/eunjung/Desktop/wink/ai/images/snowman.png",
+    "/Users/eunjung/Desktop/wink/ai/images/snowman.png",
+    "/Users/eunjung/Desktop/wink/ai/images/snowman.png",
+    "/Users/eunjung/Desktop/wink/ai/images/snowman.png",
+    "/Users/eunjung/Desktop/wink/ai/images/snowman.png"
+  ],
+  "english_text_from_agent1": [
+    "",
+    "It rains today.",
+    "Ah-a",
+    "screaming",
+    "He said yes, no, maybe, yes, no, maybe, yes."
+  ],
+  "english_caption_from_agent2": [
+    "",
+    "",
+    "",
+    "The image evokes a peaceful and cozy winter scene, with two cheerful snowmen nestled in the snow against a backdrop of snow-capped mountains.",
+    "The image evokes a peaceful and cozy winter scene with the adorable snowmen nestled in a serene, snowy landscape."
+  ],
+  "merged_sentence": [
+    "",
+    "It rains today.",
+    "A calm and sweet ambient rain.",
+    "A calm and sweet ambient rain, evoking a peaceful and cozy winter scene with two cheerful snowmen nestled in the snow against a backdrop of snow-capped mountains.",
+    "A calm and sweet ambient rain, evoking a peaceful and cozy winter scene with adorable, cheerful snowmen nestled in a serene, snowy landscape, as he said yes, no, maybe, yes, no, maybe, yes."
+  ],
+  "english_keywords": [
+    [],
+    [
+      "night",
+      "calm",
+      "soft",
+      "sweet",
+      "ambient"
+    ],
+    [
+      "rain",
+      "calm",
+      "ambient",
+      "soft",
+      "sweet"
+    ],
+    [
+      "rain",
+      "calm",
+      "ambient",
+      "sweet",
+      "cozy"
+    ],
+    [
+      "rain",
+      "calm",
+      "ambient",
+      "sweet",
+      "cozy"
+    ]
+  ],
+  "recommended_songs": [
+    [
+      {
+        "duration": 200.0,
+        "artist_name": "Akashic Records",
+        "instrument_tags": "ukulele",
+        "genre_tags": "easylistening",
+        "album_name": "Advertising",
+        "track_name": "Acoustic",
+        "track_id": "track_1048228",
+        "releasedate": "2013-07-16",
+        "url": "http://www.jamendo.com/track/1048228",
+        "path": "28/1048228.mp3",
+        "mood_tags": "advertising commercial inspiring motivational",
+        "similarity_score": NaN
+      },
+      {
+        "genre_tags": "easylistening",
+        "track_name": "Best day (short edit)",
+        "releasedate": "2016-09-04",
+        "path": "52/1373252.mp3",
+        "duration": 123.4,
+        "url": "http://www.jamendo.com/track/1373252",
+        "instrument_tags": "ukulele",
+        "artist_name": "ADDICT SOUND",
+        "album_name": "Best short and loops tracks",
+        "mood_tags": "advertising happy motivational positive",
+        "track_id": "track_1373252",
+        "similarity_score": NaN
+      },
+      {
+        "album_name": "Bright Moments",
+        "duration": 144.4,
+        "mood_tags": "advertising background commercial corporate motivational uplifting",
+        "instrument_tags": "",
+        "url": "http://www.jamendo.com/track/1292687",
+        "track_name": "Bright Moments",
+        "genre_tags": "indie poprock",
+        "track_id": "track_1292687",
+        "artist_name": "Alexey Anisimov",
+        "path": "87/1292687.mp3",
+        "releasedate": "2015-11-21",
+        "similarity_score": NaN
+      }
+    ],
+    [
+      {
+        "releasedate": "2007-11-20",
+        "path": "51/108751.mp3",
+        "instrument_tags": "guitar",
+        "album_name": "Letting Your Self Go",
+        "duration": 105.2,
+        "mood_tags": "calm soft",
+        "artist_name": "Macroform",
+        "track_id": "track_0108751",
+        "url": "http://www.jamendo.com/track/108751",
+        "genre_tags": "ambient",
+        "track_name": "Letting Your Self Go",
+        "similarity_score": 0.6955265394531743
+      },
+      {
+        "album_name": "Your Heart Is A Transceiver",
+        "instrument_tags": "",
+        "releasedate": "2007-11-26",
+        "track_name": "Listening To The Birds",
+        "path": "32/111032.mp3",
+        "duration": 412.5,
+        "mood_tags": "calm emotional mellow soft",
+        "track_id": "track_0111032",
+        "url": "http://www.jamendo.com/track/111032",
+        "genre_tags": "ambient atmospheric electropop",
+        "artist_name": "Macroform",
+        "similarity_score": 0.6257866357405157
+      },
+      {
+        "album_name": "Fly (Preview)",
+        "path": "12/1109812.mp3",
+        "url": "http://www.jamendo.com/track/1109812",
+        "track_name": "A New World",
+        "instrument_tags": "piano synthesizer",
+        "duration": 142.0,
+        "mood_tags": "dream relaxing soft",
+        "releasedate": "2014-03-15",
+        "artist_name": "Udo Vismann",
+        "genre_tags": "ambient",
+        "track_id": "track_1109812",
+        "similarity_score": 0.5978153029783838
+      }
+    ],
+    [
+      {
+        "track_id": "track_0108751",
+        "url": "http://www.jamendo.com/track/108751",
+        "instrument_tags": "guitar",
+        "path": "51/108751.mp3",
+        "duration": 105.2,
+        "genre_tags": "ambient",
+        "track_name": "Letting Your Self Go",
+        "releasedate": "2007-11-20",
+        "album_name": "Letting Your Self Go",
+        "mood_tags": "calm soft",
+        "artist_name": "Macroform",
+        "similarity_score": 0.5977611675658221
+      },
+      {
+        "track_name": "Listening To The Birds",
+        "track_id": "track_0111032",
+        "path": "32/111032.mp3",
+        "album_name": "Your Heart Is A Transceiver",
+        "mood_tags": "calm emotional mellow soft",
+        "duration": 412.5,
+        "artist_name": "Macroform",
+        "url": "http://www.jamendo.com/track/111032",
+        "genre_tags": "ambient atmospheric electropop",
+        "instrument_tags": "",
+        "releasedate": "2007-11-26",
+        "similarity_score": 0.5612233208649722
+      },
+      {
+        "instrument_tags": "guitar",
+        "artist_name": "Macroform",
+        "path": "56/1099456.mp3",
+        "duration": 472.8,
+        "album_name": "TimeSpaceMatter-Eternity",
+        "track_id": "track_1099456",
+        "url": "http://www.jamendo.com/track/1099456",
+        "mood_tags": "calm happy soft",
+        "releasedate": "2014-01-31",
+        "track_name": "TimeSpaceMatter-Eternity",
+        "genre_tags": "ambient soundtrack",
+        "similarity_score": 0.5288263998515768
+      }
+    ],
+    [
+      {
+        "releasedate": "2010-07-03",
+        "instrument_tags": "",
+        "duration": 541.9,
+        "mood_tags": "calm epic romantic",
+        "genre_tags": "ambient",
+        "url": "http://www.jamendo.com/track/603244",
+        "track_id": "track_0603244",
+        "path": "44/603244.mp3",
+        "artist_name": "Macroform",
+        "track_name": "Lines of Life",
+        "album_name": "Lines of Life",
+        "similarity_score": 0.5299693835952027
+      },
+      {
+        "track_id": "track_1093426",
+        "mood_tags": "cool relaxing romantic",
+        "url": "http://www.jamendo.com/track/1093426",
+        "duration": 228.2,
+        "path": "26/1093426.mp3",
+        "instrument_tags": "drummachine synthesizer",
+        "track_name": "Broadway",
+        "artist_name": "Offenbach Project",
+        "releasedate": "2014-01-05",
+        "album_name": "Big Apple",
+        "genre_tags": "ambient lounge",
+        "similarity_score": 0.4538433449298506
+      },
+      {
+        "mood_tags": "dream relaxing soft",
+        "artist_name": "Udo Vismann",
+        "track_name": "Ocean of Faces ",
+        "instrument_tags": "drummachine piano synthesizer violin",
+        "genre_tags": "ambient chillout",
+        "album_name": "Fly (Preview)",
+        "url": "http://www.jamendo.com/track/1109811",
+        "duration": 147.6,
+        "path": "11/1109811.mp3",
+        "track_id": "track_1109811",
+        "releasedate": "2014-03-15",
+        "similarity_score": 0.4506013577443481
+      }
+    ],
+    [
+      {
+        "album_name": "Lines of Life",
+        "mood_tags": "calm epic romantic",
+        "track_id": "track_0603244",
+        "duration": 541.9,
+        "url": "http://www.jamendo.com/track/603244",
+        "path": "44/603244.mp3",
+        "instrument_tags": "",
+        "artist_name": "Macroform",
+        "releasedate": "2010-07-03",
+        "track_name": "Lines of Life",
+        "genre_tags": "ambient",
+        "similarity_score": 0.5299693835952027
+      },
+      {
+        "duration": 228.2,
+        "genre_tags": "ambient lounge",
+        "mood_tags": "cool relaxing romantic",
+        "track_id": "track_1093426",
+        "path": "26/1093426.mp3",
+        "album_name": "Big Apple",
+        "track_name": "Broadway",
+        "artist_name": "Offenbach Project",
+        "releasedate": "2014-01-05",
+        "instrument_tags": "drummachine synthesizer",
+        "url": "http://www.jamendo.com/track/1093426",
+        "similarity_score": 0.4538433449298506
+      },
+      {
+        "releasedate": "2014-03-15",
+        "track_id": "track_1109811",
+        "path": "11/1109811.mp3",
+        "genre_tags": "ambient chillout",
+        "url": "http://www.jamendo.com/track/1109811",
+        "duration": 147.6,
+        "track_name": "Ocean of Faces ",
+        "instrument_tags": "drummachine piano synthesizer violin",
+        "artist_name": "Udo Vismann",
+        "album_name": "Fly (Preview)",
+        "mood_tags": "dream relaxing soft",
+        "similarity_score": 0.4506013577443481
+      }
+    ]
+  ]
+}
