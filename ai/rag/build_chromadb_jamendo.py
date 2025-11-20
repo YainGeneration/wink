@@ -20,11 +20,15 @@ from langchain_core.documents import Document
 # 입력 클린 데이터
 INPUT_CSV = "jamendo/data/final_jamendo_metadata.csv"
 # ChromaDB를 저장할 폴더
-DB_PERSIST_DIR = "rag/chroma_db"
+DB_PERSIST_DIR = "rag/chroma_db_all-MiniLM-L6-v2"
+# DB_PERSIST_DIR = "rag/chroma_db_all-mpnet-base-v2"
+
 # ChromaDB 컬렉션 이름 (테이블 이름과 유사)
 COLLECTION_NAME = "jamendo_songs"
+
 # Agent 3의 키워드와 동일한 임베딩 모델 사용 (매우 중요)
 EMBED_MODEL_NAME = "all-MiniLM-L6-v2"
+# EMBED_MODEL_NAME = "all-mpnet-base-v2"
 
 # =========================================================
 # 2. 데이터 로드 및 LangChain Document로 변환
@@ -65,7 +69,8 @@ def load_and_prepare_documents(csv_path: str) -> list[Document]:
             "artist_name": row["ARTIST_NAME"],
             "album_name": row["ALBUM_NAME"],
             "releasedate": row["RELEASEDATE"],
-            "url": row['URL']
+            "url": row['URL'],
+            "duration": row['DURATION'],
         }
         
         # LangChain Document 객체 생성

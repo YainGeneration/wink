@@ -220,3 +220,17 @@ dist/
 .env
 front/.env
 # End of https://www.toptal.com/developers/gitignore/api/python,java,react
+
+# Chroma Database Files (DB 용량 초과 문제 방지)
+
+# 1. 특정 DB 폴더 전체를 제외 (가장 권장)
+# ai/rag/chroma_db_로 시작하는 모든 디렉토리를 무시합니다.
+ai/rag/chroma_db*/
+
+# 2. 혹시 몰라 특정 파일 패턴도 무시합니다. (선택적)
+# 저장소 내 모든 chroma.sqlite3 파일을 무시
+**/chroma.sqlite3
+
+# 저장소 내 모든 .bin 파일을 무시 (DB 내 data_level0.bin 파일을 포함)
+# 이 패턴이 너무 광범위하다면, 위 폴더 제외 패턴만 사용해도 충분합니다.
+# **/*.bin

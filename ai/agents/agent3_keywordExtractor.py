@@ -99,68 +99,90 @@ Respond *only* with the final combined English sentence.
         print(f"⚠️ Merge failed: {e}")
         return new_input_sentence # 실패 시 새 입력만 반환
     
-# =========================================================
-# 4. [Agent 3-2] 감성 키워드 추출 (Gemma3)
-# =========================================================
-def extract_keywords(merged_text: str, full_history: str, k: int = 3) -> list[str]:
+def extract_keywords(merged_text: str, full_history: str, k: int = 5) -> list[str]:
     if not merged_text.strip():
         return []
-    print("💬 [Agent 3] Extracting mood keywords (Ollama w/ JSON)...")
 
-    prompt_content = f"""
-You are a music mood keyword extraction expert.
+    system_prompt = f"""
+You are a Music Context Understanding & Keyword Extraction Expert.
+Extract EXACTLY {k} keywords that best represent the user's musical intent.
 
-The user is having an ongoing conversation about music.
-Below is the full conversation history so far:
+### STRICT RULES ###
 
-[Conversation History]
-{full_history}
+1. **Primary Subject / Setting (NOUNS)**  
+   - If the sentence includes a main noun (night, rain, drive, study, winter, ocean, city), 
+     include EXACTLY ONE such noun as the FIRST keyword.
+   - Do NOT stop at only one keyword. It only defines the *first* slot.
 
-And here is the newest combined sentence representing the latest request:
+2. **Sound Texture (Adjective or Style Words)**  
+   - Fill at least 1–2 of the remaining keywords with sound-related adjectives  
+     (soft, acoustic, ambient, mellow, electronic, jazzy, gentle).
 
-[Current Intent]
-"{merged_text}"
+3. **Emotional Vibe (Feels / Mood)**  
+   - Include at least 1 emotional keyword  
+     (calm, sweet, dreamy, nostalgic, romantic, angry, peaceful).
 
-Using **both** the history and the new input, extract {k} final keywords
-that represent the *updated* music mood/genre/style.
+4. **User Expression Preservation (Non-musical expressions allowed)**  
+   - If the user expresses feelings like “달달한”, “짜증나는”, “따뜻한”,  
+     you MUST include the English equivalent in the final keywords  
+     (sweet, irritated, warm, refreshing).
 
-Respond only with this JSON format:
-{{"keywords": ["k1", "k2", "k3"]}}
+5. **ABSOLUTE RULE**  
+   - You MUST output **exactly {k} keywords**, no fewer.  
+   - If fewer than {k} suitable terms exist, expand using closely-related semantic descriptors.  
+   - NEVER output only one keyword.
+
+Output ONLY valid JSON:
+{{"keywords": ["k1", "k2", "k3", "k4", "k5"]}}
 """
 
-    messages = [
-        {"role": "system", "content": "You extract music mood keywords only using JSON."},
-        {"role": "user", "content": prompt_content}
-    ]
-    payload = {"model": GEMMA3_MODEL, "messages": messages, "stream": False, "format": "json"}
- 
+    user_prompt = f"""
+Past conversation:
+{full_history}
+
+User's latest intent:
+"{merged_text}"
+
+Extract the final {k} refined keywords following all rules above.
+"""
+
+    payload = {
+        "model": GEMMA3_MODEL,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ],
+        "stream": False,
+        "format": "json"
+    }
+
     try:
         res = requests.post(f"{OLLAMA_URL}/api/chat", json=payload, timeout=60)
         res.raise_for_status()
 
-        # ✅ Ollama 응답 구조 대응
         raw_output = (
             res.json().get("message", {}).get("content")
             or res.json().get("response")
             or ""
         ).strip()
 
-        try:
-            parsed_data = json.loads(raw_output)
-            keywords = parsed_data.get("keywords", [])
-        except json.JSONDecodeError:
-            print(f"⚠️ JSON parsing failed. Raw: {raw_output}")
-            raw = re.sub(r"[^a-zA-Z,\n ]", "", raw_output)
-            keywords = [w.strip().lower() for w in re.split(r"[, \n]+", raw) if w.strip()]
+        parsed = json.loads(raw_output)
+        kws = parsed.get("keywords", [])
 
-        # ✅ 필터링 및 상한 제한
-        keywords = [w for w in keywords if 2 <= len(w) <= 15][:k]
-        print(f"🪶 Extracted keywords → {keywords}")
-        return keywords
+        # Clean
+        clean = []
+        for w in kws:
+            w = re.sub(r"[^a-zA-Z]", "", w.lower())
+            if 2 <= len(w) <= 20:
+                clean.append(w)
+
+        # Ensure exactly k
+        return list(dict.fromkeys(clean))[:k]
 
     except Exception as e:
         print(f"🔥 Keyword extraction failed: {e}")
-        return []
+        return ["night", "calm", "soft", "sweet", "ambient"][:k]
+
     
 # =========================================================
 # 8. 세션 저장
@@ -221,9 +243,9 @@ def run_agent_pipeline(korean_text="", image_path="") -> dict:
     # [Agent 3-1]
     merged = rewrite_combined_sentence(english_text, english_caption, full_history)
     # [Agent 3-2]: 영어 키워드 추출
-    eng_keywords = extract_keywords(merged, full_history, k=3)
+    eng_keywords = extract_keywords(merged, full_history)
     # RAG 검색 (노래 추천): 각 키워드 별 5곡씩
-    recommended_songs = get_song_recommendations(eng_keywords, top_k=5)
+    recommended_songs = get_song_recommendations(eng_keywords, top_k=3)
     
     data = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
