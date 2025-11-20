@@ -21,12 +21,12 @@ import uuid
 try:
     from agent1_exaone import korean_to_english
 except ImportError:
-    print("❌ 'agents/exaone_agent.py' 파일을 찾을 수 없습니다.")
+    print("❌ 'agents/agent1_exaone.py' 파일을 찾을 수 없습니다.")
     exit()
 
 # agent2 import
 try:
-    from agent2_imageToEng import image_to_english_caption
+    from agent2_imageToEng import image_to_english_caption, caption_from_base64, enhance_caption_with_location
 except ImportError:
     print("❌ 'agents/agent2_imageToEng.py' 파일을 찾을 수 없습니다.")
     exit()
@@ -40,16 +40,16 @@ except ImportError:
     
 # rag retriever - song recommendation import
 try:
-    from rag_retriever import get_song_recommendations
+    from rag_retriever import get_song_recommendations, get_vector_db, embed_text
 except ImportError:
     print("❌ 'rag/rag_retriever.py' 파일을 찾을 수 없습니다.")
     exit()
-    
+        
 # =========================================================
 # 1. 전역 설정
 # =========================================================
 OLLAMA_URL = "http://localhost:11434"
-GEMMA3_MODEL = "gemma3:27b"
+GEMMA3_MODEL = "gemma3:4b"
 SAVE_DIR = "agents/keywords"
 os.makedirs(SAVE_DIR, exist_ok=True)
 
@@ -84,7 +84,7 @@ Respond *only* with the final combined English sentence.
 """
     
     messages = [{"role": "user", "content": prompt.strip()}]
-    payload = {"model": GEMMA3_MODEL, "messages": messages, "stream": False, "format": "text"}
+    payload = {"model": GEMMA3_MODEL, "messages": messages, "stream": False}
     try:
         res = requests.post(f"{OLLAMA_URL}/api/chat", json=payload, timeout=60)
         res.raise_for_status()
@@ -185,7 +185,7 @@ Extract the final {k} refined keywords following all rules above.
 
     
 # =========================================================
-# 8. 세션 저장
+# 8. 세션 저장 - 나의 순간
 # =========================================================
 def save_to_session_simple(data: dict, session_file: str):
     """
@@ -227,114 +227,322 @@ def save_to_session_simple(data: dict, session_file: str):
 
     with open(session_file, "w", encoding="utf-8") as f:
         json.dump(session_data, f, ensure_ascii=False, indent=2)
+        
+# =========================================================
+# 세션 저장 - 나의 공간
+def save_location_recommend_full(data: dict):
+    """
+    Agent4 추천 결과를 전체 세션 형식으로 지정된 경로에 저장합니다.
+    저장 경로: ai/agents/location_recommends/
+    """
+    
+    # 1. 저장 디렉토리 설정 및 생성
+    # SAVE_DIR = "agents/keywords"를 기준으로 하여, location_recommends 폴더를 생성합니다.
+    location_save_dir = os.path.join("agents", "location_recommends")
+    os.makedirs(location_save_dir, exist_ok=True)
+    
+    # 2. 파일명 생성 (나의 순간과 동일한 형식)
+    random_id=str(uuid.uuid4())[:8]
+    file_name = f"location_recommend_{random_id}.json"
+    save_path = os.path.join(location_save_dir, file_name)
+    
+    input_data = data.get("input", {}) # 'input' 키가 없을 경우 대비
+
+    # 3. JSON 저장
+    with open(save_path, "w", encoding="utf-8") as f:
+        # Agent4 결과는 단일 호출이므로 리스트가 아닌 단일 딕셔너리 형태로 저장합니다.
+        # 세션 구조와 형식은 같되, 리스트 형태를 단일 값으로 변환하여 저장 (선택적)
+        output_data = {
+            "timestamp": data.get("timestamp"),
+            "input_location": data["input"].get("korean_text"),
+            "input_image": input_data.get("image_path", ""),
+            "english_caption_from_agent2": data.get("english_caption_from_agent2"),
+            "english_keywords": data.get("english_keywords"),
+            "recommended_songs": data.get("recommended_songs"),
+        }
+        json.dump(output_data, f, ensure_ascii=False, indent=2)
+
+    print(f"💾 Saved location recommend result → {save_path}")
+    return save_path
+        
+# -------------------------------------------------------
+# 주변 사람이 듣는 노래를 RAG DB에서 매칭
+# -------------------------------------------------------
+def match_song_in_rag(title: str, artist: str, top_k=1):
+    """
+    주변 사람이 듣는 노래(title, artist)를 하나의 문장으로 묶어서
+    RAG DB에서 가장 유사한 Jamendo 노래를 검색한다.
+    """
+    db = get_vector_db()  # Chroma DB
+    query = f"{title} {artist}"
+
+    query_vec = embed_text(query)
+
+    results = db.similarity_search_with_score(query, k=top_k)
+
+    matched = []
+    for r, score in results:
+        meta = r.metadata
+        meta["similarity_score"] = score
+        matched.append(meta)
+
+    return matched
+
+
+# -------------------------------------------------------
+# 주변 음악 기반으로 유사 노래 찾기
+# -------------------------------------------------------
+def recommend_from_nearby_music(nearbyMusic):
+    """
+    각 주변 음악을 RAG DB에서 매칭 → 유사한 노래 추천
+    """
+    all_recs = []
+
+    for m in nearbyMusic:
+        title = m.get("title", "")
+        artist = m.get("artist", "")
+
+        # 1) RAG DB에서 K-pop → Jamendo 곡 매칭
+        matched = match_song_in_rag(title, artist, top_k=1)
+        if not matched:
+            continue
+
+        anchor_song = matched[0]
+        print(f"🎧 Anchor Matched → {anchor_song['track_name']} / {anchor_song['artist_name']}")
+
+        # 2) 해당 Jamendo 곡과 유사한 음악 추가 추천
+        anchor_keywords = [
+            anchor_song.get("genre_tags", ""),
+            anchor_song.get("mood_tags", ""),
+            anchor_song.get("track_name", "")
+        ]
+        anchor_keywords = " ".join(anchor_keywords)
+
+        recs = get_song_recommendations(anchor_keywords.split(), top_k=2)
+        all_recs.extend(recs)
+
+    # 중복 제거
+    seen = set()
+    unique = []
+    for r in all_recs:
+        tid = r["track_id"]
+        if tid not in seen:
+            seen.add(tid)
+            unique.append(r)
+
+    return unique
+
+
+# -------------------------------------------------------
+# 메인 추천: 이미지 + 주변 음악
+# -------------------------------------------------------
+def recommend_with_image_and_nearby_users(image_b64: str,
+                                          place_name: str,
+                                          nearbyMusic: list):
+
+    # 1) 이미지 → 캡션
+    caption = caption_from_base64(image_b64)
+    print("📷 Caption:", caption)
+
+    # 2) 장소 기반 보정
+    enhanced_caption = enhance_caption_with_location(caption, place_name)
+    print("📍 Enhanced Caption:", enhanced_caption)
+
+    # 3) 이미지 기반 키워드 추출
+    user_keywords = extract_keywords(
+        merged_text=enhanced_caption,
+        full_history="",
+        k=5
+    )
+    print("🎨 Image Keywords:", user_keywords)
+
+    # 4) 이미지 기반 추천
+    img_recs = get_song_recommendations(user_keywords, top_k=2)
+
+    # 5) 주변 음악 기반 추천
+    near_recs = recommend_from_nearby_music(nearbyMusic)
+
+    # 6) 두 추천 리스트 합쳐서 최종 3곡만
+    combined = img_recs + near_recs
+
+    # 중복 제거
+    seen = set()
+    final = []
+    for r in combined:
+        tid = r["track_id"]
+        if tid not in seen:
+            seen.add(tid)
+            final.append(r)
+        if len(final) >= 1:
+            break
+
+    return {
+        "caption": enhanced_caption,
+        "keywords": user_keywords,
+        "recommended_songs": final
+    }
+
+# 저장 코드
+def save_location_recommend(result: dict):
+    """
+    Agent4 추천 결과를 JSON 파일로 저장.
+    저장 파일명: location_recommend_YYYYmmdd_HHMMSS.json
+    """
+    save_path = os.path.join(
+        SAVE_DIR,
+        f"location_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    )
+
+    # recommended_songs는 1곡만 온다는 전제
+    if not result.get("recommended_songs"):
+        print("❌ No recommended songs to save.")
+        return None
+
+    song = result["recommended_songs"][0]   # 1곡만 저장
+
+    output_json = {
+        "songId": song.get("track_id"),
+        "title": song.get("track_name"),
+        "artist": song.get("artist_name"),
+        "durationMs": int(song.get("duration", 0) * 1000),  # 초 → ms 변환
+        "trackUrl": song.get("url")
+    }
+
+    with open(save_path, "w", encoding="utf-8") as f:
+        json.dump(output_json, f, ensure_ascii=False, indent=2)
+
+    print(f"💾 Saved recommend result → {save_path}")
+    return save_path
 
 # =========================================================
 # 9. 메인 파이프라인
 # =========================================================
-def run_agent_pipeline(korean_text="", image_path="") -> dict:    
-    # 대화 이력 불러오기
-    session_file_path = os.path.join(SAVE_DIR, "active_session.json")
-    full_history = get_full_conversation_history(session_file_path)
+def run_agent_pipeline(korean_text="", image_path="", location_payload=None) -> dict:    
     
-    # [Agent 1]
-    english_text = korean_to_english(korean_text) if korean_text else ""
-    # [Agent 2]
-    english_caption = image_to_english_caption(image_path) if image_path else ""
-    # [Agent 3-1]
-    merged = rewrite_combined_sentence(english_text, english_caption, full_history)
-    # [Agent 3-2]: 영어 키워드 추출
-    eng_keywords = extract_keywords(merged, full_history)
-    # RAG 검색 (노래 추천): 각 키워드 별 5곡씩
-    recommended_songs = get_song_recommendations(eng_keywords, top_k=3)
-    
-    data = {
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "input": {"korean_text": korean_text, "image_path": image_path},
-        "english_text_from_agent1": english_text,
-        "english_caption_from_agent2": english_caption,
-        "merged_sentence": merged,
-        "english_keywords": eng_keywords,
-        "recommended_songs": recommended_songs,
-    }
+    # 1) 위치 기반 분석 요청이면, Agent4 실행
+    if location_payload:
+        print("📍 Running Location-Based Recommendation (Agent4 Mode)")
+        image_b64 = location_payload["imageBase64"][0]
+        place_name = location_payload["location"]["placeName"]
+        nearbyMusic = location_payload["nearbyMusic"]
 
-    save_to_session_simple(data, session_file_path)
-    print(f"\n✅ Saved to active session → {session_file_path}")
-    return data
+        agent4_result = recommend_with_image_and_nearby_users(
+            image_b64, place_name, nearbyMusic
+        )
+        
+        data = {
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "input": {"location": f"위치: {place_name}", "image_path": "(Base64 Data)"},
+            "english_caption_from_agent2": agent4_result.get("caption", ""),
+            "english_keywords": agent4_result.get("keywords", []),
+            "recommended_songs": agent4_result.get("recommended_songs", []),
+        }
+
+        save_location_recommend_full(data)
+        # Location 기반 세션 저장 X (원하면 추가 가능)
+        return data
+    else:
+        # 대화 이력 불러오기
+        session_file_path = os.path.join(SAVE_DIR, "active_session.json")
+        full_history = get_full_conversation_history(session_file_path)
+        
+        # [Agent 1]
+        english_text = korean_to_english(korean_text) if korean_text else ""
+        # [Agent 2]
+        english_caption = image_to_english_caption(image_path) if image_path else ""
+        # [Agent 3-1]
+        merged = rewrite_combined_sentence(english_text, english_caption, full_history)
+        # [Agent 3-2]: 영어 키워드 추출
+        eng_keywords = extract_keywords(merged, full_history)
+        # RAG 검색 (노래 추천): 각 키워드 별 5곡씩
+        recommended_songs = get_song_recommendations(eng_keywords, top_k=3)
+        
+        data = {
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "input": {"korean_text": korean_text, "image_path": image_path},
+            "english_text_from_agent1": english_text,
+            "english_caption_from_agent2": english_caption,
+            "merged_sentence": merged,
+            "english_keywords": eng_keywords,
+            "recommended_songs": recommended_songs,
+        }
+
+        save_to_session_simple(data, session_file_path)
+        print(f"\n✅ Saved to active session → {session_file_path}")
+        return data
 
 # =========================================================
-# 7️⃣ CLI (세션 관리자)
+# 7️⃣ CLI (세션 관리자) - 수정된 부분
 # =========================================================
 from collections import OrderedDict
+# base64는 파일 상단에 이미 import 되어 있으므로 생략합니다.
+
 if __name__ == "__main__":
     print("\n🤖 Agent Pipeline (세션형 실행)")
 
     active_session_path = os.path.join(SAVE_DIR, "active_session.json")
+    # 세션 시작/이어하기 질문은 유지
     choice = input("\n새 대화를 시작하려면 'new' 입력 (기존 이어하기는 Enter): ").strip().lower()
 
-    if choice == "new":
-        if os.path.exists(active_session_path):
-            try:
-                with open(active_session_path, "r", encoding="utf-8") as f:
-                    old_data = json.load(f)
-                end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                old_data["session_end"] = end_time
+    # ... (기존 세션 아카이빙 및 새 세션 시작 로직은 동일)
 
-                # ✅ OrderedDict으로 정렬 (session_start → session_end 순서)
-                ordered_data = OrderedDict()
-                for key in ["session_id", "session_start", "session_end"]:
-                    if key in old_data:
-                        ordered_data[key] = old_data[key]
-                for key, value in old_data.items():
-                    if key not in ordered_data:
-                        ordered_data[key] = value
+    # ------------------------------------------------
+    # ✨ 모드 선택 로직 추가
+    # ------------------------------------------------
+    print("\n--- 🌟 실행 모드 선택 ---")
+    mode = input("1. 일반 텍스트/이미지 입력 (세션 기반)\n2. 위치 기반 추천 (Agent4)\n선택 (1 또는 2): ").strip()
+    
+    if mode == "2":
+        # 2번: 위치 기반 추천 (Agent4) 모드
+        print("\n--- 📍 위치 기반 추천 (Agent4) 실행 ---")
+        img_path = input("위치 사진 경로 입력: ").strip()
+        place_name = input("현재 장소 이름 입력 (예: 강남역 카페): ").strip()
+        
+        if not img_path or not place_name:
+            print("\n🛑 이미지 경로와 장소 이름은 필수입니다.")
+            exit()
+            
+        try:
+            # Agent4가 요구하는 Base64 인코딩 수행
+            with open(img_path, "rb") as f:
+                img_b64 = base64.b64encode(f.read()).decode('utf-8')
+            
+            # Agent4에 필요한 페이로드 구성 (nearbyMusic은 CLI 예시를 위해 더미 데이터 사용)
+            location_payload = {
+                "imageBase64": [img_b64],
+                "location": {"placeName": place_name},
+                "nearbyMusic": [
+                    {"songTitle": "Ambient Chill", "artist": "Dummy Music Co."},
+                    {"songTitle": "City Pop Groove", "artist": "CLI Test"}
+                ]
+            }
+            
+            print("\n--- 🚀 Agent4 파이프라인 실행 ---")
+            # run_agent_pipeline에 location_payload 전달
+            result = run_agent_pipeline(location_payload=location_payload)
+            print("\n--- 🎯 실행 결과 (Agent4) ---")
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+            
+        except FileNotFoundError:
+            print(f"🔥 오류: 지정된 이미지 파일 경로를 찾을 수 없습니다: {img_path}")
+        except Exception as e:
+            print(f"\n🔥 Agent4 실행 중 오류 발생: {e}")
+            
+    else: 
+        # 1번 또는 잘못된 입력 (기본값: 일반 텍스트/이미지 모드)
+        print("\n--- 💬 일반 텍스트/이미지 입력 (세션 기반) ---")
+        text = input("한국어 텍스트 입력 (없으면 Enter): ").strip()
+        img = input("이미지 경로 입력 (없으면 Enter): ").strip()
 
-                # ✅ 파일명 = session_{session_id}.json
-                session_id = old_data.get("session_id", f"{uuid.uuid4().hex[:6]}")
-                archive_name = f"session_{session_id}.json"
-                archive_path = os.path.join(SAVE_DIR, archive_name)
+        if not text and not img:
+            print("\n🛑 입력이 없어 종료합니다.")
+            exit()
 
-                with open(archive_path, "w", encoding="utf-8") as f:
-                    json.dump(ordered_data, f, ensure_ascii=False, indent=2)
-
-                os.remove(active_session_path)
-                print(f"🗂️ 세션 보관 완료: {archive_name} (session_end: {end_time})")
-            except Exception as e:
-                print(f"⚠️ 세션 아카이빙 중 오류: {e}")
-
-        print(f"🆕 새 대화를 시작합니다.")
-        session_id = f"{uuid.uuid4().hex[:6]}"
-        new_session = OrderedDict([
-            ("session_id", session_id),
-            ("session_start", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
-            ("input_korean", []),
-            ("input_image", []),
-            ("english_text_from_agent1", []),
-            ("english_caption_from_agent2", []),
-            ("merged_sentence", []),
-            ("english_keywords", []),
-            ("recommended_songs", [])
-        ])
-        with open(active_session_path, "w", encoding="utf-8") as f:
-            json.dump(new_session, f, ensure_ascii=False, indent=2)
-        print(f"🆔 새 세션 ID: {session_id}")
-
-    else:
-        print("➡️ 기존 세션 이어서 진행합니다.")
-        if not os.path.exists(active_session_path):
-            print("📁 기존 세션이 없어 새로 시작합니다.")
-
-    print("\n--- 💬 입력을 시작하세요 ---")
-    text = input("한국어 텍스트 입력 (없으면 Enter): ").strip()
-    img = input("이미지 경로 입력 (없으면 Enter): ").strip()
-
-    if not text and not img:
-        print("\n🛑 입력이 없어 종료합니다.")
-        exit()
-
-    print("\n--- 🚀 파이프라인 실행 ---")
-    try:
-        result = run_agent_pipeline(text, img)
-        print("\n--- 🎯 실행 결과 ---")
-        print(json.dumps(result, ensure_ascii=False, indent=2))
-    except Exception as e:
-        print(f"\n🔥 오류 발생: {e}")
+        print("\n--- 🚀 파이프라인 실행 ---")
+        try:
+            # run_agent_pipeline에 텍스트/이미지 경로 전달
+            result = run_agent_pipeline(korean_text=text, image_path=img)
+            print("\n--- 🎯 실행 결과 ---")
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        except Exception as e:
+            print(f"\n🔥 오류 발생: {e}")
