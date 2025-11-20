@@ -8,7 +8,7 @@ import base64
 import requests
 
 OLLAMA_URL = "http://localhost:11434"
-MODEL_NAME = "llava:latest"   
+MODEL_NAME = "llava:latest"
 
 def image_to_english_caption(image_path: str) -> str:
     if not image_path or not os.path.exists(image_path):

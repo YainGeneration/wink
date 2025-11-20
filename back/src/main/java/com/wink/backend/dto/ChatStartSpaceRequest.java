@@ -5,7 +5,7 @@ import java.util.List;
 
 @Data
 public class ChatStartSpaceRequest {
-    private List<String> imageBase64;
+    private String imageBase64;
 
 
     private Location location;
