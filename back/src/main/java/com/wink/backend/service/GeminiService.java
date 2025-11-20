@@ -115,14 +115,9 @@ private static final String GEMINI_URL =
             }
 
             String joined = String.join(", ", englishKeywords);
-            String prompt = "다음 영어 단어들을 감성적인 한국어 단어로 번역해줘. " +
-                    "단, 개수와 순서는 유지하고 쉼표로 구분해줘. 단어들: " + joined;
+            String prompt = "다음 영어 단어들을 감성적인 한국어 단어로 번역해줘. " + "단, 입력된 모든 단어를 반드시 번역해. 의미가 약하면 의미를 보정해도 괜찮아." +
+                    "단, 개수와 순서는 반드시 유지하고, **다른 설명이나 문장 부호 없이 오직 쉼표(,)로만 구분해서** 출력해줘. 단어들: " + joined;
 
-            // String requestBody = String.format("""
-            //     {
-            //       "contents": [ { "parts": [ { "text": "%s" } ] } ]
-            //     }
-            // """, prompt.replace("\"", "'"));
             Map<String, Object> jsonBody = Map.of(
                     "contents", List.of(
                             Map.of(
@@ -364,7 +359,7 @@ private static final String GEMINI_URL =
             }
 
             String prompt = "다음 영어 문장을 자연스러운 한국어 문장으로 번역해줘. " +
-                    "직역 말고 분위기와 감정을 살려서 부드럽게 표현해줘:\n" + englishText;
+                    "직역 말고 분위기와 감정을 살려서 부드럽게 표현해되, 존댓말로 '~합니다.'로 답해:\n" + englishText;
 
             Map<String, Object> jsonBody = Map.of(
                     "contents", List.of(
