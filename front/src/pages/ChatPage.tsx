@@ -8,11 +8,6 @@ import S from "../styles/styled";
 import styled from "styled-components";
 import theme from "../styles/theme";
 
-const Card = styled.div`
-  background-color: ${theme.colors.white};
-  padding: 12px 16px 14px;
-  height: 100px;
-`
 
 export default function ChatPage() {
   const { sessionId } = useParams();
@@ -35,9 +30,7 @@ export default function ChatPage() {
             <HistoryDrawer onClose={() => setIsHistoryOpen(false)} />
           )}
         </div>
-        <div>
-          <Card>d</Card>
-        </div>
+        
     </S.Padding16px>
     
   );
