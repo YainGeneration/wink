@@ -49,7 +49,7 @@ except ImportError:
 # 1. 전역 설정
 # =========================================================
 OLLAMA_URL = "http://localhost:11434"
-GEMMA3_MODEL = "gemma3:27b"
+GEMMA3_MODEL = "gemma3:4b"
 SAVE_DIR = "agents/keywords"
 os.makedirs(SAVE_DIR, exist_ok=True)
 
