@@ -99,4 +99,11 @@ public class ChatController {
     public ChatHistoryResponse getSpaceHistory(@PathVariable Long sessionId) {
         return chatService.getChatFullHistory(sessionId);
     }
+
+    @Operation(summary = "채팅 내 검색")
+    @GetMapping("/search")
+    public List<ChatSearchResponse> search(@RequestParam String q) {
+        return chatService.search(q);
+    }
+    
 }

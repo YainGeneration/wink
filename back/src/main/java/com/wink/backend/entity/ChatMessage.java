@@ -36,6 +36,15 @@ public class ChatMessage {
     @Column(columnDefinition = "TEXT")
     private String interpretedSentence;
 
+    @Column(columnDefinition = "TEXT")
+    private String englishText;
+
+    @Column(columnDefinition = "TEXT")
+    private String englishCaption;
+
+    @Column(columnDefinition = "TEXT")
+    private String imageDescriptionKo;
+
 
     private LocalDateTime createdAt = LocalDateTime.now();
 }

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.time.LocalDateTime;
 
 import java.util.List;
 
@@ -20,4 +21,5 @@ public class ChatHistoryResponse {
     // 최신 세션인지 여부 (필요 없으면 null 로 둬도 됨)
     private Boolean isLatest;
     private List<ChatMessageResponse> messages;
+    private LocalDateTime timestamp; 
 }
