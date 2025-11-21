@@ -77,8 +77,14 @@ You are a context-aware chat assistant. Your job is to understand the user's ful
 [User's Newest Input]
 "{new_input_sentence}"
 
-Combine *all* this context (History + New Input) into ONE single, updated descriptive sentence that reflects the user's *final* intent.
-For example, if History is "Rainy day" and New Input is "make it calmer", the output should be "A calm and rainy day".
+Task:
+Create ONE final descriptive sentence that reflects only the user's latest intention.
+
+Rules:
+1. Past history is for reference.
+2. The newest input overrides or replaces previous intent if different.
+3. Do NOT preserve previous meanings when the new input changes the mood/direction.
+4. Focus on the newest input as the dominant signal.
 
 Respond *only* with the final combined English sentence.
 """
@@ -221,6 +227,16 @@ def save_to_session_simple(data: dict, session_file: str):
         session_data["merged_sentence"].append(data["merged_sentence"])
         session_data["english_keywords"].append(data["english_keywords"])
         session_data["recommended_songs"].append(data["recommended_songs"])
+        
+        # ➕ 추가: track_id 누적 저장
+        if "recommended_track_ids" not in session_data:
+            session_data["recommended_track_ids"] = []
+
+        for song in data["recommended_songs"]:
+            tid = song.get("track_id")
+            if tid and tid not in session_data["recommended_track_ids"]:
+                session_data["recommended_track_ids"].append(tid)
+                
     except KeyError as e:
         print(f"🔥 데이터 저장 중 치명적인 Key Error 발생: {e}")
         return
@@ -422,6 +438,7 @@ def run_agent_pipeline(korean_text="", image_path="", location_payload=None) -> 
     # 1) 위치 기반 분석 요청이면, Agent4 실행
     if location_payload:
         print("📍 Running Location-Based Recommendation (Agent4 Mode)")
+
         image_b64 = location_payload["imageBase64"][0]
         place_name = location_payload["location"]["placeName"]
         nearbyMusic = location_payload["nearbyMusic"]
@@ -439,37 +456,83 @@ def run_agent_pipeline(korean_text="", image_path="", location_payload=None) -> 
         }
 
         save_location_recommend_full(data)
-        # Location 기반 세션 저장 X (원하면 추가 가능)
         return data
-    else:
-        # 대화 이력 불러오기
-        session_file_path = os.path.join(SAVE_DIR, "active_session.json")
-        full_history = get_full_conversation_history(session_file_path)
-        
-        # [Agent 1]
-        english_text = korean_to_english(korean_text) if korean_text else ""
-        # [Agent 2]
-        english_caption = image_to_english_caption(image_path) if image_path else ""
-        # [Agent 3-1]
-        merged = rewrite_combined_sentence(english_text, english_caption, full_history)
-        # [Agent 3-2]: 영어 키워드 추출
-        eng_keywords = extract_keywords(merged, full_history)
-        # RAG 검색 (노래 추천): 각 키워드 별 5곡씩
-        recommended_songs = get_song_recommendations(eng_keywords, top_k=3)
-        
-        data = {
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "input": {"korean_text": korean_text, "image_path": image_path},
-            "english_text_from_agent1": english_text,
-            "english_caption_from_agent2": english_caption,
-            "merged_sentence": merged,
-            "english_keywords": eng_keywords,
-            "recommended_songs": recommended_songs,
-        }
 
-        save_to_session_simple(data, session_file_path)
-        print(f"\n✅ Saved to active session → {session_file_path}")
-        return data
+    # ----------- 일반 텍스트/이미지 기반 추천 흐름 -----------
+
+    # 세션 파일 경로
+    session_file_path = os.path.join(SAVE_DIR, "active_session.json")
+
+    # 대화 이력 불러오기 (RAG용)
+    full_history = get_full_conversation_history(session_file_path)
+
+    # Agent1: 한국어 → 영어 번역
+    english_text = korean_to_english(korean_text) if korean_text else ""
+
+    # Agent2: 이미지 → 영어 캡션
+    english_caption = image_to_english_caption(image_path) if image_path else ""
+
+    # Agent3-1: 문장 합치기
+    merged = rewrite_combined_sentence(english_text, english_caption, full_history)
+
+    # Agent3-2: 키워드 추출
+    eng_keywords = extract_keywords(merged, full_history)
+
+    # 🎵 노래 추천: 초기에 넉넉하게 가져오기 (중복 제거 대비)
+    recommended_songs = get_song_recommendations(eng_keywords, top_k=15)
+
+    # --------------- 📌 필터링 로직 시작 ---------------
+
+    # 1) Fly 포함된 앨범 제거
+    recommended_songs = [
+        s for s in recommended_songs
+        if "fly" not in s.get("album_name", "").lower()
+    ]
+
+    # 2) 이미 추천된 곡 제거
+    try:
+        with open(session_file_path, "r", encoding="utf-8") as f:
+            session_data = json.load(f)
+        already = set(session_data.get("recommended_track_ids", []))
+    except FileNotFoundError:
+        already = set()
+
+    recommended_songs = [
+        s for s in recommended_songs
+        if s.get("track_id") not in already
+    ]
+
+    # 3) fallback: 필터링으로 너무 줄어든 경우 다시 찾기
+    if len(recommended_songs) < 3:
+        fallback = get_song_recommendations(eng_keywords, top_k=40)
+        fallback = [
+            s for s in fallback
+            if "fly" not in s.get("album_name", "").lower()
+            and s.get("track_id") not in already
+        ]
+        recommended_songs = fallback[:3]
+
+    else:
+        recommended_songs = recommended_songs[:3]
+
+    # --------------- 📌 필터링 로직 끝 ---------------
+
+    # 최종 데이터 패키징
+    data = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "input": {"korean_text": korean_text, "image_path": image_path},
+        "english_text_from_agent1": english_text,
+        "english_caption_from_agent2": english_caption,
+        "merged_sentence": merged,
+        "english_keywords": eng_keywords,
+        "recommended_songs": recommended_songs,
+    }
+
+    # 세션에 저장
+    save_to_session_simple(data, session_file_path)
+    print(f"\n✅ Saved to active session → {session_file_path}")
+
+    return data
 
 # =========================================================
 # 7️⃣ CLI (세션 관리자) - 수정된 부분

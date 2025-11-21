@@ -138,10 +138,16 @@ def get_song_recommendations(english_keywords: list[str], top_k: int = 5):
         meta_copy["similarity_score"] = float(final_score)
 
         scored.append(meta_copy)
+        
+    # Fly 앨범 제외
+    filtered_scored = [
+        m for m in scored
+        if "fly" not in m.get("album_name", "").lower()
+    ]
 
     # D. 앨범 중복 제거 (가장 높은 점수만)
     album_best = {}
-    for m in scored:
+    for m in filtered_scored:
         album = m.get("album_name", "Unknown")
         if album not in album_best or m["similarity_score"] > album_best[album]["similarity_score"]:
             album_best[album] = m
