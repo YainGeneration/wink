@@ -18,6 +18,22 @@ def image_to_english_caption(image_path: str) -> str:
         return ""
     
     print("🖼️ [Agent 2] Sending image to Gemma3:4b...")
+    
+    prompt = """
+You are an AI that describes the content and atmosphere of an image.
+Your task is to generate **one natural-sounding caption sentence**.
+
+RULES:
+- Describe ONLY what you see.
+- Focus on mood and atmosphere.
+- Use ONE sentence only.
+- No introductions such as “This image shows...”
+- No questions.
+- No formatting, no bullet points, no line breaks.
+- No quotes.
+
+Return only the caption sentence.
+"""
 
     # 이미지 읽어서 Base64 인코딩
     with open(image_path, "rb") as f:
@@ -28,6 +44,8 @@ def image_to_english_caption(image_path: str) -> str:
     # ---------------------------------------------------------
     payload = {
         "model": MODEL_NAME,
+        "prompt": prompt,
+        "images": [image_b64],
         "messages": [
             {
                 "role": "user",

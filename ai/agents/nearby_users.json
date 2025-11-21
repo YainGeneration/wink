@@ -1,0 +1,36 @@
+{
+  "imagePath": "/Users/eunjung/Desktop/wink/ai/images/snow.JPG",
+  "location": {
+    "lat": 37.55,
+    "lng": 126.97,
+    "address": "서울시 용산구 한강대로",
+    "placeName": "홍순언 앞 거리"
+  },
+  "nearbyMusic": [
+    {
+      "title": "Yoga",
+      "artist": "Spa Background Music",
+      "songId": "track_1342724"
+    },
+    {
+      "title": "To you my Love ",
+      "artist": "DANIEL H",
+      "songId": "track_0376419"
+    },
+    {
+      "title": "Jocelyn - Cyril Ury - MdC",
+      "artist": "Cyril Ury",
+      "songId": "track_1155551"
+    },
+    {
+      "title": "The Last Stand",
+      "artist": "Grégoire Lourme",
+      "songId": "track_1244733"
+    },
+    {
+      "title": "Movement IX - Fibonacci Theorem (Orchestral Version)",
+      "artist": "JCRZ",
+      "songId": "track_1333716"
+    }
+  ]
+}
