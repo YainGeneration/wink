@@ -15,4 +15,8 @@ public class AiResponseRequest {
 
     @JsonDeserialize(using = SingleBase64Deserializer.class)
     private String imageBase64;   // 단일 문자열!
+
+    private ChatStartSpaceRequest.Location location;
+    private List<ChatStartSpaceRequest.NearbyMusic> nearbyMusic;
+
 }

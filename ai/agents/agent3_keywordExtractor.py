@@ -7,15 +7,16 @@ Agent3 (통합 파이프라인)
 - Agent 3 로직 (1): 두 영어 문장 → 하나의 문장으로 재작성 (Ollama Gemma3)
 - Agent 3 로직 (2): 재작성된 문장 → 영어 키워드 5개 추출 (Ollama Gemma3)
 - 세션 관리: 모든 결과를 'active_session.json'에 누적 저장
+- Agent 4 로직: 위치 + 이미지 + 주변 음악 기반 추천 파이프라인 (recommend_with_image_and_nearby_users)
 """
 
 import os
 import re
 import json
-import base64
 from datetime import datetime
 import requests
 import uuid
+from collections import OrderedDict # CLI 로직에서 필요
 
 # agent1 import
 try:
@@ -77,8 +78,14 @@ You are a context-aware chat assistant. Your job is to understand the user's ful
 [User's Newest Input]
 "{new_input_sentence}"
 
-Combine *all* this context (History + New Input) into ONE single, updated descriptive sentence that reflects the user's *final* intent.
-For example, if History is "Rainy day" and New Input is "make it calmer", the output should be "A calm and rainy day".
+Task:
+Create ONE final descriptive sentence that reflects only the user's latest intention.
+
+Rules:
+1. Past history is for reference.
+2. The newest input overrides or replaces previous intent if different.
+3. Do NOT preserve previous meanings when the new input changes the mood/direction.
+4. Focus on the newest input as the dominant signal.
 
 Respond *only* with the final combined English sentence.
 """
@@ -109,26 +116,21 @@ Extract EXACTLY {k} keywords that best represent the user's musical intent.
 
 ### STRICT RULES ###
 
-1. **Primary Subject / Setting (NOUNS)**  
-   - If the sentence includes a main noun (night, rain, drive, study, winter, ocean, city), 
+1. **Primary Subject / Setting (NOUNS)** - If the sentence includes a main noun (night, rain, drive, study, winter, ocean, city), 
      include EXACTLY ONE such noun as the FIRST keyword.
    - Do NOT stop at only one keyword. It only defines the *first* slot.
 
-2. **Sound Texture (Adjective or Style Words)**  
-   - Fill at least 1–2 of the remaining keywords with sound-related adjectives  
+2. **Sound Texture (Adjective or Style Words)** - Fill at least 1–2 of the remaining keywords with sound-related adjectives  
      (soft, acoustic, ambient, mellow, electronic, jazzy, gentle).
 
-3. **Emotional Vibe (Feels / Mood)**  
-   - Include at least 1 emotional keyword  
+3. **Emotional Vibe (Feels / Mood)** - Include at least 1 emotional keyword  
      (calm, sweet, dreamy, nostalgic, romantic, angry, peaceful).
 
-4. **User Expression Preservation (Non-musical expressions allowed)**  
-   - If the user expresses feelings like “달달한”, “짜증나는”, “따뜻한”,  
+4. **User Expression Preservation (Non-musical expressions allowed)** - If the user expresses feelings like “달달한”, “짜증나는”, “따뜻한”,  
      you MUST include the English equivalent in the final keywords  
      (sweet, irritated, warm, refreshing).
 
-5. **ABSOLUTE RULE**  
-   - You MUST output **exactly {k} keywords**, no fewer.  
+5. **ABSOLUTE RULE** - You MUST output **exactly {k} keywords**, no fewer.  
    - If fewer than {k} suitable terms exist, expand using closely-related semantic descriptors.  
    - NEVER output only one keyword.
 
@@ -221,6 +223,16 @@ def save_to_session_simple(data: dict, session_file: str):
         session_data["merged_sentence"].append(data["merged_sentence"])
         session_data["english_keywords"].append(data["english_keywords"])
         session_data["recommended_songs"].append(data["recommended_songs"])
+        
+        # ➕ 추가: track_id 누적 저장
+        if "recommended_track_ids" not in session_data:
+            session_data["recommended_track_ids"] = []
+
+        for song in data["recommended_songs"]:
+            tid = song.get("track_id")
+            if tid and tid not in session_data["recommended_track_ids"]:
+                session_data["recommended_track_ids"].append(tid)
+                
     except KeyError as e:
         print(f"🔥 데이터 저장 중 치명적인 Key Error 발생: {e}")
         return
@@ -254,7 +266,7 @@ def save_location_recommend_full(data: dict):
         # 세션 구조와 형식은 같되, 리스트 형태를 단일 값으로 변환하여 저장 (선택적)
         output_data = {
             "timestamp": data.get("timestamp"),
-            "input_location": data["input"].get("korean_text"),
+            "input_location": input_data.get("location"),
             "input_image": input_data.get("image_path", ""),
             "english_caption_from_agent2": data.get("english_caption_from_agent2"),
             "english_keywords": data.get("english_keywords"),
@@ -292,16 +304,26 @@ def match_song_in_rag(title: str, artist: str, top_k=1):
 # -------------------------------------------------------
 # 주변 음악 기반으로 유사 노래 찾기
 # -------------------------------------------------------
-def recommend_from_nearby_music(nearbyMusic):
+def recommend_from_nearby_music(nearbyMusic: list):
     """
     각 주변 음악을 RAG DB에서 매칭 → 유사한 노래 추천
     """
     all_recs = []
 
     for m in nearbyMusic:
-        title = m.get("title", "")
+        # **[수정]** CLI와 API의 키를 통일하여 'title', 'artist' 사용
+        title = m.get("title", "") 
         artist = m.get("artist", "")
 
+        # songTitle, artistName으로 들어올 경우 (이전 CLI 코드와의 호환성을 위해 유지)
+        if not title:
+             title = m.get("songTitle", "") 
+        if not artist:
+            artist = m.get("artistName", "")
+
+        if not title and not artist:
+            continue
+            
         # 1) RAG DB에서 K-pop → Jamendo 곡 매칭
         matched = match_song_in_rag(title, artist, top_k=1)
         if not matched:
@@ -332,60 +354,10 @@ def recommend_from_nearby_music(nearbyMusic):
 
     return unique
 
-
-# -------------------------------------------------------
-# 메인 추천: 이미지 + 주변 음악
-# -------------------------------------------------------
-def recommend_with_image_and_nearby_users(image_b64: str,
-                                          place_name: str,
-                                          nearbyMusic: list):
-
-    # 1) 이미지 → 캡션
-    caption = caption_from_base64(image_b64)
-    print("📷 Caption:", caption)
-
-    # 2) 장소 기반 보정
-    enhanced_caption = enhance_caption_with_location(caption, place_name)
-    print("📍 Enhanced Caption:", enhanced_caption)
-
-    # 3) 이미지 기반 키워드 추출
-    user_keywords = extract_keywords(
-        merged_text=enhanced_caption,
-        full_history="",
-        k=5
-    )
-    print("🎨 Image Keywords:", user_keywords)
-
-    # 4) 이미지 기반 추천
-    img_recs = get_song_recommendations(user_keywords, top_k=2)
-
-    # 5) 주변 음악 기반 추천
-    near_recs = recommend_from_nearby_music(nearbyMusic)
-
-    # 6) 두 추천 리스트 합쳐서 최종 3곡만
-    combined = img_recs + near_recs
-
-    # 중복 제거
-    seen = set()
-    final = []
-    for r in combined:
-        tid = r["track_id"]
-        if tid not in seen:
-            seen.add(tid)
-            final.append(r)
-        if len(final) >= 1:
-            break
-
-    return {
-        "caption": enhanced_caption,
-        "keywords": user_keywords,
-        "recommended_songs": final
-    }
-
 # 저장 코드
 def save_location_recommend(result: dict):
     """
-    Agent4 추천 결과를 JSON 파일로 저장.
+    Agent4 추천 결과를 JSON 파일로 저장. (사용되지 않는 레거시 함수일 수 있음)
     저장 파일명: location_recommend_YYYYmmdd_HHMMSS.json
     """
     save_path = os.path.join(
@@ -398,21 +370,92 @@ def save_location_recommend(result: dict):
         print("❌ No recommended songs to save.")
         return None
 
-    song = result["recommended_songs"][0]   # 1곡만 저장
-
+    # **[수정]** recommended_songs의 모든 곡을 저장하도록 변경 (기존: 1곡만 저장)
     output_json = {
-        "songId": song.get("track_id"),
-        "title": song.get("track_name"),
-        "artist": song.get("artist_name"),
-        "durationMs": int(song.get("duration", 0) * 1000),  # 초 → ms 변환
-        "trackUrl": song.get("url")
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "recommendations": []
     }
+    
+    for song in result["recommended_songs"]:
+        output_json["recommendations"].append({
+            "songId": song.get("track_id"),
+            "title": song.get("track_name"),
+            "artist": song.get("artist_name"),
+            "durationMs": int(song.get("duration", 0) * 1000),  # 초 → ms 변환
+            "trackUrl": song.get("url")
+        })
+
 
     with open(save_path, "w", encoding="utf-8") as f:
         json.dump(output_json, f, ensure_ascii=False, indent=2)
 
     print(f"💾 Saved recommend result → {save_path}")
     return save_path
+
+
+# nearby_users.json 읽어오기
+def load_nearby_users_json():
+    path = "agents/nearby_users.json"
+    if not os.path.exists(path):
+        print("❌ nearby_users.json 파일이 존재하지 않습니다.")
+        return None
+
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+    
+    
+def run_location_recommendation():
+    """
+    nearby_users.json 을 읽어서:
+    - imagePath 기반 이미지 캡션 생성
+    - 주변 사용자 노래 기반 추천
+    """
+    payload = load_nearby_users_json()
+    if payload is None:
+        raise ValueError("nearby_users.json 로딩 실패")
+
+    image_path = payload.get("imagePath")
+    nearbyMusic = payload.get("nearbyMusic", [])
+
+    if not image_path:
+        raise ValueError("❌ nearby_users.json 에 'imagePath'가 없습니다.")
+
+    # 1) 이미지 → 캡션
+    caption = image_to_english_caption(image_path)
+
+    # 장소 보정 없음
+    enhanced_caption = caption
+
+    # 2) 키워드 추출
+    keywords = extract_keywords(enhanced_caption, full_history="", k=5)
+
+    # 3) 이미지 기반 추천
+    img_recs = get_song_recommendations(keywords, top_k=3)
+
+    # 4) 주변 사용자 기반 추천
+    near_recs = recommend_from_nearby_music(nearbyMusic)
+
+    # 5) 최종 1곡 선택
+    combined = img_recs + near_recs
+    final = []
+    seen = set()
+
+    for r in combined:
+        tid = r["track_id"]
+        if tid not in seen:
+            seen.add(tid)
+            final.append(r)
+        if len(final) == 1:
+            break
+
+    return {
+        "caption": enhanced_caption,
+        "keywords": keywords,
+        "nearby_users": nearbyMusic,
+        "image_path": image_path,
+        "recommended_songs": final
+    }
+
 
 # =========================================================
 # 9. 메인 파이프라인
@@ -422,59 +465,102 @@ def run_agent_pipeline(korean_text="", image_path="", location_payload=None) -> 
     # 1) 위치 기반 분석 요청이면, Agent4 실행
     if location_payload:
         print("📍 Running Location-Based Recommendation (Agent4 Mode)")
-        image_b64 = location_payload["imageBase64"][0]
-        place_name = location_payload["location"]["placeName"]
-        nearbyMusic = location_payload["nearbyMusic"]
-
-        agent4_result = recommend_with_image_and_nearby_users(
-            image_b64, place_name, nearbyMusic
-        )
+        result = run_location_recommendation()
         
+        # 저장 구조는 기존처럼 유지
         data = {
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "input": {"location": f"위치: {place_name}", "image_path": "(Base64 Data)"},
-            "english_caption_from_agent2": agent4_result.get("caption", ""),
-            "english_keywords": agent4_result.get("keywords", []),
-            "recommended_songs": agent4_result.get("recommended_songs", []),
+            "input": {
+                "korean_text": "이미지 + 주변 사용자 기반 추천 요청",
+                "image_path": result["image_path"]
+            },
+            "english_caption_from_agent2": result["caption"],
+            "english_keywords": result["keywords"],
+            "recommended_songs": result["recommended_songs"]
         }
 
         save_location_recommend_full(data)
-        # Location 기반 세션 저장 X (원하면 추가 가능)
         return data
+    
+    # ----------- 일반 텍스트/이미지 기반 추천 흐름 -----------
+
+    # 세션 파일 경로
+    session_file_path = os.path.join(SAVE_DIR, "active_session.json")
+
+    # 대화 이력 불러오기 (RAG용)
+    full_history = get_full_conversation_history(session_file_path)
+
+    # Agent1: 한국어 → 영어 번역
+    english_text = korean_to_english(korean_text) if korean_text else ""
+
+    # Agent2: 이미지 → 영어 캡션
+    english_caption = image_to_english_caption(image_path) if image_path else ""
+
+    # Agent3-1: 문장 합치기
+    merged = rewrite_combined_sentence(english_text, english_caption, full_history)
+
+    # Agent3-2: 키워드 추출
+    eng_keywords = extract_keywords(merged, full_history)
+
+    # 🎵 노래 추천: 초기에 넉넉하게 가져오기 (중복 제거 대비)
+    recommended_songs = get_song_recommendations(eng_keywords, top_k=15)
+
+    # --------------- 📌 필터링 로직 시작 ---------------
+
+    # 1) Fly 포함된 앨범 제거
+    recommended_songs = [
+        s for s in recommended_songs
+        if "fly" not in s.get("album_name", "").lower()
+    ]
+
+    # 2) 이미 추천된 곡 제거
+    try:
+        with open(session_file_path, "r", encoding="utf-8") as f:
+            session_data = json.load(f)
+        already = set(session_data.get("recommended_track_ids", []))
+    except FileNotFoundError:
+        already = set()
+
+    recommended_songs = [
+        s for s in recommended_songs
+        if s.get("track_id") not in already
+    ]
+
+    # 3) fallback: 필터링으로 너무 줄어든 경우 다시 찾기
+    if len(recommended_songs) < 3:
+        fallback = get_song_recommendations(eng_keywords, top_k=40)
+        fallback = [
+            s for s in fallback
+            if "fly" not in s.get("album_name", "").lower()
+            and s.get("track_id") not in already
+        ]
+        recommended_songs = fallback[:3]
+
     else:
-        # 대화 이력 불러오기
-        session_file_path = os.path.join(SAVE_DIR, "active_session.json")
-        full_history = get_full_conversation_history(session_file_path)
-        
-        # [Agent 1]
-        english_text = korean_to_english(korean_text) if korean_text else ""
-        # [Agent 2]
-        english_caption = image_to_english_caption(image_path) if image_path else ""
-        # [Agent 3-1]
-        merged = rewrite_combined_sentence(english_text, english_caption, full_history)
-        # [Agent 3-2]: 영어 키워드 추출
-        eng_keywords = extract_keywords(merged, full_history)
-        # RAG 검색 (노래 추천): 각 키워드 별 5곡씩
-        recommended_songs = get_song_recommendations(eng_keywords, top_k=3)
-        
-        data = {
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "input": {"korean_text": korean_text, "image_path": image_path},
-            "english_text_from_agent1": english_text,
-            "english_caption_from_agent2": english_caption,
-            "merged_sentence": merged,
-            "english_keywords": eng_keywords,
-            "recommended_songs": recommended_songs,
-        }
+        recommended_songs = recommended_songs[:3]
 
-        save_to_session_simple(data, session_file_path)
-        print(f"\n✅ Saved to active session → {session_file_path}")
-        return data
+    # --------------- 📌 필터링 로직 끝 ---------------
+
+    # 최종 데이터 패키징
+    data = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "input": {"korean_text": korean_text, "image_path": image_path},
+        "english_text_from_agent1": english_text,
+        "english_caption_from_agent2": english_caption,
+        "merged_sentence": merged,
+        "english_keywords": eng_keywords,
+        "recommended_songs": recommended_songs,
+    }
+
+    # 세션에 저장
+    save_to_session_simple(data, session_file_path)
+    print(f"\n✅ Saved to active session → {session_file_path}")
+
+    return data
 
 # =========================================================
-# 7️⃣ CLI (세션 관리자) - 수정된 부분
+# 7️⃣ CLI (세션 관리자)
 # =========================================================
-from collections import OrderedDict
 # base64는 파일 상단에 이미 import 되어 있으므로 생략합니다.
 
 if __name__ == "__main__":
@@ -485,6 +571,47 @@ if __name__ == "__main__":
     choice = input("\n새 대화를 시작하려면 'new' 입력 (기존 이어하기는 Enter): ").strip().lower()
 
     # ... (기존 세션 아카이빙 및 새 세션 시작 로직은 동일)
+    if choice == "new":
+        # 1) 기존 active_session.json 백업
+        if os.path.exists(active_session_path):
+            try:
+                with open(active_session_path, "r", encoding="utf-8") as f:
+                    old_data = json.load(f)
+                end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                old_data["session_end"] = end_time
+
+                archive_name = f"session_{uuid.uuid4().hex[:6]}.json"
+                archive_path = os.path.join(SAVE_DIR, archive_name)
+
+                with open(archive_path, "w", encoding="utf-8") as f:
+                    json.dump(old_data, f, ensure_ascii=False, indent=2)
+
+                print(f"🗂️ 세션 보관 완료: {archive_name} (session_end: {end_time})")
+
+            except Exception as e:
+                print(f"⚠️ 세션 아카이빙 오류: {e}")
+
+            # 2) 🔥 이 줄이 새로운 세션이 정상 생성되게 하는 핵심!
+            os.remove(active_session_path)
+
+        # 3) 새로운 세션 파일 생성
+        new_session = {
+            "session_id": uuid.uuid4().hex[:6],
+            "session_start": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "input_korean": [],
+            "input_image": [],
+            "english_text_from_agent1": [],
+            "english_caption_from_agent2": [],
+            "merged_sentence": [],
+            "english_keywords": [],
+            "recommended_songs": []
+        }
+
+        with open(active_session_path, "w", encoding="utf-8") as f:
+            json.dump(new_session, f, ensure_ascii=False, indent=2)
+
+        print(f"🆕 새 세션 생성 완료!")
+
 
     # ------------------------------------------------
     # ✨ 모드 선택 로직 추가
@@ -493,40 +620,63 @@ if __name__ == "__main__":
     mode = input("1. 일반 텍스트/이미지 입력 (세션 기반)\n2. 위치 기반 추천 (Agent4)\n선택 (1 또는 2): ").strip()
     
     if mode == "2":
-        # 2번: 위치 기반 추천 (Agent4) 모드
         print("\n--- 📍 위치 기반 추천 (Agent4) 실행 ---")
-        img_path = input("위치 사진 경로 입력: ").strip()
-        place_name = input("현재 장소 이름 입력 (예: 강남역 카페): ").strip()
-        
-        if not img_path or not place_name:
-            print("\n🛑 이미지 경로와 장소 이름은 필수입니다.")
-            exit()
-            
+
         try:
-            # Agent4가 요구하는 Base64 인코딩 수행
-            with open(img_path, "rb") as f:
-                img_b64 = base64.b64encode(f.read()).decode('utf-8')
-            
-            # Agent4에 필요한 페이로드 구성 (nearbyMusic은 CLI 예시를 위해 더미 데이터 사용)
-            location_payload = {
-                "imageBase64": [img_b64],
-                "location": {"placeName": place_name},
-                "nearbyMusic": [
-                    {"songTitle": "Ambient Chill", "artist": "Dummy Music Co."},
-                    {"songTitle": "City Pop Groove", "artist": "CLI Test"}
-                ]
-            }
-            
+            with open("agents/nearby_users.json", "r", encoding="utf-8") as f:
+                payload = json.load(f)
+
+            image_path = payload.get("imagePath")
+            nearbyMusic = payload.get("nearbyMusic", [])
+
+        except Exception as e:
+            print(f"❌ nearby_users.json 읽기 오류: {e}")
+            exit()
+
+        print("📄 nearby_users.json 로드 완료")
+        print(f" - 이미지 경로: {image_path}")
+        print(f" - 주변 사용자 음악 개수: {len(nearbyMusic)}")
+
+        try:
             print("\n--- 🚀 Agent4 파이프라인 실행 ---")
-            # run_agent_pipeline에 location_payload 전달
-            result = run_agent_pipeline(location_payload=location_payload)
+
+            caption = image_to_english_caption(image_path)
+            keywords = extract_keywords(caption, full_history="", k=5)
+
+            img_recs = get_song_recommendations(keywords, top_k=3)
+            near_recs = recommend_from_nearby_music(nearbyMusic)
+
+            combined = img_recs + near_recs
+            final = []
+            seen = set()
+
+            for r in combined:
+                tid = r["track_id"]
+                if tid not in seen:
+                    seen.add(tid)
+                    final.append(r)
+                if len(final) == 1:
+                    break
+
+            result = {
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "input": {
+                    "korean_text": "nearby_users.json 기반 위치 추천",
+                    "image_path": image_path
+                },
+                "english_caption_from_agent2": caption,
+                "english_keywords": keywords,
+                "recommended_songs": final
+            }
+
+            save_location_recommend_full(result)
+
             print("\n--- 🎯 실행 결과 (Agent4) ---")
             print(json.dumps(result, ensure_ascii=False, indent=2))
-            
-        except FileNotFoundError:
-            print(f"🔥 오류: 지정된 이미지 파일 경로를 찾을 수 없습니다: {img_path}")
+
         except Exception as e:
-            print(f"\n🔥 Agent4 실행 중 오류 발생: {e}")
+            print(f"🔥 Agent4 실행 중 오류 발생: {e}")
+
             
     else: 
         # 1번 또는 잘못된 입력 (기본값: 일반 텍스트/이미지 모드)

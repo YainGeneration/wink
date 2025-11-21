@@ -50,8 +50,9 @@ private static final String GEMINI_URL =
             }
 
             String prompt = "입력된 문장애 있는 시간, 공간, 위치, 감정 상황 정보를 바탕으로 제목처럼 지어줘. " +
+                    "입력받은 음악 제목과 가수 이름을 제목에 절대 포함하지마. 음악의 장르나 분위기만 반영해줘. " +
                     "꼭 필요한 문장 기호가 아닌 이상 넣지 마. " +
-                    "일반적으로 요약하지 말고 input text의 특성을 살려서 요약해 문장: \"" + inputText + "\"";
+                    "일반적으로 요약하지 말고 input text의 특성을 살려서 제목 만들어줘 문장: \"" + inputText + "\"";
 
             // String requestBody = String.format("""
             //     {
@@ -115,14 +116,9 @@ private static final String GEMINI_URL =
             }
 
             String joined = String.join(", ", englishKeywords);
-            String prompt = "다음 영어 단어들을 감성적인 한국어 단어로 번역해줘. " +
-                    "단, 개수와 순서는 유지하고 쉼표로 구분해줘. 단어들: " + joined;
+            String prompt = "다음 영어 단어들을 감성적인 한국어 단어로 번역해줘. " + "단, 입력된 모든 단어를 반드시 번역해. 의미가 약하면 의미를 보정해도 괜찮아." +
+                    "단, 개수와 순서는 반드시 유지하고, **다른 설명이나 문장 부호 없이 오직 쉼표(,)로만 구분해서** 출력해줘. 단어들: " + joined;
 
-            // String requestBody = String.format("""
-            //     {
-            //       "contents": [ { "parts": [ { "text": "%s" } ] } ]
-            //     }
-            // """, prompt.replace("\"", "'"));
             Map<String, Object> jsonBody = Map.of(
                     "contents", List.of(
                             Map.of(
@@ -300,7 +296,7 @@ private static final String GEMINI_URL =
             }
 
             String prompt =
-                    "다음 문장을 자연스러운 한국어 감성 문장으로 해석해줘. " +
+                    "다음 문장을 자연스러운 한국어 감성 문장으로 해석해줘. " + "문장에서 suffraget university 이런식의 한국에 없는 것들은 빼줘" +
                     "직역하지 말고 문맥의 분위기, 감정, 정서를 담아 한 문장으로 표현하되, '~해서 추천합니다.' 형식으로 출력해줘':\n" 
                     + mergedSentence;
 
@@ -364,7 +360,7 @@ private static final String GEMINI_URL =
             }
 
             String prompt = "다음 영어 문장을 자연스러운 한국어 문장으로 번역해줘. " +
-                    "직역 말고 분위기와 감정을 살려서 부드럽게 표현해줘:\n" + englishText;
+                    "직역 말고 분위기와 감정을 살려서 부드럽게 표현해되, 존댓말로 '~합니다.'로 답해:\n" + englishText;
 
             Map<String, Object> jsonBody = Map.of(
                     "contents", List.of(

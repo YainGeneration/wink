@@ -1,0 +1,51 @@
+{
+  "timestamp": "2025-11-21 13:14:39",
+  "input_location": "위치: 숙명여자대학교",
+  "input_image": "(Base64 Data)",
+  "english_caption_from_agent2": "",
+  "english_keywords": [],
+  "recommended_songs": [
+    {
+      "url": "http://www.jamendo.com/track/1048228",
+      "album_name": "Advertising",
+      "artist_name": "Akashic Records",
+      "duration": 200.0,
+      "track_name": "Acoustic",
+      "genre_tags": "easylistening",
+      "releasedate": "2013-07-16",
+      "path": "28/1048228.mp3",
+      "instrument_tags": "ukulele",
+      "mood_tags": "advertising commercial inspiring motivational",
+      "track_id": "track_1048228",
+      "similarity_score": NaN
+    },
+    {
+      "genre_tags": "electronic",
+      "track_name": "Wireless ver A",
+      "instrument_tags": "",
+      "artist_name": "Instantperson",
+      "track_id": "track_0993764",
+      "releasedate": "2012-12-30",
+      "path": "64/993764.mp3",
+      "album_name": "Electro I",
+      "duration": 129.9,
+      "mood_tags": "advertising inspiring sport",
+      "url": "http://www.jamendo.com/track/993764",
+      "similarity_score": NaN
+    },
+    {
+      "path": "19/1254819.mp3",
+      "track_name": "Sport Drive Action Loop 60s",
+      "album_name": "Dance Happy Summer Club Music",
+      "duration": 58.2,
+      "releasedate": "2015-07-27",
+      "mood_tags": "action sport",
+      "url": "http://www.jamendo.com/track/1254819",
+      "artist_name": "Plastic3",
+      "instrument_tags": "",
+      "track_id": "track_1254819",
+      "genre_tags": "dance eurodance poprock",
+      "similarity_score": 0.8521491490285762
+    }
+  ]
+}

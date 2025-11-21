@@ -11,5 +11,5 @@ public class ChatStartResponse {
     private String type;
     private String topic;
     private String message;
-    private LocalDateTime startTime;
+    private LocalDateTime timestamp;
 }

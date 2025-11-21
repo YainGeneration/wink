@@ -1,0 +1,74 @@
+{
+  "session_start": "2025-11-21 03:22:52",
+  "input_korean": [
+    "서울 용산구 청파동2가 53-12에 왔습니다."
+  ],
+  "input_image": [
+    ""
+  ],
+  "english_text_from_agent1": [
+    "Seoul Yongsan-gu Chhap-dong 53-12 has arrived."
+  ],
+  "english_caption_from_agent2": [
+    ""
+  ],
+  "merged_sentence": [
+    "Seoul Yongsan-gu Chhap-dong 53-12 has arrived."
+  ],
+  "english_keywords": [
+    [
+      "seoul",
+      "acoustic",
+      "nostalgic",
+      "city",
+      "warm"
+    ]
+  ],
+  "recommended_songs": [
+    [
+      {
+        "instrument_tags": "",
+        "releasedate": "2016-12-10",
+        "url": "http://www.jamendo.com/track/1401013",
+        "artist_name": "Aretira",
+        "mood_tags": "soundscape",
+        "path": "13/1401013.mp3",
+        "genre_tags": "atmospheric chillout gothic soundtrack",
+        "duration": 110.0,
+        "album_name": "Wander",
+        "track_name": "The Night Passes Out",
+        "track_id": "track_1401013",
+        "similarity_score": 0.3414914414813256
+      },
+      {
+        "instrument_tags": "computer drummachine synthesizer",
+        "genre_tags": "atmospheric chillout techno",
+        "album_name": "Graham 1 EP",
+        "mood_tags": "soundscape",
+        "track_name": "A bit strange",
+        "track_id": "track_0189368",
+        "artist_name": "Graham Loop",
+        "duration": 502.5,
+        "url": "http://www.jamendo.com/track/189368",
+        "releasedate": "2008-07-09",
+        "path": "68/189368.mp3",
+        "similarity_score": 0.3376060485279053
+      },
+      {
+        "releasedate": "2016-11-22",
+        "duration": 344.0,
+        "instrument_tags": "strings",
+        "track_name": "6. Take The Long Road",
+        "track_id": "track_1395646",
+        "artist_name": "SoLaRiS",
+        "path": "46/1395646.mp3",
+        "genre_tags": "ambient chillout soundtrack",
+        "url": "http://www.jamendo.com/track/1395646",
+        "mood_tags": "soundscape",
+        "album_name": "Harmonic Universe",
+        "similarity_score": 0.33622446567519454
+      }
+    ]
+  ],
+  "session_end": "2025-11-21 03:35:11"
+}
