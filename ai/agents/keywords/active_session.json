@@ -1,11 +1,138 @@
 {
-  "session_id": "c3337f",
-  "session_start": "2025-11-22 02:45:14",
-  "input_korean": [],
-  "input_image": [],
-  "english_text_from_agent1": [],
-  "english_caption_from_agent2": [],
-  "merged_sentence": [],
-  "english_keywords": [],
-  "recommended_songs": []
+  "session_id": "b5549c",
+  "session_start": "2025-11-22 03:17:24",
+  "input_korean": [
+    "눈 오는 겨울날 듣기 좋은따뜻하고 달콤한 노래 추천줘.",
+    "세 번째로 추천해준 노래처럼 따뜻감정더 큰 노래추천해줘."
+  ],
+  "input_image": [
+    "/Users/eunjung/Desktop/winkbackup/wink/ai/images/hotchoco.jpg",
+    ""
+  ],
+  "english_text_from_agent1": [
+    "I recommend a warm and sweet song for winter days when it rains.",
+    "I would like to recommend a larger song like the third one I suggested."
+  ],
+  "english_caption_from_agent2": [
+    "The image evokes a cozy and festive mood with two mugs of hot chocolate nestled amongst miniature Christmas decorations on a warm, textured wooden surface.",
+    ""
+  ],
+  "merged_sentence": [
+    "I recommend a warm and sweet song for winter days when it rains, evoking a cozy and festive mood with two mugs of hot chocolate nestled amongst miniature Christmas decorations on a warm, textured wooden surface.",
+    "I would like to recommend a larger song like the third one I suggested."
+  ],
+  "english_keywords": [
+    [
+      "winter",
+      "warm",
+      "sweet",
+      "cozy",
+      "festive"
+    ],
+    [
+      "winter",
+      "warm",
+      "sweet",
+      "cozy",
+      "festive"
+    ]
+  ],
+  "recommended_songs": [
+    [
+      {
+        "track_name": "Очень вас я люблю \\ Love you too much",
+        "duration": 75.4,
+        "mood_tags": "romantic",
+        "artist_name": "Olga Scotland",
+        "releasedate": "2012-09-04",
+        "url": "http://www.jamendo.com/track/963324",
+        "path": "24/963324.mp3",
+        "album_name": "Animuba songs",
+        "instrument_tags": "",
+        "track_id": "track_0963324",
+        "genre_tags": "lounge newage",
+        "similarity_score": 0.34770215770024393
+      },
+      {
+        "releasedate": "2013-02-18",
+        "mood_tags": "holiday romantic",
+        "path": "18/1009518.mp3",
+        "instrument_tags": "",
+        "track_id": "track_1009518",
+        "track_name": "estate 86",
+        "genre_tags": "soundtrack",
+        "url": "http://www.jamendo.com/track/1009518",
+        "album_name": "St.Remate 2",
+        "duration": 330.8,
+        "artist_name": "zarianto",
+        "similarity_score": 0.3298805598234352
+      },
+      {
+        "instrument_tags": "guitar",
+        "track_name": "Waiting in Line",
+        "mood_tags": "happy romantic",
+        "album_name": "Field Lines",
+        "releasedate": "2010-05-07",
+        "duration": 107.5,
+        "genre_tags": "folk",
+        "track_id": "track_0575226",
+        "url": "http://www.jamendo.com/track/575226",
+        "artist_name": "Macroform",
+        "path": "26/575226.mp3",
+        "similarity_score": 0.3269751938135313
+      }
+    ],
+    [
+      {
+        "url": "http://www.jamendo.com/track/1093426",
+        "genre_tags": "ambient lounge",
+        "track_id": "track_1093426",
+        "path": "26/1093426.mp3",
+        "duration": 228.2,
+        "releasedate": "2014-01-05",
+        "mood_tags": "cool relaxing romantic",
+        "instrument_tags": "drummachine synthesizer",
+        "artist_name": "Offenbach Project",
+        "album_name": "Big Apple",
+        "track_name": "Broadway",
+        "similarity_score": 0.32328889871865757
+      },
+      {
+        "releasedate": "2015-05-06",
+        "album_name": "Winter Love Song - Single",
+        "url": "http://www.jamendo.com/track/1227243",
+        "instrument_tags": "",
+        "artist_name": "VITNE",
+        "track_name": "Winter Love Song (Instrumental)",
+        "track_id": "track_1227243",
+        "genre_tags": "indie singersongwriter",
+        "mood_tags": "christmas holiday love romantic",
+        "path": "43/1227243.mp3",
+        "duration": 224.5,
+        "similarity_score": 0.321783437085875
+      },
+      {
+        "artist_name": "Nemo Wilson",
+        "genre_tags": "folk pop rnb",
+        "url": "http://www.jamendo.com/track/1298301",
+        "duration": 186.8,
+        "instrument_tags": "",
+        "path": "01/1298301.mp3",
+        "mood_tags": "love romantic",
+        "track_name": "A Little More (Acoustic)",
+        "track_id": "track_1298301",
+        "releasedate": "2015-12-11",
+        "album_name": "Naked",
+        "similarity_score": 0.31700066314228226
+      }
+    ]
+  ],
+  "recommended_track_ids": [
+    "track_0963324",
+    "track_1009518",
+    "track_0575226",
+    "track_1093426",
+    "track_1227243",
+    "track_1298301"
+  ]
 }

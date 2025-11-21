@@ -354,56 +354,6 @@ def recommend_from_nearby_music(nearbyMusic: list):
 
     return unique
 
-
-# # -------------------------------------------------------
-# # 메인 추천: 이미지 + 주변 음악
-# # -------------------------------------------------------
-# def recommend_with_image_and_nearby_users(image_b64: str,
-#                                           place_name: str,
-#                                           nearbyMusic: list):
-
-#     # 1) 이미지 → 캡션
-#     caption = caption_from_base64(image_b64)
-#     print("📷 Caption:", caption)
-
-#     # 2) 장소 기반 보정
-#     enhanced_caption = enhance_caption_with_location(caption, place_name)
-#     print("📍 Enhanced Caption:", enhanced_caption)
-
-#     # 3) 이미지 기반 키워드 추출
-#     user_keywords = extract_keywords(
-#         merged_text=enhanced_caption,
-#         full_history="",
-#         k=5
-#     )
-#     print("🎨 Image Keywords:", user_keywords)
-
-#     # 4) 이미지 기반 추천
-#     img_recs = get_song_recommendations(user_keywords, top_k=2)
-
-#     # 5) 주변 음악 기반 추천
-#     near_recs = recommend_from_nearby_music(nearbyMusic)
-
-#     # 6) 두 추천 리스트 합쳐서 최종 3곡만
-#     combined = img_recs + near_recs
-
-#     # 중복 제거
-#     seen = set()
-#     final = []
-#     for r in combined:
-#         tid = r["track_id"]
-#         if tid not in seen:
-#             seen.add(tid)
-#             final.append(r)
-#         if len(final) >= 1:
-#             break
-
-#     return {
-#         "caption": enhanced_caption,
-#         "keywords": user_keywords,
-#         "recommended_songs": final
-#     }
-
 # 저장 코드
 def save_location_recommend(result: dict):
     """
