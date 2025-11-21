@@ -21,5 +21,4 @@ public class ChatHistoryResponse {
     // 최신 세션인지 여부 (필요 없으면 null 로 둬도 됨)
     private Boolean isLatest;
     private List<ChatMessageResponse> messages;
-    private LocalDateTime timestamp; 
 }

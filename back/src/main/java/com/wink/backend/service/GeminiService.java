@@ -50,8 +50,9 @@ private static final String GEMINI_URL =
             }
 
             String prompt = "입력된 문장애 있는 시간, 공간, 위치, 감정 상황 정보를 바탕으로 제목처럼 지어줘. " +
+                    "입력받은 음악 제목과 가수 이름을 제목에 절대 포함하지마. 음악의 장르나 분위기만 반영해줘. " +
                     "꼭 필요한 문장 기호가 아닌 이상 넣지 마. " +
-                    "일반적으로 요약하지 말고 input text의 특성을 살려서 요약해 문장: \"" + inputText + "\"";
+                    "일반적으로 요약하지 말고 input text의 특성을 살려서 제목 만들어줘 문장: \"" + inputText + "\"";
 
             // String requestBody = String.format("""
             //     {
@@ -295,7 +296,7 @@ private static final String GEMINI_URL =
             }
 
             String prompt =
-                    "다음 문장을 자연스러운 한국어 감성 문장으로 해석해줘. " +
+                    "다음 문장을 자연스러운 한국어 감성 문장으로 해석해줘. " + "문장에서 suffraget university 이런식의 한국에 없는 것들은 빼줘" +
                     "직역하지 말고 문맥의 분위기, 감정, 정서를 담아 한 문장으로 표현하되, '~해서 추천합니다.' 형식으로 출력해줘':\n" 
                     + mergedSentence;
 
