@@ -7,6 +7,7 @@ Agent3 (통합 파이프라인)
 - Agent 3 로직 (1): 두 영어 문장 → 하나의 문장으로 재작성 (Ollama Gemma3)
 - Agent 3 로직 (2): 재작성된 문장 → 영어 키워드 5개 추출 (Ollama Gemma3)
 - 세션 관리: 모든 결과를 'active_session.json'에 누적 저장
+- Agent 4 로직: 위치 + 이미지 + 주변 음악 기반 추천 파이프라인 (recommend_with_image_and_nearby_users)
 """
 
 import os
@@ -15,6 +16,7 @@ import json
 from datetime import datetime
 import requests
 import uuid
+from collections import OrderedDict # CLI 로직에서 필요
 
 # agent1 import
 try:
@@ -114,26 +116,21 @@ Extract EXACTLY {k} keywords that best represent the user's musical intent.
 
 ### STRICT RULES ###
 
-1. **Primary Subject / Setting (NOUNS)**  
-   - If the sentence includes a main noun (night, rain, drive, study, winter, ocean, city), 
+1. **Primary Subject / Setting (NOUNS)** - If the sentence includes a main noun (night, rain, drive, study, winter, ocean, city), 
      include EXACTLY ONE such noun as the FIRST keyword.
    - Do NOT stop at only one keyword. It only defines the *first* slot.
 
-2. **Sound Texture (Adjective or Style Words)**  
-   - Fill at least 1–2 of the remaining keywords with sound-related adjectives  
+2. **Sound Texture (Adjective or Style Words)** - Fill at least 1–2 of the remaining keywords with sound-related adjectives  
      (soft, acoustic, ambient, mellow, electronic, jazzy, gentle).
 
-3. **Emotional Vibe (Feels / Mood)**  
-   - Include at least 1 emotional keyword  
+3. **Emotional Vibe (Feels / Mood)** - Include at least 1 emotional keyword  
      (calm, sweet, dreamy, nostalgic, romantic, angry, peaceful).
 
-4. **User Expression Preservation (Non-musical expressions allowed)**  
-   - If the user expresses feelings like “달달한”, “짜증나는”, “따뜻한”,  
+4. **User Expression Preservation (Non-musical expressions allowed)** - If the user expresses feelings like “달달한”, “짜증나는”, “따뜻한”,  
      you MUST include the English equivalent in the final keywords  
      (sweet, irritated, warm, refreshing).
 
-5. **ABSOLUTE RULE**  
-   - You MUST output **exactly {k} keywords**, no fewer.  
+5. **ABSOLUTE RULE** - You MUST output **exactly {k} keywords**, no fewer.  
    - If fewer than {k} suitable terms exist, expand using closely-related semantic descriptors.  
    - NEVER output only one keyword.
 
@@ -269,7 +266,7 @@ def save_location_recommend_full(data: dict):
         # 세션 구조와 형식은 같되, 리스트 형태를 단일 값으로 변환하여 저장 (선택적)
         output_data = {
             "timestamp": data.get("timestamp"),
-            "input_location": data["input"].get("korean_text"),
+            "input_location": input_data.get("location"),
             "input_image": input_data.get("image_path", ""),
             "english_caption_from_agent2": data.get("english_caption_from_agent2"),
             "english_keywords": data.get("english_keywords"),
@@ -307,16 +304,26 @@ def match_song_in_rag(title: str, artist: str, top_k=1):
 # -------------------------------------------------------
 # 주변 음악 기반으로 유사 노래 찾기
 # -------------------------------------------------------
-def recommend_from_nearby_music(nearbyMusic):
+def recommend_from_nearby_music(nearbyMusic: list):
     """
     각 주변 음악을 RAG DB에서 매칭 → 유사한 노래 추천
     """
     all_recs = []
 
     for m in nearbyMusic:
-        title = m.get("title", "")
+        # **[수정]** CLI와 API의 키를 통일하여 'title', 'artist' 사용
+        title = m.get("title", "") 
         artist = m.get("artist", "")
 
+        # songTitle, artistName으로 들어올 경우 (이전 CLI 코드와의 호환성을 위해 유지)
+        if not title:
+             title = m.get("songTitle", "") 
+        if not artist:
+            artist = m.get("artistName", "")
+
+        if not title and not artist:
+            continue
+            
         # 1) RAG DB에서 K-pop → Jamendo 곡 매칭
         matched = match_song_in_rag(title, artist, top_k=1)
         if not matched:
@@ -400,7 +407,7 @@ def recommend_from_nearby_music(nearbyMusic):
 # 저장 코드
 def save_location_recommend(result: dict):
     """
-    Agent4 추천 결과를 JSON 파일로 저장.
+    Agent4 추천 결과를 JSON 파일로 저장. (사용되지 않는 레거시 함수일 수 있음)
     저장 파일명: location_recommend_YYYYmmdd_HHMMSS.json
     """
     save_path = os.path.join(
@@ -413,15 +420,21 @@ def save_location_recommend(result: dict):
         print("❌ No recommended songs to save.")
         return None
 
-    song = result["recommended_songs"][0]   # 1곡만 저장
-
+    # **[수정]** recommended_songs의 모든 곡을 저장하도록 변경 (기존: 1곡만 저장)
     output_json = {
-        "songId": song.get("track_id"),
-        "title": song.get("track_name"),
-        "artist": song.get("artist_name"),
-        "durationMs": int(song.get("duration", 0) * 1000),  # 초 → ms 변환
-        "trackUrl": song.get("url")
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "recommendations": []
     }
+    
+    for song in result["recommended_songs"]:
+        output_json["recommendations"].append({
+            "songId": song.get("track_id"),
+            "title": song.get("track_name"),
+            "artist": song.get("artist_name"),
+            "durationMs": int(song.get("duration", 0) * 1000),  # 초 → ms 변환
+            "trackUrl": song.get("url")
+        })
+
 
     with open(save_path, "w", encoding="utf-8") as f:
         json.dump(output_json, f, ensure_ascii=False, indent=2)
@@ -596,9 +609,8 @@ def run_agent_pipeline(korean_text="", image_path="", location_payload=None) -> 
     return data
 
 # =========================================================
-# 7️⃣ CLI (세션 관리자) - 수정된 부분
+# 7️⃣ CLI (세션 관리자)
 # =========================================================
-from collections import OrderedDict
 # base64는 파일 상단에 이미 import 되어 있으므로 생략합니다.
 
 if __name__ == "__main__":
