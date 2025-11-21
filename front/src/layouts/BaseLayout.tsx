@@ -26,7 +26,7 @@ import user from "../assets/icons/user.svg"
 import userFill from "../assets/icons/user-fill.svg"
 import userWhite from "../assets/icons/user-white.svg"
 import plusG600 from "../assets/icons/plus-g600.svg"
-import close from "../assets/icons/x.svg"
+import close from "../assets/icons/x-white.svg"
 import { useLocation, useNavigate } from "react-router-dom"; 
 import { useRef, useState, useEffect, useMemo } from "react";
 import { useMusicPlayer } from "../components/MusicPlayerContext.tsx";
@@ -121,11 +121,11 @@ const ImgWrapper = styled.div`
   width: 114px;
   height: 114px;
   overflow: hidden;
-  justify-content: flex-start;
-  padding: 0px 12px 12px;
+  padding: 0px 0px 12px 12px;
 
     & .userImg {
       width: 100%;
+      height: 100%;
       object-fit: cover;
       border-radius: 10px;
       margin-top: 6px;
@@ -134,7 +134,7 @@ const ImgWrapper = styled.div`
     & .closeBtn {
       position: absolute;
       top: 12px;
-      right: 16px;
+      right: 6px;
     }
 
 `

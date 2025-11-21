@@ -10,7 +10,7 @@ export default function PhotoGrid({ onSelect }: { onSelect: (img: string) => voi
     "https://picsum.photos/id/1011/200/200",
     "https://picsum.photos/id/1012/200/200",
     "https://picsum.photos/id/1015/200/200",
-    "https://picsum.photos/id/1016/200/200",
+    "../../../public/img/hotchoco.jpg",
     "https://picsum.photos/id/1020/200/200",
     "https://picsum.photos/id/1024/200/200",
     "https://picsum.photos/id/1025/200/200",

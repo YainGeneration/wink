@@ -38,11 +38,11 @@ export default function MomentModal({
   onOpenLocationSheet: () => void;
   setLocationSheetOpen: (v: boolean) => void; 
 }) {
-
+  console.log('넘어옴')
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const navigate = useNavigate();
 
-  if (!open) return null;
+  
 
   const handleImageInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -111,6 +111,11 @@ export default function MomentModal({
 }
 
 
+
+
+if (!open) return null;
+
+
   return (
     <Overlay onClick={onClose}>
       <Container onClick={(e) => e.stopPropagation()}>
@@ -175,7 +180,7 @@ export default function MomentModal({
           />
         </PhotoArea>
 
-        <ActionBtn onClick={onConfirm}>
+        <ActionBtn onClick={startSpaceChat}>
           <S.Body1 style={{ color: "white"}}>탐색하기</S.Body1>
         </ActionBtn>
       </Container>
