@@ -37,5 +37,3 @@ def get_full_conversation_history(session_file: str) -> str:
 
     except:
         return ""
-
-# (RAG 검색, 노래 추천 등 나머지 함수는 모두 삭제)

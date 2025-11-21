@@ -12,7 +12,6 @@ Agent3 (통합 파이프라인)
 import os
 import re
 import json
-import base64
 from datetime import datetime
 import requests
 import uuid
@@ -349,54 +348,54 @@ def recommend_from_nearby_music(nearbyMusic):
     return unique
 
 
-# -------------------------------------------------------
-# 메인 추천: 이미지 + 주변 음악
-# -------------------------------------------------------
-def recommend_with_image_and_nearby_users(image_b64: str,
-                                          place_name: str,
-                                          nearbyMusic: list):
+# # -------------------------------------------------------
+# # 메인 추천: 이미지 + 주변 음악
+# # -------------------------------------------------------
+# def recommend_with_image_and_nearby_users(image_b64: str,
+#                                           place_name: str,
+#                                           nearbyMusic: list):
 
-    # 1) 이미지 → 캡션
-    caption = caption_from_base64(image_b64)
-    print("📷 Caption:", caption)
+#     # 1) 이미지 → 캡션
+#     caption = caption_from_base64(image_b64)
+#     print("📷 Caption:", caption)
 
-    # 2) 장소 기반 보정
-    enhanced_caption = enhance_caption_with_location(caption, place_name)
-    print("📍 Enhanced Caption:", enhanced_caption)
+#     # 2) 장소 기반 보정
+#     enhanced_caption = enhance_caption_with_location(caption, place_name)
+#     print("📍 Enhanced Caption:", enhanced_caption)
 
-    # 3) 이미지 기반 키워드 추출
-    user_keywords = extract_keywords(
-        merged_text=enhanced_caption,
-        full_history="",
-        k=5
-    )
-    print("🎨 Image Keywords:", user_keywords)
+#     # 3) 이미지 기반 키워드 추출
+#     user_keywords = extract_keywords(
+#         merged_text=enhanced_caption,
+#         full_history="",
+#         k=5
+#     )
+#     print("🎨 Image Keywords:", user_keywords)
 
-    # 4) 이미지 기반 추천
-    img_recs = get_song_recommendations(user_keywords, top_k=2)
+#     # 4) 이미지 기반 추천
+#     img_recs = get_song_recommendations(user_keywords, top_k=2)
 
-    # 5) 주변 음악 기반 추천
-    near_recs = recommend_from_nearby_music(nearbyMusic)
+#     # 5) 주변 음악 기반 추천
+#     near_recs = recommend_from_nearby_music(nearbyMusic)
 
-    # 6) 두 추천 리스트 합쳐서 최종 3곡만
-    combined = img_recs + near_recs
+#     # 6) 두 추천 리스트 합쳐서 최종 3곡만
+#     combined = img_recs + near_recs
 
-    # 중복 제거
-    seen = set()
-    final = []
-    for r in combined:
-        tid = r["track_id"]
-        if tid not in seen:
-            seen.add(tid)
-            final.append(r)
-        if len(final) >= 1:
-            break
+#     # 중복 제거
+#     seen = set()
+#     final = []
+#     for r in combined:
+#         tid = r["track_id"]
+#         if tid not in seen:
+#             seen.add(tid)
+#             final.append(r)
+#         if len(final) >= 1:
+#             break
 
-    return {
-        "caption": enhanced_caption,
-        "keywords": user_keywords,
-        "recommended_songs": final
-    }
+#     return {
+#         "caption": enhanced_caption,
+#         "keywords": user_keywords,
+#         "recommended_songs": final
+#     }
 
 # 저장 코드
 def save_location_recommend(result: dict):
@@ -430,6 +429,71 @@ def save_location_recommend(result: dict):
     print(f"💾 Saved recommend result → {save_path}")
     return save_path
 
+
+# nearby_users.json 읽어오기
+def load_nearby_users_json():
+    path = "agents/nearby_users.json"
+    if not os.path.exists(path):
+        print("❌ nearby_users.json 파일이 존재하지 않습니다.")
+        return None
+
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+    
+    
+def run_location_recommendation():
+    """
+    nearby_users.json 을 읽어서:
+    - imagePath 기반 이미지 캡션 생성
+    - 주변 사용자 노래 기반 추천
+    """
+    payload = load_nearby_users_json()
+    if payload is None:
+        raise ValueError("nearby_users.json 로딩 실패")
+
+    image_path = payload.get("imagePath")
+    nearbyMusic = payload.get("nearbyMusic", [])
+
+    if not image_path:
+        raise ValueError("❌ nearby_users.json 에 'imagePath'가 없습니다.")
+
+    # 1) 이미지 → 캡션
+    caption = image_to_english_caption(image_path)
+
+    # 장소 보정 없음
+    enhanced_caption = caption
+
+    # 2) 키워드 추출
+    keywords = extract_keywords(enhanced_caption, full_history="", k=5)
+
+    # 3) 이미지 기반 추천
+    img_recs = get_song_recommendations(keywords, top_k=3)
+
+    # 4) 주변 사용자 기반 추천
+    near_recs = recommend_from_nearby_music(nearbyMusic)
+
+    # 5) 최종 1곡 선택
+    combined = img_recs + near_recs
+    final = []
+    seen = set()
+
+    for r in combined:
+        tid = r["track_id"]
+        if tid not in seen:
+            seen.add(tid)
+            final.append(r)
+        if len(final) == 1:
+            break
+
+    return {
+        "caption": enhanced_caption,
+        "keywords": keywords,
+        "nearby_users": nearbyMusic,
+        "image_path": image_path,
+        "recommended_songs": final
+    }
+
+
 # =========================================================
 # 9. 메인 파이프라인
 # =========================================================
@@ -438,26 +502,23 @@ def run_agent_pipeline(korean_text="", image_path="", location_payload=None) -> 
     # 1) 위치 기반 분석 요청이면, Agent4 실행
     if location_payload:
         print("📍 Running Location-Based Recommendation (Agent4 Mode)")
-
-        image_b64 = location_payload["imageBase64"][0]
-        place_name = location_payload["location"]["placeName"]
-        nearbyMusic = location_payload["nearbyMusic"]
-
-        agent4_result = recommend_with_image_and_nearby_users(
-            image_b64, place_name, nearbyMusic
-        )
+        result = run_location_recommendation()
         
+        # 저장 구조는 기존처럼 유지
         data = {
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "input": {"location": f"위치: {place_name}", "image_path": "(Base64 Data)"},
-            "english_caption_from_agent2": agent4_result.get("caption", ""),
-            "english_keywords": agent4_result.get("keywords", []),
-            "recommended_songs": agent4_result.get("recommended_songs", []),
+            "input": {
+                "korean_text": "이미지 + 주변 사용자 기반 추천 요청",
+                "image_path": result["image_path"]
+            },
+            "english_caption_from_agent2": result["caption"],
+            "english_keywords": result["keywords"],
+            "recommended_songs": result["recommended_songs"]
         }
 
         save_location_recommend_full(data)
         return data
-
+    
     # ----------- 일반 텍스트/이미지 기반 추천 흐름 -----------
 
     # 세션 파일 경로
@@ -597,40 +658,63 @@ if __name__ == "__main__":
     mode = input("1. 일반 텍스트/이미지 입력 (세션 기반)\n2. 위치 기반 추천 (Agent4)\n선택 (1 또는 2): ").strip()
     
     if mode == "2":
-        # 2번: 위치 기반 추천 (Agent4) 모드
         print("\n--- 📍 위치 기반 추천 (Agent4) 실행 ---")
-        img_path = input("위치 사진 경로 입력: ").strip()
-        place_name = input("현재 장소 이름 입력 (예: 강남역 카페): ").strip()
-        
-        if not img_path or not place_name:
-            print("\n🛑 이미지 경로와 장소 이름은 필수입니다.")
-            exit()
-            
+
         try:
-            # Agent4가 요구하는 Base64 인코딩 수행
-            with open(img_path, "rb") as f:
-                img_b64 = base64.b64encode(f.read()).decode('utf-8')
-            
-            # Agent4에 필요한 페이로드 구성 (nearbyMusic은 CLI 예시를 위해 더미 데이터 사용)
-            location_payload = {
-                "imageBase64": [img_b64],
-                "location": {"placeName": place_name},
-                "nearbyMusic": [
-                    {"songTitle": "Ambient Chill", "artist": "Dummy Music Co."},
-                    {"songTitle": "City Pop Groove", "artist": "CLI Test"}
-                ]
-            }
-            
+            with open("agents/nearby_users.json", "r", encoding="utf-8") as f:
+                payload = json.load(f)
+
+            image_path = payload.get("imagePath")
+            nearbyMusic = payload.get("nearbyMusic", [])
+
+        except Exception as e:
+            print(f"❌ nearby_users.json 읽기 오류: {e}")
+            exit()
+
+        print("📄 nearby_users.json 로드 완료")
+        print(f" - 이미지 경로: {image_path}")
+        print(f" - 주변 사용자 음악 개수: {len(nearbyMusic)}")
+
+        try:
             print("\n--- 🚀 Agent4 파이프라인 실행 ---")
-            # run_agent_pipeline에 location_payload 전달
-            result = run_agent_pipeline(location_payload=location_payload)
+
+            caption = image_to_english_caption(image_path)
+            keywords = extract_keywords(caption, full_history="", k=5)
+
+            img_recs = get_song_recommendations(keywords, top_k=3)
+            near_recs = recommend_from_nearby_music(nearbyMusic)
+
+            combined = img_recs + near_recs
+            final = []
+            seen = set()
+
+            for r in combined:
+                tid = r["track_id"]
+                if tid not in seen:
+                    seen.add(tid)
+                    final.append(r)
+                if len(final) == 1:
+                    break
+
+            result = {
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "input": {
+                    "korean_text": "nearby_users.json 기반 위치 추천",
+                    "image_path": image_path
+                },
+                "english_caption_from_agent2": caption,
+                "english_keywords": keywords,
+                "recommended_songs": final
+            }
+
+            save_location_recommend_full(result)
+
             print("\n--- 🎯 실행 결과 (Agent4) ---")
             print(json.dumps(result, ensure_ascii=False, indent=2))
-            
-        except FileNotFoundError:
-            print(f"🔥 오류: 지정된 이미지 파일 경로를 찾을 수 없습니다: {img_path}")
+
         except Exception as e:
-            print(f"\n🔥 Agent4 실행 중 오류 발생: {e}")
+            print(f"🔥 Agent4 실행 중 오류 발생: {e}")
+
             
     else: 
         # 1번 또는 잘못된 입력 (기본값: 일반 텍스트/이미지 모드)

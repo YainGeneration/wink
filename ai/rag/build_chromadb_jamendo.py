@@ -18,7 +18,7 @@ from langchain_core.documents import Document
 # 1. 설정
 # =========================================================
 # 입력 클린 데이터
-INPUT_CSV = "jamendo/data/final_jamendo_metadata.csv"
+INPUT_CSV = "jamendo/data/final_jamendo_metadata_filtered.csv"
 # ChromaDB를 저장할 폴더
 DB_PERSIST_DIR = "rag/chroma_db_all-MiniLM-L6-v2"
 # DB_PERSIST_DIR = "rag/chroma_db_all-mpnet-base-v2"
