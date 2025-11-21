@@ -150,7 +150,7 @@ public class ChatService {
         AiResponseRequest aiReq = new AiResponseRequest();
         aiReq.setSessionId(session.getId());
         aiReq.setInputText(initialText);
-        aiReq.setImageBase64(null);
+        aiReq.setImageBase64(req.getImageBase64());
 
         // 3. AI 응답을 받아 바로 반환
         return generateAiResponse(aiReq);
@@ -173,6 +173,8 @@ public class ChatService {
             payload.put("topic", topic);
             payload.put("inputText", req.getInputText());
             payload.put("imageBase64", req.getImageBase64());
+            payload.put("location", req.getLocation());
+            payload.put("nearbyMusic", req.getNearbyMusic());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -194,8 +196,8 @@ public class ChatService {
             String interpretedSentence = geminiService.interpretMergedSentence(mergedSentence);
 
             // 새로 추가: english_text / english_caption
-            String englishText = root.path("english_text").asText(null);
-            String englishCaption = root.path("english_caption").asText(null);
+            String englishText = root.path("englishText").asText(null);
+            String englishCaption = root.path("englishCaption").asText(null);
 
             // 이미지 설명 한국어 버전 (최우선: AI가 직접 준 imageDescriptionKo, 없으면 Gemini 번역)
             String imageDescriptionKo = null;
@@ -267,8 +269,9 @@ public class ChatService {
             aiMsg.setRecommendationsJson(mapper.writeValueAsString(recs));
             aiMsg.setMergedSentence(mergedSentence);
             aiMsg.setInterpretedSentence(interpretedSentence);
-            // englishText / englishCaption / imageDescriptionKo는
-            // 지금은 DB에 안 넣고 응답에만 포함 (필요하면 엔티티 필드 추가해서 저장 가능)
+            aiMsg.setEnglishText(englishText);
+            aiMsg.setEnglishCaption(englishCaption);
+            aiMsg.setImageDescriptionKo(imageDescriptionKo);
             messageRepo.save(aiMsg);
 
             // -----------------------------
@@ -349,6 +352,7 @@ public class ChatService {
                     // [추가] ChatMessageResponse에 mergedSentence와 interpretedSentence가 있다고 가정하고 매핑
                     .mergedSentence(msg.getMergedSentence())
                     .interpretedSentence(msg.getInterpretedSentence())
+                    
                     .timestamp(msg.getCreatedAt())
                     .build());
         }
@@ -455,6 +459,9 @@ public class ChatService {
                             .recommendations(recs)
                             .mergedSentence(merged)
                             .interpretedSentence(interpreted)
+                            .englishText(lastAi != null ? lastAi.getEnglishText() : null)
+                            .englishCaption(lastAi != null ? lastAi.getEnglishCaption() : null)
+                            .imageDescriptionKo(lastAi != null ? lastAi.getImageDescriptionKo() : null)
                             .build();
 
             return ChatSummaryResponse.builder()
@@ -521,6 +528,7 @@ public class ChatService {
 
         messageRepo.save(userMsg);
 
+
         // ② AI 호출
         AiResponseRequest aiReq = new AiResponseRequest();
         aiReq.setSessionId(sessionId);
@@ -565,7 +573,7 @@ public class ChatService {
                     .type(s.getType())
                     .topic(s.getTopic())
                     .latestMessage(latestMsg)
-                    .createdAt(s.getStartTime())
+                    .timestamp(s.getStartTime())
                     .isEnded(s.getIsEnded() != null && s.getIsEnded())
                     .endTime(s.getEndTime())
                     .build());
@@ -581,4 +589,37 @@ public class ChatService {
     public List<ChatSessionSummaryResponse> getSpaceSessionList() {
         return getSessionList("SPACE");
     }
+
+    public List<ChatSearchResponse> search(String keyword) {
+
+        List<ChatMessage> messages = messageRepo.findByTextContainingIgnoreCase(keyword);
+
+        // sessionId 기준 중복 제거
+        Map<Long, ChatMessage> latestMatch = new LinkedHashMap<>();
+
+        for (ChatMessage msg : messages) {
+            Long sessionId = msg.getSession().getId();
+            if (!latestMatch.containsKey(sessionId)) {
+                latestMatch.put(sessionId, msg);
+            }
+        }
+
+        List<ChatSearchResponse> result = new ArrayList<>();
+
+        for (ChatMessage msg : latestMatch.values()) {
+            ChatSession s = msg.getSession();
+
+            result.add(ChatSearchResponse.builder()
+                    .sessionId(s.getId())
+                    .topic(s.getTopic())
+                    .type(s.getType())
+                    .matchedMessage(msg.getText())
+                    .timestamp(s.getStartTime())   // ★ 통일된 필드
+                    .build()
+            );
+        }
+
+        return result;
+    }
+
 }

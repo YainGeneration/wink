@@ -11,5 +11,7 @@ import java.util.List;
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
     List<ChatMessage> findBySessionIdOrderByCreatedAtAsc(Long sessionId);
     Optional<ChatMessage> findTopBySessionIdOrderByCreatedAtDesc(Long sessionId);
+    List<ChatMessage> findByTextContainingIgnoreCase(String keyword);
+    Optional<ChatMessage> findTopBySessionIdAndSenderOrderByCreatedAtDesc(Long sessionId, String sender);
 }
 
