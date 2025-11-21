@@ -27,6 +27,9 @@ public class ChatSession {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
+    private Double startLat;
+    private Double startLng;
+
     // 진행 중(false) / 종료(true) 표시
     @Column(nullable = false)
     private Boolean isEnded = false;

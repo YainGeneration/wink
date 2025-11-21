@@ -77,101 +77,48 @@ public class LocationService {
         }
     }
 
+    // ✅ 2. 주변 음악 조회 — 항상 동일한 5개의 Jamendo 곡을 반환
+    public List<ChatStartSpaceRequest.NearbyMusic> getFixedNearbyMusic() {
+        List<ChatStartSpaceRequest.NearbyMusic> list = new ArrayList<>();
 
-    // ✅ 2. 주변 음악 조회 (현재는 mock 유지)
-    public List<NearbyMusicResponse> getNearbyMusic(double lat, double lng) {
+        list.add(new ChatStartSpaceRequest.NearbyMusic(
+                "track_1342724",
+                "Yoga",
+                "Spa Background Music",
+                "../../public/img/near1.jpeg"
+        ));
 
-        Random rand = new Random();
-        int peopleCount = 5;
+        list.add(new ChatStartSpaceRequest.NearbyMusic(
+                "track_0376419",
+                "To you my Love",
+                "DANIEL H",
+                "../../public/img/near2.jpeg"
+        ));
 
-        // ----- POP 곡 풀 -----
-        List<String[]> pop = List.of(
-            new String[]{"As It Was", "Harry Styles"},
-            new String[]{"Anti-Hero", "Taylor Swift"},
-            new String[]{"Blinding Lights", "The Weeknd"},
-            new String[]{"Good 4 U", "Olivia Rodrigo"},
-            new String[]{"Peaches", "Justin Bieber"},
-            new String[]{"Levitating", "Dua Lipa"},
-            new String[]{"Shivers", "Ed Sheeran"},
-            new String[]{"Stay", "The Kid LAROI"},
-            new String[]{"Monaco", "Bad Bunny"}
-        );
+        list.add(new ChatStartSpaceRequest.NearbyMusic(
+                "track_1155551",
+                "Jocelyn - Cyril Ury - MdC",
+                "Cyril Ury",
+                "../../public/img/near3.jpeg"
+        ));
 
-        // ----- JPOP 곡 풀 -----
-        List<String[]> jpop = Arrays.asList(
-            new String[]{"Pretender", "Official Hige Dandism"},
-            new String[]{"Nandemonaiya", "RADWIMPS"},
-            new String[]{"Lemon", "Kenshi Yonezu"}
-        );
+        list.add(new ChatStartSpaceRequest.NearbyMusic(
+                "track_1244733",
+                "The Last Stand",
+                "Grégoire Lourme",
+                "../../public/img/near4.jpeg"
+        ));
 
-        // ----- POP + JPOP 전체 풀 -----
-        List<String[]> songPool = new ArrayList<>();
-        songPool.addAll(pop);
-        songPool.addAll(jpop);
+        list.add(new ChatStartSpaceRequest.NearbyMusic(
+                "track_1333716",
+                "Movement IX - Fibonacci Theorem (Orchestral Version)",
+                "JCRZ",
+                "../../public/img/near5.jpeg"
+        ));
 
-        // 곡이 5곡 이상인지 체크 (문제 없음)
-        if (songPool.size() < peopleCount) {
-            throw new RuntimeException("곡의 개수가 peopleCount보다 적습니다.");
-        }
-
-        // 곡 중복 방지 → 리스트 전체 shuffle
-        Collections.shuffle(songPool);
-
-        // 이제 songPool.get(i) 로 0~4까지 5곡이 모두 다르게 나옴
-
-        // ----- 이미지 중복 방지 -----
-        Set<Integer> usedImageNumbers = new HashSet<>();
-
-        List<NearbyMusicResponse> result = new ArrayList<>();
-
-        for (int i = 1; i <= peopleCount; i++) {
-
-            // 위치 랜덤 offset
-            double offsetLat = (rand.nextDouble() * 0.0018) - 0.0009;
-            double offsetLng = (rand.nextDouble() * 0.0018) - 0.0009;
-
-            double newLat = lat + offsetLat;
-            double newLng = lng + offsetLng;
-
-            // 중복 없는 곡 선택
-            String[] song = songPool.get(i - 1); // shuffle된 순서대로 배정됨
-
-            // 중복되지 않는 랜덤 이미지 번호 생성
-            int randomImageNumber;
-            do {
-                randomImageNumber = rand.nextInt(10000) + 1;
-            } while (usedImageNumbers.contains(randomImageNumber));
-
-            usedImageNumbers.add(randomImageNumber);
-
-            String profileImageUrl = "https://picsum.photos/200/200?random=" + randomImageNumber;
-
-            result.add(new NearbyMusicResponse(
-                    (long) i,
-                    "사용자" + i,
-                    song[0],           // title
-                    song[1],           // artist
-                    profileImageUrl,
-                    newLat,
-                    newLng
-            ));
-        }
-
-        return result;
+        return list;
     }
-
-
-    // ✅ 3. 특정 사용자 음악 상세 조회 (mock 유지)
-    public MusicDetailResponse getNearbyUserMusic(Long userId) {
-        return new MusicDetailResponse(
-                1001L,
-                "Love Dive",
-                "IVE",
-                "After Like",
-                "가사 예시...",
-                "preview.mp3",
-                120000,
-                54000
-        );
+    public List<ChatStartSpaceRequest.NearbyMusic> getNearbyMusic(double lat, double lng) {
+        return getFixedNearbyMusic();
     }
 }

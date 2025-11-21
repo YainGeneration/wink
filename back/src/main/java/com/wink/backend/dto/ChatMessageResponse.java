@@ -18,5 +18,8 @@ public class ChatMessageResponse {
     private List<AiResponseResponse.Recommendation> recommendations;
     private String mergedSentence;
     private String interpretedSentence;
+    private String englishText;
+    private String englishCaption;
+    private String imageDescriptionKo;
     private LocalDateTime timestamp;
 }

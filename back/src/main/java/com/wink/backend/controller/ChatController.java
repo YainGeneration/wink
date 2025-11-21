@@ -24,13 +24,13 @@ public class ChatController {
     // -----------------------------------
     @Operation(summary = "새 채팅 시작 (나의 순간) → 바로 AI 응답 반환")
     @PostMapping("/start/my")
-    public AiResponseResponse startMy(@RequestBody ChatStartMyRequest req) {
+    public ChatHistoryResponse startMy(@RequestBody ChatStartMyRequest req) {
         return chatService.startMy(req);
     }
 
     @Operation(summary = "새 채팅 시작 (공간의 순간) → 바로 AI 응답 반환")
     @PostMapping("/start/space")
-    public AiResponseResponse startSpace(@RequestBody ChatStartSpaceRequest req) {
+    public ChatHistoryResponse startSpace(@RequestBody ChatStartSpaceRequest req) {
         return chatService.startSpace(req);
     }
     // -----------------------------------
@@ -47,7 +47,7 @@ public class ChatController {
     // -----------------------------------
     @Operation(summary = "메시지 전송 (최신 세션만)")
     @PostMapping("/message")
-    public ChatMessageResponse sendUserMessage(@RequestBody ChatMessageRequest req) {
+    public ChatHistoryResponse sendUserMessage(@RequestBody ChatMessageRequest req) {
         return chatService.sendUserMessage(req);
     }
 
