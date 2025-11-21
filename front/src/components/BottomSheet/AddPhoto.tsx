@@ -102,6 +102,7 @@ const AddButton = styled.button`
 export default function AddPhoto({ open, onClose, onSelect }: { open: boolean; onClose: () => void; onSelect: (img: string) => void; }) {
 
     const [selectedImages, setSelectedImages] = useState<string[]>([]);
+
     return (
     <>
       <Dimmed open={open} onClick={onClose} />
@@ -112,6 +113,7 @@ export default function AddPhoto({ open, onClose, onSelect }: { open: boolean; o
             <PhotoGrid
                 onSelect={(img) => {
                     setSelectedImages([img]);
+                    onSelect(img);  
                 }}
             />
         </ScrollArea>

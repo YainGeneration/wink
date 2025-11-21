@@ -30,7 +30,7 @@ export default function RequestAnalysisContent({
       )}
         <Divider />
       {/* 사용자 요청 반영 최종 문장 */}
-      <SmallLabel><S.Body2>사용자의 멀티모달 요청에서 추출했어요</S.Body2></SmallLabel>
+      <SmallLabel><S.Body2 style={{color: theme.colors.primary}}>사용자의 멀티모달 요청에서 추출했어요</S.Body2></SmallLabel>
       <Sentence>{finalSentence}</Sentence>
     </Card>
   );

@@ -67,13 +67,13 @@ export default function SideBar({ open, onClose }: { open: boolean; onClose: () 
 
         <AccordionMenu title="나의 순간">
           {/* 나의 순간에 들어갈 내용 (리스트, 버튼 등) */}
-          <button onClick={() => handleSelectChattingSession(45)}>
+          <button onClick={() => handleSelectChattingSession(100)}>
             <S.Body1>
               해질녘 집중력 증폭 음악
               {/* 세션id = 45 */}
             </S.Body1>
           </button>
-          <button onClick={() => handleSelectHistorySession(40)}>
+          <button onClick={() => handleSelectHistorySession(105)}>
             <S.Body1>
               독서 중 재즈 추천
             </S.Body1>

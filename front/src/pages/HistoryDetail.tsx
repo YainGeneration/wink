@@ -117,7 +117,7 @@ const HistoryDetail = () => {
 
     const fetchHistoryDetail = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/history/${sessionId}`);
+            const response = await fetch(`http://localhost:8080/api/chat/${sessionId}/summary`);
             const result = await response.json();
 
             console.log(response)

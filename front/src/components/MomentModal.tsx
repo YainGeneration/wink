@@ -9,6 +9,9 @@ import rightIcon from "../assets/icons/chevron-right.svg";
 import { useRef, useState } from "react";
 import ToggleSwitch from "./ToogleSwitch";
 import LocationSearchSheet from "./LocationSearchSheet";
+import { useNavigate } from "react-router-dom";
+
+
 
 export default function MomentModal({
   open,
@@ -35,11 +38,11 @@ export default function MomentModal({
   onOpenLocationSheet: () => void;
   setLocationSheetOpen: (v: boolean) => void; 
 }) {
-
+  console.log('넘어옴')
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    
+    const navigate = useNavigate();
 
-  if (!open) return null;
+  
 
   const handleImageInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -50,10 +53,68 @@ export default function MomentModal({
     reader.readAsDataURL(file);
   };
 
+  const [selectedImageBase64, setSelectedImageBase64] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [inputText, setInputText] = useState("");
+
+  async function convertImageToBase64(imageUrl: string) {
+    const res = await fetch(imageUrl);
+    const blob = await res.blob();
+
+    return new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.readAsDataURL(blob);
+    });
+  }
+
+
+  const handleSelectImage = async (url: string) => {
+    setSelectedImage(url);
+
+    const base64 = await convertImageToBase64(url);
+    setSelectedImageBase64(base64);
+  };
+
+
   const handleOpenLocation = () => {
     onClose(); // 1) 모달 먼저 닫고
     setTimeout(() => setLocationSheetOpen(true), 10);  // 2) 시트 열기
     };
+
+    async function startSpaceChat() {
+      
+    try {
+      const body = {
+        type: "space",
+        imagePath: selectedImageBase64,  // Base64 문자열
+        text: inputText,
+      };
+
+      console.log(body)
+
+      const res = await fetch("http://localhost:8080/api/chat/start/space", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+      
+
+      navigate(`/chat/${data.sessionId}`);
+    } catch (e) {
+      console.error("채팅 생성 실패:", e);
+    }
+}
+
+
+
+
+if (!open) return null;
+
 
   return (
     <Overlay onClick={onClose}>
@@ -119,7 +180,7 @@ export default function MomentModal({
           />
         </PhotoArea>
 
-        <ActionBtn onClick={onConfirm}>
+        <ActionBtn onClick={startSpaceChat}>
           <S.Body1 style={{ color: "white"}}>탐색하기</S.Body1>
         </ActionBtn>
       </Container>
