@@ -1,6 +1,9 @@
 package com.wink.backend.dto;
 
 import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
 @Data
@@ -19,9 +22,12 @@ public class ChatStartSpaceRequest {
     }
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class NearbyMusic {
-        private Long songId;
+        private String songId;
         private String title;
         private String artist;
+        private String albumCover;
     }
 }

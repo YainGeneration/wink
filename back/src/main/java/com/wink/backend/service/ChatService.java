@@ -25,6 +25,7 @@ public class ChatService {
     private final RestTemplate restTemplate;
     private final ObjectMapper mapper = new ObjectMapper();
     private final ImageService imageService;
+    private final LocationService locationService;
 
 
     @Value("${ai.server.url}")
@@ -33,14 +34,15 @@ public class ChatService {
     public ChatService(ChatSessionRepository sessionRepo,
                     GeminiService geminiService,
                     ChatMessageRepository messageRepo,
-                    ImageService imageService) {
+                    ImageService imageService,
+                    LocationService locationService) {
         this.sessionRepo = sessionRepo;
         this.geminiService = geminiService;
         this.messageRepo = messageRepo;
         this.imageService = imageService;
+        this.locationService = locationService;
         this.restTemplate = new RestTemplate();
     }
-
 
     // =====================================================
     // 🚀 공통: 이전 세션 종료 (같은 타입만)
@@ -60,7 +62,7 @@ public class ChatService {
     // ① 나의 순간 시작 (→ 사용자 메시지 저장 + 바로 AI 응답 생성)
     // =====================================================
     // 반환 타입: AiResponseResponse
-    public AiResponseResponse startMy(ChatStartMyRequest req) {
+    public ChatHistoryResponse startMy(ChatStartMyRequest req) {
 
         endPreviousSessions("MY"); // 같은 타입 모두 종료
 
@@ -96,16 +98,19 @@ public class ChatService {
         aiReq.setSessionId(session.getId());
         aiReq.setInputText(req.getInputText());
         aiReq.setImageBase64(req.getImageBase64());
+        aiReq.setLocation(null);       // MY에는 절대 보내지 않음
+        aiReq.setNearbyMusic(null);
 
         // 3. AI 응답을 받아 바로 반환
-        return generateAiResponse(aiReq);
+        generateAiResponse(aiReq);
+        return getChatFullHistory(session.getId());
     }
 
     // =====================================================
     // ② 공간의 순간 시작 (→ 사용자 메시지 저장 + 바로 AI 응답 생성)
     // =====================================================
     // 반환 타입: AiResponseResponse
-    public AiResponseResponse startSpace(ChatStartSpaceRequest req) {
+    public ChatHistoryResponse startSpace(ChatStartSpaceRequest req) {
 
         endPreviousSessions("SPACE"); // 같은 타입 모두 종료
 
@@ -114,7 +119,11 @@ public class ChatService {
         session.setStartTime(LocalDateTime.now());
         session.setIsEnded(false);
 
-        // [수정 완료] 주변 음악 요약 변수를 메서드 시작 부분에서 초기화
+        // ★ 위치 저장 (후속 메시지에서 사용할 lat/lng)
+        session.setStartLat(req.getLocation().getLat());
+        session.setStartLng(req.getLocation().getLng());
+
+        // 주변 음악 요약 텍스트
         String nearbySummary = "";
         if (req.getNearbyMusic() != null && !req.getNearbyMusic().isEmpty()) {
             nearbySummary = req.getNearbyMusic().stream()
@@ -123,37 +132,79 @@ public class ChatService {
                     .orElse("");
         }
 
-        // 🔥 장소 기반 프롬프트
         String prompt = String.format(
-                "📍장소명: %s (%s)\n🎧 주변 음악: %s\n이 장소의 분위기와 어울리는 음악적 주제를 한 문장으로 요약해줘.",
+                "📍장소명: %s (%s)\n🎧 주변 음악: %s\n이 장소의 분위기를 요약해줘.",
                 req.getLocation().getPlaceName(),
                 req.getLocation().getAddress(),
                 nearbySummary.isBlank() ? "정보 없음" : nearbySummary
         );
 
-        String topic = geminiService.extractTopic(prompt);
+        // String topic = geminiService.extractTopic(prompt);
+        // session.setTopic(topic);
+        // sessionRepo.save(session);
+        String topic;
+        try {
+            topic = geminiService.extractTopic(prompt);
+
+            // 혹시라도 응답이 빈 문자열이면 대체
+            if (topic == null || topic.isBlank()) {
+                topic = "오늘의 공간 감성 음악";
+            }
+        } catch (Exception e) {
+            topic = "오늘의 공간 감성 음악";
+        }
+
         session.setTopic(topic);
+        sessionRepo.save(session);
 
-        sessionRepo.save(session); // 세션 저장
 
-        String initialText = String.format("%s에 왔습니다.", req.getLocation().getPlaceName());
-
-        // 1. 첫 사용자 메시지 저장 (장소명)
+        // 첫 메시지 저장
+        String initialText = req.getLocation().getPlaceName() + "에 왔습니다.";
         ChatMessage userMsg = new ChatMessage();
         userMsg.setSession(session);
         userMsg.setSender("user");
         userMsg.setText(initialText);
-        // 공간의 순간은 현재 이미지 X (필요하면 ChatStartSpaceRequest에 imageBase64 추가 후 동일 처리)
-        messageRepo.save(userMsg); // 채팅 내용 저장 완료
+        messageRepo.save(userMsg);
 
-        // 2. AI 응답 생성 요청
+        // ----- AI 요청 -----
         AiResponseRequest aiReq = new AiResponseRequest();
         aiReq.setSessionId(session.getId());
         aiReq.setInputText(initialText);
         aiReq.setImageBase64(req.getImageBase64());
 
-        // 3. AI 응답을 받아 바로 반환
-        return generateAiResponse(aiReq);
+        // aiReq.setLocation(req.getLocation());
+        // // ★ 고정 5개 주변 음악 넣기
+        // List<NearbyMusicResponse> fixedList =
+        //         locationService.getNearbyMusic(req.getLocation().getLat(), req.getLocation().getLng());
+
+        // List<ChatStartSpaceRequest.NearbyMusic> fixedMusic = fixedList.stream()
+        //         .map(m -> {
+        //             ChatStartSpaceRequest.NearbyMusic nm = new ChatStartSpaceRequest.NearbyMusic();
+        //             nm.setSongId(null);
+        //             nm.setTitle(m.getSongTitle());
+        //             nm.setArtist(m.getArtist());
+        //             return nm;
+        //         })
+        //         .toList();
+        // aiReq.setNearbyMusic(fixedMusic);
+        // ---------- 고정 Location ----------
+        ChatStartSpaceRequest.Location fixedLoc = new ChatStartSpaceRequest.Location();
+        fixedLoc.setLat(37.545900);
+        fixedLoc.setLng(126.964400);
+        fixedLoc.setAddress("서울특별시 용산구 청파동");
+        fixedLoc.setPlaceName("숙명여자대학교 정문");
+
+        aiReq.setLocation(fixedLoc);
+
+        // ---------- 고정 주변 음악 ----------
+        aiReq.setNearbyMusic(locationService.getFixedNearbyMusic());
+
+
+        // 3. AI 응답 생성
+        generateAiResponse(aiReq);
+
+        // 4. 전체 메시지 구조(ChatHistoryResponse)로 반환
+        return getChatFullHistory(session.getId());    
     }
 
     // =====================================================
@@ -173,8 +224,15 @@ public class ChatService {
             payload.put("topic", topic);
             payload.put("inputText", req.getInputText());
             payload.put("imageBase64", req.getImageBase64());
-            payload.put("location", req.getLocation());
-            payload.put("nearbyMusic", req.getNearbyMusic());
+            if ("SPACE".equals(session.getType())) {
+                payload.put("location", req.getLocation());
+                payload.put("nearbyMusic", req.getNearbyMusic());
+            } else {
+                // 🔥 MY 타입에서는 아예 보내지 않음
+                payload.put("location", null);
+                payload.put("nearbyMusic", null);
+            }
+
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -277,21 +335,43 @@ public class ChatService {
             // -----------------------------
             // 4) 프론트로 반환할 응답 생성
             // -----------------------------
-            return AiResponseResponse.builder()
-                    .sessionId(sessionId)
-                    .topic(topic)
-                    .keywords(keywords)
-                    .aiMessage(aiMessage)
-                    .mergedSentence(mergedSentence)
-                    .interpretedSentence(interpretedSentence)
+            AiResponseResponse.AiResponseResponseBuilder builder =
+                    AiResponseResponse.builder()
+                            .sessionId(sessionId)
+                            .topic(topic)
+                            .inputText(req.getInputText())
+                            .imageBase64(req.getImageBase64())
+                            .keywords(keywords)
+                            .aiMessage(aiMessage)
+                            .mergedSentence(mergedSentence)
+                            .interpretedSentence(interpretedSentence)
+                            .englishText(englishText)
+                            .englishCaption(englishCaption)
+                            .imageDescriptionKo(imageDescriptionKo)
+                            .recommendations(recs)
+                            .timestamp(LocalDateTime.now());
 
-                    .englishText(englishText)
-                    .englishCaption(englishCaption)
-                    .imageDescriptionKo(imageDescriptionKo)
+            // ★ SPACE일 때만 location / nearbyMusic 추가
+            if ("SPACE".equals(session.getType())) {
 
-                    .recommendations(recs)
-                    .timestamp(LocalDateTime.now())
-                    .build();
+                ChatStartSpaceRequest.Location loc = req.getLocation();
+
+                // LocationResponse로 변환
+                LocationResponse converted =
+                        new LocationResponse(
+                                loc.getPlaceName(),
+                                loc.getLat(),
+                                loc.getLng(),
+                                loc.getAddress()
+                        );
+
+                builder.location(converted);
+                builder.nearbyMusic(req.getNearbyMusic());
+            }
+
+            return builder.build();
+
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -352,6 +432,9 @@ public class ChatService {
                     // [추가] ChatMessageResponse에 mergedSentence와 interpretedSentence가 있다고 가정하고 매핑
                     .mergedSentence(msg.getMergedSentence())
                     .interpretedSentence(msg.getInterpretedSentence())
+                    .englishText(msg.getEnglishText())
+                    .englishCaption(msg.getEnglishCaption())
+                    .imageDescriptionKo(msg.getImageDescriptionKo())
                     
                     .timestamp(msg.getCreatedAt())
                     .build());
@@ -361,7 +444,7 @@ public class ChatService {
                 .sessionId(sessionId)
                 .type(session.getType())
                 .topic(session.getTopic())
-                .isLatest(true) // 이 필드는 클라이언트에서 판단할 수 있도록 true로 유지
+                .latest(true) // 이 필드는 클라이언트에서 판단할 수 있도록 true로 유지
                 .messages(list)
                 .build();
     }
@@ -427,10 +510,15 @@ public class ChatService {
                     repText != null ? geminiService.summarizeSentence(repText) : null;
 
             // 마지막 AI 메시지
+
             ChatMessage lastAi = messages.stream()
                     .filter(m -> m.getSender().equals("ai"))
-                    .reduce((a, b) -> b).orElse(null);
+                    .reduce((a, b) -> b)
+                    .orElse(null);
 
+            String englishText = lastAi != null ? lastAi.getEnglishText() : null;
+            String englishCaption = lastAi != null ? lastAi.getEnglishCaption() : null;
+            String imageDescriptionKo = lastAi != null ? lastAi.getImageDescriptionKo() : null;
             List<String> keywords = new ArrayList<>();
             List<AiResponseResponse.Recommendation> recs = new ArrayList<>();
             String merged = null;
@@ -459,9 +547,9 @@ public class ChatService {
                             .recommendations(recs)
                             .mergedSentence(merged)
                             .interpretedSentence(interpreted)
-                            .englishText(lastAi != null ? lastAi.getEnglishText() : null)
-                            .englishCaption(lastAi != null ? lastAi.getEnglishCaption() : null)
-                            .imageDescriptionKo(lastAi != null ? lastAi.getImageDescriptionKo() : null)
+                            .englishText(englishText)
+                            .englishCaption(englishCaption)
+                            .imageDescriptionKo(imageDescriptionKo)
                             .build();
 
             return ChatSummaryResponse.builder()
@@ -497,13 +585,14 @@ public class ChatService {
     // =====================================================
     // ⑥ 후속 메시지 전송 (user → AI 호출)
     // =====================================================
-    public ChatMessageResponse sendUserMessage(ChatMessageRequest req) {
+    public ChatHistoryResponse sendUserMessage(ChatMessageRequest req) {
+
         Long sessionId = req.getSessionId();
 
         ChatSession session = sessionRepo.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
 
-        // 최신 세션인지 체크
+        // 최신 세션인지 확인
         Optional<ChatSession> latest =
                 sessionRepo.findTopByTypeOrderByStartTimeDesc(session.getType());
 
@@ -516,42 +605,78 @@ public class ChatService {
         userMsg.setSession(session);
         userMsg.setSender("user");
         userMsg.setText(req.getText());
+
         if (req.getImageBase64() != null && !req.getImageBase64().isBlank()) {
             try {
                 String fileName = imageService.saveBase64Image(req.getImageBase64());
                 userMsg.setImageUrl(fileName);
             } catch (IOException e) {
-                e.printStackTrace();
                 userMsg.setImageUrl(null);
             }
         }
 
         messageRepo.save(userMsg);
 
-
-        // ② AI 호출
+        // ② AI 요청 생성
         AiResponseRequest aiReq = new AiResponseRequest();
         aiReq.setSessionId(sessionId);
         aiReq.setInputText(req.getText());
         aiReq.setImageBase64(req.getImageBase64());
 
-        AiResponseResponse aiRes = generateAiResponse(aiReq);
+        // 🔥 SPACE 후속 메시지에는 location이 request에 없음
+        // 그러므로 세션에 저장해둔 startLat/startLng 사용해야 함.
+        if ("SPACE".equals(session.getType())) {
 
-        // ③ 사용자 메시지 기준 응답 반환
-        return ChatMessageResponse.builder()
-                .messageId(userMsg.getId())
-                .sessionId(sessionId)
-                .sender("user")
-                .text(req.getText())
-                .imageBase64(req.getImageBase64() != null && !req.getImageBase64().isBlank()
-                        ? List.of(req.getImageBase64()) : null)
-                .keywords(aiRes.getKeywords())
-                .recommendations(aiRes.getRecommendations())
-                .mergedSentence(aiRes.getMergedSentence())
-                .interpretedSentence(aiRes.getInterpretedSentence())
-                .timestamp(userMsg.getCreatedAt())
-                .build();
+            // Location = 세션에 저장된 위치 복원
+            ChatStartSpaceRequest.Location loc = new ChatStartSpaceRequest.Location();
+            loc.setPlaceName(null);
+            loc.setAddress(null);
+            loc.setLat(session.getStartLat());
+            loc.setLng(session.getStartLng());
+
+            aiReq.setLocation(loc);
+
+            // 고정 주변 음악 리스트 생성
+            // List<NearbyMusicResponse> fixedList =
+            //         locationService.getNearbyMusic(session.getStartLat(), session.getStartLng());
+
+            // List<ChatStartSpaceRequest.NearbyMusic> fixedMusic = fixedList.stream()
+            //         .map(m -> {
+            //             ChatStartSpaceRequest.NearbyMusic nm = new ChatStartSpaceRequest.NearbyMusic();
+            //             nm.setSongId(null);
+            //             nm.setTitle(m.getSongTitle());
+            //             nm.setArtist(m.getArtist());
+            //             return nm;
+            //         })
+            //         .toList();
+
+            // aiReq.setNearbyMusic(fixedMusic);
+            // ---------- 고정 Location ----------
+            ChatStartSpaceRequest.Location fixedLoc = new ChatStartSpaceRequest.Location();
+            fixedLoc.setLat(37.545900);
+            fixedLoc.setLng(126.964400);
+            fixedLoc.setAddress("서울특별시 용산구 청파동");
+            fixedLoc.setPlaceName("숙명여자대학교 정문");
+
+            aiReq.setLocation(fixedLoc);
+
+            // ---------- 고정 주변 음악 ----------
+            aiReq.setNearbyMusic(locationService.getFixedNearbyMusic());
+
+        } 
+        else {
+            // MY 유형 → location / nearbyMusic 절대 보내지 않음
+            aiReq.setLocation(null);
+            aiReq.setNearbyMusic(null);
+        }
+
+        // ③ AI 응답 생성 (저장까지 끝)
+        generateAiResponse(aiReq);
+
+        // ④ 전체 메시지 구조로 반환
+        return getChatFullHistory(sessionId);
     }
+
 
     // =====================================================
     // ⑦ 세션 목록 조회 (isEnded, endTime 정보 추가)
