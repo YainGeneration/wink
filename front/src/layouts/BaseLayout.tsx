@@ -26,6 +26,7 @@ import user from "../assets/icons/user.svg"
 import userFill from "../assets/icons/user-fill.svg"
 import userWhite from "../assets/icons/user-white.svg"
 import plusG600 from "../assets/icons/plus-g600.svg"
+import close from "../assets/icons/x.svg"
 import { useLocation, useNavigate } from "react-router-dom"; 
 import { useRef, useState, useEffect, useMemo } from "react";
 import { useMusicPlayer } from "../components/MusicPlayerContext.tsx";
@@ -33,6 +34,7 @@ import PlayBar from "../components/PlayBar";
 import DefaultHeader from "../components/DefaultHeader.tsx";
 import SideBar from "../components/SideBar.tsx";
 import AddPhoto from "../components/BottomSheet/AddPhoto.tsx";
+import { style } from "framer-motion/client";
 
 type Props = {
   children: React.ReactNode;
@@ -112,21 +114,29 @@ const ChatInput = styled.div`
     border: none;
     outline: none;
   }
+`
 
-  & .imgWrapper {
-    display: flex;
-    width: 100%;
-    justify-content: flex-start;
-    padding: 0px 16px 16px;
-    gap: 8px;
+const ImgWrapper = styled.div`
+  position: relative;
+  width: 114px;
+  height: 114px;
+  overflow: hidden;
+  justify-content: flex-start;
+  padding: 0px 12px 12px;
 
-    & img {
-      width: 114px;
-      height: 114px;
+    & .userImg {
+      width: 100%;
+      object-fit: cover;
       border-radius: 10px;
       margin-top: 6px;
     }
-  }
+
+    & .closeBtn {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+    }
+
 `
 
 // 플레이바 + 탭바 감싸는 Wrapper
@@ -159,6 +169,72 @@ const TabBar = styled.div<{ isRecommend: boolean }>`
   backdrop-filter: ${({ isRecommend }) =>
     isRecommend ? "blur(12px)" : "none"};
 `;
+
+const InputWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+`;
+
+const AlbumCover = styled.div`
+  width: 30px;
+  height: 30px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  margin-left: 8px;
+
+  & img.album {
+    width: 100%;
+    height: 100%; 
+    object-fit: cover;
+    filter: brightness(80%);
+  }
+
+  & img.wave {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+`
+
+const AddPhotoButton = styled.button`
+    width: 30px;
+    height: 30px;
+    overflow: hidden;
+    border-radius: 20px;
+    margin-left: 6px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    border: 1px solid ${theme.colors.grayscale.g100};
+
+    & img {
+      width: 24px;
+      height: 24px;
+      object-fit: cover;
+    }
+`
+
+const SubmitButton = styled.button`
+    width: 30px;
+    height: 30px;
+    overflow: hidden;
+    border-radius: 20px;
+    margin-right: 10px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    background-color: ${theme.colors.primary};
+
+    & img {
+      width: 24px;
+      height: 24px;
+      object-fit: cover;
+    }
+`
 
 // 탭 설정 배열
 const tabs = [
@@ -200,6 +276,8 @@ const tabs = [
 ];
 
 
+
+
 export default function BaseLayout({ children, showOverlay, backgroundColor }: Props) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -210,6 +288,8 @@ export default function BaseLayout({ children, showOverlay, backgroundColor }: P
   const currentPath = location.pathname;
   const showPlayBar = currentPath === "/home" || currentPath === "/chat";
   const isRecommend = location.pathname === "/recommend";
+  const [inputText, setInputText] = useState("");
+
 
   const prefixes = ['/home', '/chat'];
   const isChatMatch = useMemo(() => {
@@ -224,9 +304,9 @@ export default function BaseLayout({ children, showOverlay, backgroundColor }: P
   );
 
   const [isSideBarOpen, setSideBarOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [addPhotoSheetOpen, setAddPhotoSheetOpen] = useState(false);
-
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageBase64, setSelectedImageBase64] = useState<string | null>(null);
 
 
 
@@ -241,6 +321,51 @@ export default function BaseLayout({ children, showOverlay, backgroundColor }: P
       // audioRef.current.play(); // 자동재생 막기
     }
   }, [currentTrack]);
+
+  async function convertImageToBase64(imageUrl: string) {
+    const res = await fetch(imageUrl);
+    const blob = await res.blob();
+
+    return new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.readAsDataURL(blob);
+    });
+  }
+
+async function startMyChat() {
+  try {
+    const body = {
+      type: "my",
+      imageBase64: selectedImageBase64,  // Base64 문자열
+      inputText: inputText,
+    };
+
+    console.log(body)
+
+    const res = await fetch("http://localhost:8080/api/chat/start/my", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    const data = await res.json();
+    
+
+    navigate(`/chat/${data.sessionId}`);
+  } catch (e) {
+    console.error("채팅 생성 실패:", e);
+  }
+}
+
+  const handleSelectImage = async (url: string) => {
+    setSelectedImage(url);
+
+    const base64 = await convertImageToBase64(url);
+    setSelectedImageBase64(base64);
+  };
 
 
   return (
@@ -265,121 +390,49 @@ export default function BaseLayout({ children, showOverlay, backgroundColor }: P
           <AddPhoto
             open={addPhotoSheetOpen}
             onClose={() => setAddPhotoSheetOpen(false)}
-            onSelect={(img) => setSelectedImage(img)} // 선택한 이미지들 세팅
+            onSelect={handleSelectImage} // 선택한 이미지들 세팅
           />
         </Content>
 
         { isChatMatch && (
           <ChatInput>
-            {/* 
-            이 자리에 아래와 같이 AddPhoto에서 선택한 사진들이 들어가야 함
-            <div className="imgWrapper">
-              <img src="https://picsum.photos/id/1011/200/200" alt="" />
-            </div> */}
-
             {/* 선택된 이미지가 있으면 표시 */}
             {selectedImage && (
-              <div className="imgWrapper"
-                style={{
-                  // width: "100px",
-                  // overflow: "hidden",
-                  // borderRadius: "6px",
-                  // marginLeft: "8px"
-                  // display: flex;
-                  // width: 100%;
-                  // justify-content: flex-start;
-                  // padding: 0px 16px 16px;
-                }}
-              >
-                <img
+              <ImgWrapper>
+                <img className="userImg"
                   src={selectedImage}
                   alt=""
                 />
-              </div>
+                <div className="closeBtn">
+                  <img src={close} alt="" />
+                </div>
+              </ImgWrapper>
             )}
 
-
-
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                width: "100%"
-              }}  
-            >
+            <InputWrapper>
                 {/* 현재 재생중인 앨범 커버 */}
-                <div
-                  style={{
-                    width: "30px",
-                    height: "30px",
-                    position: "relative",
-                    overflow: "hidden",
-                    borderRadius: "20px",
-                    marginLeft: "8px",
-                  }}
-                >
-                  <img 
+                <AlbumCover>
+                  <img className="album"
                     src={currentTrack.image} alt="" 
-                    style={{ 
-                      width: "100%", 
-                      height: "100%", 
-                      objectFit: "cover",
-                      filter: "brightness(80%)",
-                    }}
                   />
-                  <img
+                  <img className="wave"
                     src={wave}
                     alt="icon"
-                    style={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                    }}
                   />
-                </div>
-                <button
-                  style={{
-                    width: "30px",
-                    height: "30px",
-                    overflow: "hidden",
-                    borderRadius: "20px",
-                    marginLeft: "6px",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    display: "flex",
-                    border: `1px solid ${theme.colors.grayscale.g100}`
-                  }}
-                  
-                  onClick={() => setAddPhotoSheetOpen(true)}
-                >
-                  <img src={plusG600} alt="" 
-                    style={{ width: "24px", height: "24px", objectFit: "cover" }}
-                  />
-                </button>
+                </AlbumCover>
+                <AddPhotoButton onClick={() => setAddPhotoSheetOpen(true)}>
+                  <img src={plusG600} alt="" />
+                </AddPhotoButton>
                 <input type="text" 
                   style={{flex: "1", marginLeft: "10px"}}
-                  placeholder="오늘은 어떤 노래를 들어볼까요?"/>
-                <button
-                  style={{
-                    width: "30px",
-                    height: "30px",
-                    overflow: "hidden",
-                    borderRadius: "20px",
-                    marginRight: "10px",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    display: "flex",
-                    backgroundColor: theme.colors.primary,
-                  }}
-                >
-                  <img src={upWhite} alt="" 
-                    style={{ width: "24px", height: "24px", objectFit: "cover" }}
-                  />
-                </button>
-            </div>
-            
+                  placeholder="오늘은 어떤 노래를 들어볼까요?"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}  
+                />
+                <SubmitButton onClick={startMyChat}>
+                  <img src={upWhite} alt=""/>
+                </SubmitButton>
+            </InputWrapper>
           </ChatInput>
         )}
 

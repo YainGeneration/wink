@@ -29,6 +29,8 @@ export default function PhotoGrid({ onSelect }: { onSelect: (img: string) => voi
     onSelect(url);
   };
 
+
+
   return (
     <Grid>
       <CameraButton>
