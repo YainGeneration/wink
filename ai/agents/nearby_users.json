@@ -1,27 +1,36 @@
-[
-  {
-    "title": "Sandals",
-    "artist": "Sonny Sandals",
-    "songId": "track_1375203"
+{
+  "imagePath": "/Users/eunjung/Desktop/wink/ai/images/snow.JPG",
+  "location": {
+    "lat": 37.55,
+    "lng": 126.97,
+    "address": "서울시 용산구 한강대로",
+    "placeName": "홍순언 앞 거리"
   },
-  {
-    "title": "Bamboo Grove",
-    "artist": "Alexandr Ossipov production music",
-    "songId": "track_0654633"
-  },
-  {
-    "title": "Merry christmas and happy new year",
-    "artist": "ADDICT SOUND",
-    "songId": "track_1286213"
-  },
-  {
-    "title": "No Ones Dream",
-    "artist": "The fixer",
-    "songId": "track_0317130"
-  },
-  {
-    "title": "We Are The Night (Instrumental)",
-    "artist": "Marc Teichert",
-    "songId": "track_1247434"
-  }
-]
+  "nearbyMusic": [
+    {
+      "title": "Yoga",
+      "artist": "Spa Background Music",
+      "songId": "track_1342724"
+    },
+    {
+      "title": "To you my Love ",
+      "artist": "DANIEL H",
+      "songId": "track_0376419"
+    },
+    {
+      "title": "Jocelyn - Cyril Ury - MdC",
+      "artist": "Cyril Ury",
+      "songId": "track_1155551"
+    },
+    {
+      "title": "The Last Stand",
+      "artist": "Grégoire Lourme",
+      "songId": "track_1244733"
+    },
+    {
+      "title": "Movement IX - Fibonacci Theorem (Orchestral Version)",
+      "artist": "JCRZ",
+      "songId": "track_1333716"
+    }
+  ]
+}

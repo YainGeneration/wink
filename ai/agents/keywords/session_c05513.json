@@ -1,0 +1,139 @@
+{
+  "session_id": "436a77",
+  "session_start": "2025-11-21 22:30:44",
+  "input_korean": [
+    "사진과 어울리는 눈 내리는 날 듣기 좋은 포근하면서 신나는 노래를 추천해줘",
+    "그것보다는 조금 더 한 노래를 듣고 싶어."
+  ],
+  "input_image": [
+    "/Users/eunjung/Desktop/wink/ai/images/snow.JPG",
+    ""
+  ],
+  "english_text_from_agent1": [
+    "I recommend a cozy and exciting song that pairs well with photos and snowy days.",
+    "I would like to listen to a slightly better song instead."
+  ],
+  "english_caption_from_agent2": [
+    "The image evokes a serene and hushed winter atmosphere, with snow-laden trees receding into a cool, blue-tinged distance.",
+    ""
+  ],
+  "merged_sentence": [
+    "I recommend a cozy and exciting song that pairs well with photos and snowy days, evoking a serene and hushed winter atmosphere with snow-laden trees receding into a cool, blue-tinged distance.",
+    "I would like to listen to a slightly better song."
+  ],
+  "english_keywords": [
+    [
+      "winter",
+      "cozy",
+      "serene",
+      "ambient",
+      "blue"
+    ],
+    [
+      "winter",
+      "cozy",
+      "ambient",
+      "serene",
+      "blue"
+    ]
+  ],
+  "recommended_songs": [
+    [
+      {
+        "releasedate": "2015-08-19",
+        "track_id": "track_1265934",
+        "url": "http://www.jamendo.com/track/1265934",
+        "mood_tags": "ambiental",
+        "album_name": "El elefante onírico",
+        "track_name": "La tortuga",
+        "duration": 100.8,
+        "instrument_tags": "",
+        "path": "34/1265934.mp3",
+        "artist_name": "Orquesta Arrecife",
+        "genre_tags": "blues chillout classical",
+        "similarity_score": 0.5225378454875669
+      },
+      {
+        "url": "http://www.jamendo.com/track/329682",
+        "path": "82/329682.mp3",
+        "track_name": "Blue sound",
+        "instrument_tags": "electricguitar guitar",
+        "mood_tags": "soft",
+        "genre_tags": "ambient blues rock",
+        "artist_name": "Gabriel Fernandez",
+        "album_name": "4 Weeks",
+        "track_id": "track_0329682",
+        "duration": 76.7,
+        "releasedate": "2009-04-19",
+        "similarity_score": 0.4491200031446271
+      },
+      {
+        "mood_tags": "relaxing",
+        "genre_tags": "blues",
+        "releasedate": "2014-04-23",
+        "path": "54/1121554.mp3",
+        "track_name": "airs for a lazy rainy morning",
+        "artist_name": "TLE",
+        "url": "http://www.jamendo.com/track/1121554",
+        "duration": 243.7,
+        "track_id": "track_1121554",
+        "instrument_tags": "acousticguitar",
+        "album_name": "Slowlanding",
+        "similarity_score": 0.4217284352324183
+      }
+    ],
+    [
+      {
+        "releasedate": "2014-01-05",
+        "duration": 228.2,
+        "artist_name": "Offenbach Project",
+        "mood_tags": "cool relaxing romantic",
+        "album_name": "Big Apple",
+        "track_name": "Broadway",
+        "path": "26/1093426.mp3",
+        "instrument_tags": "drummachine synthesizer",
+        "genre_tags": "ambient lounge",
+        "track_id": "track_1093426",
+        "url": "http://www.jamendo.com/track/1093426",
+        "similarity_score": 0.4824268022147241
+      },
+      {
+        "track_name": "Lines of Life",
+        "album_name": "Lines of Life",
+        "mood_tags": "calm epic romantic",
+        "path": "44/603244.mp3",
+        "duration": 541.9,
+        "track_id": "track_0603244",
+        "artist_name": "Macroform",
+        "genre_tags": "ambient",
+        "url": "http://www.jamendo.com/track/603244",
+        "instrument_tags": "",
+        "releasedate": "2010-07-03",
+        "similarity_score": 0.4549938770683464
+      },
+      {
+        "album_name": "The right path (2 tracks ) 2016",
+        "artist_name": "Xenyka",
+        "duration": 320.1,
+        "instrument_tags": "pad",
+        "track_name": "powerful energy",
+        "track_id": "track_1348602",
+        "path": "02/1348602.mp3",
+        "url": "http://www.jamendo.com/track/1348602",
+        "releasedate": "2016-05-31",
+        "genre_tags": "ambient atmospheric chillout",
+        "mood_tags": "ambiental dark",
+        "similarity_score": 0.43399678472330483
+      }
+    ]
+  ],
+  "recommended_track_ids": [
+    "track_1265934",
+    "track_0329682",
+    "track_1121554",
+    "track_1093426",
+    "track_0603244",
+    "track_1348602"
+  ],
+  "session_end": "2025-11-22 02:44:32"
+}
