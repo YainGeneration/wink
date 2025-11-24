@@ -3,6 +3,7 @@ import play from "../assets/icons/player-play.svg";
 import theme from "../styles/theme";
 import S from "../styles/styled";
 import MusicItem from "./MusicItem";
+import { useMusicPlayer } from "./MusicPlayerContext";
 
 
 
@@ -40,6 +41,8 @@ export default function ChatBubble({
   const isUser = sender === "user";
   console.log("ChatBubble nearbyMusic:", nearbyMusic);
 
+  const { setCurrentTrack, setIsPlaying } = useMusicPlayer();
+
   return (
     <div>
         <BubbleWrap isUser={isUser}>
@@ -61,6 +64,9 @@ export default function ChatBubble({
                 cover={m.albumCover}
                 title={m.title}
                 artist={m.artist}
+                duration={m.duration}
+                onPlay={() => console.log("play:", m.songId)}
+                onMore={() => console.log("more:", m.songId)}
               />
             ))}
           </div>
@@ -87,7 +93,19 @@ export default function ChatBubble({
                     cover={r.albumCover}
                     title={r.title}
                     artist={r.artist}
-                    onPlay={() => console.log("play:", r.songId)}
+                    duration={r.duration}
+                    onPlay={() => {
+                      console.log("재생:", r.songId);
+
+                      setCurrentTrack({
+                        title: r.title,
+                        artist: r.artist,
+                        image: r.albumCover,
+                        audioUrl: r.audioUrl,
+                      });
+                      
+                      setIsPlaying(true);
+                    }}
                     onMore={() => console.log("more:", r.songId)}
                 />
                 ))}

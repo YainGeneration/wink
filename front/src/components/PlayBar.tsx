@@ -18,22 +18,21 @@ const Wrapper = styled.div`
   background-color: white;
 `;
 
-export default function PlayBar() {
+export default function PlayBar({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement | null> }) {
   const { currentTrack, isPlaying, setIsPlaying } = useMusicPlayer();
 
   const [progress, setProgress] = useState(0);
 
-  // 전역 오디오 진행률 직접 가져오기
   useEffect(() => {
     const interval = setInterval(() => {
-      const audio = document.querySelector("audio");
-      if (!audio || !audio.duration) return;
+      if (!audioRef.current || !audioRef.current.duration) return;
 
-      setProgress((audio.currentTime / audio.duration) * 100);
+      setProgress((audioRef.current.currentTime / audioRef.current.duration) * 100);
     }, 100);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [audioRef]);
+
 
   return (
     <Wrapper>
@@ -74,7 +73,16 @@ export default function PlayBar() {
         <div style={{ display: "flex", gap: "12px" }}>
           <button><img src={backIcon} /></button>
 
-          <button onClick={() => setIsPlaying((prev) => !prev)}>
+          <button onClick={() => {
+            const newState = !isPlaying;
+            setIsPlaying(newState);
+
+            const audio = audioRef.current;
+            if (!audio) return;
+
+            if (newState) audio.play();
+            else audio.pause();
+          }}>
             <img src={isPlaying ? pauseIcon : playIcon} />
           </button>
 

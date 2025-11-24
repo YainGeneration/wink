@@ -282,7 +282,8 @@ export default function BaseLayout({ children, showOverlay, backgroundColor }: P
   const location = useLocation();
   const navigate = useNavigate();
   const theme = useTheme();
-  const { currentTrack } = useMusicPlayer();
+  const { currentTrack, isPlaying } = useMusicPlayer();
+  
   console.log(currentTrack)
   
   const currentPath = location.pathname;
@@ -315,12 +316,23 @@ export default function BaseLayout({ children, showOverlay, backgroundColor }: P
 
 
    // currentTrack 변경될 때마다 audio 재생
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.load(); // 재생 준비까지만
-      // audioRef.current.play(); // 자동재생 막기
-    }
-  }, [currentTrack]);
+useEffect(() => {
+  if (!audioRef.current) return;
+
+  const audio = audioRef.current;
+
+  // src를 강제로 재적용해야 브라우저가 새 파일로 인식함
+  audio.src = currentTrack.audioUrl;
+
+  audio.load();  // 파일 준비
+
+  if (isPlaying) {
+    audio.play().catch(err => {
+      console.warn("자동재생 실패 (브라우저 정책):", err);
+    });
+  }
+}, [currentTrack, isPlaying]);
+
 
   async function convertImageToBase64(imageUrl: string) {
     const res = await fetch(imageUrl);
@@ -439,7 +451,13 @@ async function startMyChat() {
         )}
 
         <BottomPlayerArea>
-          {isChatMatch && <PlayBar />}
+
+          <audio
+            ref={audioRef}
+            src={currentTrack.audioUrl}
+            autoPlay={isPlaying}
+          />
+          {isChatMatch && <PlayBar audioRef={audioRef}/>}
         
           <TabBar isRecommend={isRecommend}>
             {tabs.map((tab) => {

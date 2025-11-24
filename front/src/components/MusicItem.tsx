@@ -8,6 +8,7 @@ interface MusicItemProps {
   artist: string;       // 가수 이름
   onPlay?: () => void;  // 재생 버튼 클릭 시
   onMore?: () => void;  // 더보기 버튼 클릭 시
+  duration?: string;    // 노래 재생 시간
 }
 
 export default function MusicItem({
@@ -16,6 +17,7 @@ export default function MusicItem({
   artist,
   onPlay,
   onMore,
+  duration
 }: MusicItemProps) {
   return (
     <ItemWrapper>
