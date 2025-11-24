@@ -7,6 +7,8 @@ import user1 from "../../public/img/user1.webp"
 import user2 from "../../public/img/user2.webp"
 import user3 from "../../public/img/user3.webp"
 import music1 from "../../public/img/music1.jpg"
+import music2 from "../../public/img/music2.jpg"
+import music3 from "../../public/img/music3.jpeg"
 import MusicItem from '../components/MusicItem';
 import heartFilled from "../assets/icons/heart-fill-primary.svg"
 import musicShare from "../assets/icons/music-share.svg"
@@ -133,7 +135,7 @@ const Story = () => {
                         </S.Body1>
                     </div>
                     <MusicItem
-                        cover={music1}
+                        cover={music2}
                         title="紅蓮の弓矢 (홍련의 화살)"
                         artist="후마레타 하나노"
                     />
@@ -152,26 +154,26 @@ const Story = () => {
                         </div>
                         <div className='info-wrapper'style={{}}>
                             <S.Caption>진수</S.Caption>
-                            <S.Caption>1분 전</S.Caption>
+                            <S.Caption>10분 전</S.Caption>
                         </div>
                     </ProfileWrapper>
                     <div style={{marginBottom: "20px"}}>
                         <S.Body1>
-                            너무 좋아요 이번 신곡 그냥 미쳣슨
+                            아이콘 너네 언제 돌아와?
                         </S.Body1>
                         <S.Body1>
-                            JYP 드디어 일한다 4본부 최고다 아자쓰!
+                            나 아직 이 곡에서 멈춰 있는데 ...
                         </S.Body1>
                     </div>
                     <MusicItem
-                        cover={music1}
-                        title="Blue Valentine"
-                        artist="NMIXX"
+                        cover={music3}
+                        title="줄게(JUST FOR YOU)"
+                        artist="iKON"
                     />
                     <BottomInfo>
                         <div className='heart'>
                             <img src={heartFilled} alt="" />
-                            <S.Body2>52</S.Body2>
+                            <S.Body2>98</S.Body2>
                         </div>
                         <img src={musicShare} alt="" />
                     </BottomInfo>

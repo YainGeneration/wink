@@ -17,6 +17,15 @@ const GlobalStyle = createGlobalStyle`
         src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Thin.woff2') format('woff2');
     }
 
+    button {
+        cursor: pointer !important;
+        background: none;
+        border: none;
+    }
+    button:hover {
+        cursor: pointer !important;
+    }
+
     html, body {
         width: 100%;
         height: 100%;
@@ -33,12 +42,6 @@ const GlobalStyle = createGlobalStyle`
     a {
         text-decoration: none;
         color: inherit;
-    }
-
-    button {
-        background: none;
-        border: none;
-        cursor: pointer;
     }
 
     /* 스크롤바 커스텀 */

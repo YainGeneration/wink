@@ -48,6 +48,7 @@ export type ChatSession = {
 
 type UserChatProps = {
   sessions: ChatSession[];
+  onAddMessage?: (newMsg: ChatMessage) => void;
 };
 
 // sessions 기반으로만 렌더링
@@ -61,7 +62,7 @@ export default function UserChat({ sessions }: UserChatProps) {
         if (session.messages && session.messages.length > 0) {
           return session.messages.map((m, idx) => (
             <ChatBubble
-              key={`${i}-${idx}`}
+              key={m.messageId ?? `${m.timestamp}-${idx}`}
               sender={m.sender}
               text={m.text}
               image={idx === 0 ? m.imageBase64 : null}

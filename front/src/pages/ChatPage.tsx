@@ -15,6 +15,7 @@ import UserChat, {
 } from "../components/UserChat";
 
 
+
 export default function ChatPage() {
   // 백엔드 연동용 state는 일단 놔두되,
   // 지금 렌더링에는 사용하지 않아도 됨
@@ -23,6 +24,22 @@ export default function ChatPage() {
 
   // 이 ChatMessage 타입도 UserChat에서 가져온 타입임
   const [sessions, setSessions] = useState<ChatSession[]>([]);
+
+  function appendMessage(newMsg: ChatMessage) {
+  setSessions(prev => {
+    if (prev.length === 0) return prev;
+
+    const updated = [...prev];
+    const target = updated[0];
+
+    updated[0] = {
+      ...target,
+      messages: [...(target.messages ?? []), newMsg],
+    };
+
+    return updated;
+  });
+}
 
   // effect는 나중에 연동할 때 다시 손보자 (지금은 주석 처리해도 됨)
 useEffect(() => {
@@ -124,7 +141,8 @@ useEffect(() => {
 
   return (
     <S.Padding16px>
-      <UserChat sessions={sessions} />
+      {/* <UserChat sessions={sessions} onAddMessage={appendMessage}/> */}
+      <UserChat sessions={sessions}/>
     </S.Padding16px>
     
   );

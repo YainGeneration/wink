@@ -70,7 +70,6 @@ const TopBar = styled.div`
   right: 0;
   display: flex;
   justify-content: center;
-  pointer-events: none;
   z-index: 3;
 `;
 
@@ -81,8 +80,6 @@ const BottomBar = styled.div`
   right: 0;
   display: flex;
   justify-content: center;
-  pointer-events: none;
-  pointer-events: none;
   z-index: 4;
 `;
 
@@ -91,7 +88,6 @@ const Overlay = styled.div`
   inset: 0;
   background-color: rgba(18, 18, 18, 0.03); /* 반투명 어두운 효과 */
   z-index: 6;
-  pointer-events: auto;
 `;
 
 // 채팅 입력바
@@ -151,7 +147,6 @@ const BottomPlayerArea = styled.div`
   flex-direction: column;
 
   z-index: 3; /* Overlay보다 위에 있어야 함 */
-  pointer-events: auto;
   box-shadow: ${theme.shadow.default}
 `;
 
@@ -514,13 +509,9 @@ async function handleChatSubmit() {
                     alignItems: "center",
                     gap: "2px",
                     background: "none",
-                    border: "none",
+                    border: "none"
                   }}
                 >
-                  {/* <img 
-                    src={isActive ? tab.iconFill : tab.icon}  // 아이콘 Fill 적용
-                    alt={tab.label}
-                  /> */}
                   <img src={iconToShow} alt={tab.label} />
                   <S.Smalltext
                     style={{
