@@ -289,6 +289,11 @@ export default function BaseLayout({ children, showOverlay, backgroundColor }: P
   const currentPath = location.pathname;
   const showPlayBar = currentPath === "/home" || currentPath === "/chat";
   const isRecommend = location.pathname === "/recommend";
+
+  const isChatPage = currentPath.startsWith("/chat/");
+  const sessionId = isChatPage ? Number(currentPath.split("/chat/")[1]) : null;
+
+
   const [inputText, setInputText] = useState("");
 
 
@@ -347,15 +352,43 @@ useEffect(() => {
     });
   }
 
-async function startMyChat() {
+async function handleChatSubmit() {
   try {
+    if (!inputText && !selectedImageBase64) return;
+
+    // 📌 1) 기존 세션에서 후속 채팅 입력
+    if (isChatPage && sessionId) {
+      const body = {
+        sessionId: sessionId,
+        text: inputText,
+        imageBase64: selectedImageBase64 || null,
+      };
+
+      const res = await fetch("http://localhost:8080/api/chat/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+      window.dispatchEvent(
+          new CustomEvent("NEW_MESSAGE", { detail: data })
+      );
+
+      console.log("[기존 세션 후속 메시지 응답]", data);
+
+      // 전송 후 입력 초기화
+      setInputText("");
+      setSelectedImage(null);
+      return;
+    }
+
+    // 📌 2) 새 채팅 시작 (HOME에서 보냈을 때)
     const body = {
       type: "my",
-      imageBase64: selectedImageBase64,  // Base64 문자열
       inputText: inputText,
+      imageBase64: selectedImageBase64,
     };
-
-    console.log(body);
 
     const res = await fetch("http://localhost:8080/api/chat/start/my", {
       method: "POST",
@@ -364,15 +397,16 @@ async function startMyChat() {
     });
 
     const data = await res.json();
-    
+
     setInputText("");
     setSelectedImage(null);
 
     navigate(`/chat/${data.sessionId}`);
   } catch (e) {
-    console.error("채팅 생성 실패:", e);
+    console.error("채팅 전송 실패:", e);
   }
 }
+
 
   const handleSelectImage = async (url: string) => {
     setSelectedImage(url);
@@ -443,7 +477,7 @@ async function startMyChat() {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}  
                 />
-                <SubmitButton onClick={startMyChat}>
+                <SubmitButton onClick={handleChatSubmit}>
                   <img src={upWhite} alt=""/>
                 </SubmitButton>
             </InputWrapper>

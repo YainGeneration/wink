@@ -64,7 +64,7 @@ export default function UserChat({ sessions }: UserChatProps) {
               key={`${i}-${idx}`}
               sender={m.sender}
               text={m.text}
-              image={m.imageBase64}
+              image={idx === 0 ? m.imageBase64 : null}
               keywords={m.keywords}
               recommendations={m.recommendations}
               topic={session.topic}
