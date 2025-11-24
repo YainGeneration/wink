@@ -343,7 +343,7 @@ async function startMyChat() {
       inputText: inputText,
     };
 
-    console.log(body)
+    console.log(body);
 
     const res = await fetch("http://localhost:8080/api/chat/start/my", {
       method: "POST",
@@ -353,6 +353,8 @@ async function startMyChat() {
 
     const data = await res.json();
     
+    setInputText("");
+    setSelectedImage(null);
 
     navigate(`/chat/${data.sessionId}`);
   } catch (e) {

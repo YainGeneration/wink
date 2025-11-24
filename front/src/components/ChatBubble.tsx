@@ -10,12 +10,14 @@ import MusicItem from "./MusicItem";
 type ChatBubbleProps = {
   sender: "user" | "ai";
   text?: string | null;
+  type?: "MY" | "SPACE";
   image?: string[] | null;
   keywords?: string[];
   recommendations?: any[];
   topic?: string;
   mergedSentence?: string | null;
   imageDescriptionKo?: string | null;
+  nearbyMusic?: any[];
 };
 
 
@@ -33,11 +35,10 @@ export default function ChatBubble({
   image,
   keywords = [],
   recommendations = [],
-  topic,
-  mergedSentence,
-  imageDescriptionKo
+  nearbyMusic = [],
 }: ChatBubbleProps) {
   const isUser = sender === "user";
+  console.log("ChatBubble nearbyMusic:", nearbyMusic);
 
   return (
     <div>
@@ -49,6 +50,20 @@ export default function ChatBubble({
                 <img src={image[0]} />
             )}
             </ImageBox>
+        )}
+
+        {nearbyMusic && nearbyMusic.length > 0 && isUser=== true && (
+          <div style={{ marginTop: "20px", width: "92%" }}>
+            <S.Body1>사용자의 주변 음악</S.Body1>
+            {nearbyMusic.map((m) => (
+              <MusicItem
+                key={m.songId}
+                cover={m.albumCover}
+                title={m.title}
+                artist={m.artist}
+              />
+            ))}
+          </div>
         )}
 
         {/* 메인 텍스트 */}

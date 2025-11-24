@@ -49,7 +49,11 @@ export default function MomentModal({
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = () => setImage(reader.result as string);
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      setImage(base64);                // 미리보기용
+      setSelectedImageBase64(base64);  // API 전송용
+    };
     reader.readAsDataURL(file);
   };
 
@@ -73,9 +77,9 @@ export default function MomentModal({
 
   const handleSelectImage = async (url: string) => {
     setSelectedImage(url);
-
     const base64 = await convertImageToBase64(url);
     setSelectedImageBase64(base64);
+    setImage(base64);
   };
 
 
@@ -89,11 +93,11 @@ export default function MomentModal({
     try {
       const body = {
         type: "space",
-        imagePath: selectedImageBase64,  // Base64 문자열
+        imageBase64: selectedImageBase64,  // Base64 문자열
         text: inputText,
       };
 
-      console.log(body)
+      console.log(`모달에서 보내는 body:`, body);
 
       const res = await fetch("http://localhost:8080/api/chat/start/space", {
         method: "POST",
@@ -102,9 +106,15 @@ export default function MomentModal({
       });
 
       const data = await res.json();
+      console.log("채팅 생성 성공:", data);
       
-
-      navigate(`/chat/${data.sessionId}`);
+      
+      if (data.sessionId) {
+        setTimeout(() => {
+          navigate(`/chat/${data.sessionId}`);
+        }, 3000);
+      }
+      
     } catch (e) {
       console.error("채팅 생성 실패:", e);
     }
