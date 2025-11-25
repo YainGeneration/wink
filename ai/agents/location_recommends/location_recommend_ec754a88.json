@@ -1,0 +1,57 @@
+{
+  "timestamp": "2025-11-22 05:04:08",
+  "input_location": "위치: 숙명여자대학교 정문",
+  "input_image": "(Base64 Data)",
+  "english_caption_from_agent2": "Okay, here's a description of the image in natural English:\n\nThe photo shows a large, thrilling roller coaster against a bright blue sky with scattered clouds. The centerpiece is a massive, looping roller coaster track that dominates the frame. You can see several cars full of people speeding around the large curve. \n\nTo the left, there’s a similar but shorter roller coaster track. In the background, you can see a mountain range, likely part of the park's landscape. The overall scene looks like a busy, exciting amusement park. \n\nWould you like me to focus on a specific detail, or perhaps describe the overall feeling of the image?, taken near 숙명여자대학교 정문.",
+  "english_keywords": [
+    "rollercoaster",
+    "exciting",
+    "thrilling",
+    "busy",
+    "amusementpark"
+  ],
+  "recommended_songs": [
+    {
+      "artist_name": "Raul Cabezali",
+      "instrument_tags": "electricguitar",
+      "genre_tags": "punkrock rock",
+      "url": "http://www.jamendo.com/track/1303000",
+      "track_id": "track_1303000",
+      "mood_tags": "adventure energetic sport",
+      "path": "00/1303000.mp3",
+      "album_name": "Apiticán",
+      "track_name": "Hammacuckoo",
+      "releasedate": "2015-12-27",
+      "duration": 124.1,
+      "similarity_score": 0.42622861286436253
+    },
+    {
+      "genre_tags": "classical",
+      "track_name": "The Donut around the Hole",
+      "album_name": "Three Manieristic Pieces",
+      "duration": 113.1,
+      "url": "http://www.jamendo.com/track/1419495",
+      "mood_tags": "adventure energetic",
+      "artist_name": "Aufklarung",
+      "instrument_tags": "piano",
+      "track_id": "track_1419495",
+      "releasedate": "2017-01-31",
+      "path": "95/1419495.mp3",
+      "similarity_score": 0.39479906314058544
+    },
+    {
+      "track_name": "Jazz",
+      "path": "15/1374715.mp3",
+      "releasedate": "2016-09-09",
+      "mood_tags": "background",
+      "duration": 50.1,
+      "genre_tags": "ambient jazz lounge",
+      "artist_name": "Sergey Gulevich",
+      "track_id": "track_1374715",
+      "instrument_tags": "",
+      "album_name": "Corporate and Ambient Collection",
+      "url": "http://www.jamendo.com/track/1374715",
+      "similarity_score": 0.8474183112313767
+    }
+  ]
+}

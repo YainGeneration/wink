@@ -120,8 +120,19 @@ public class ChatService {
         session.setIsEnded(false);
 
         // ★ 위치 저장 (후속 메시지에서 사용할 lat/lng)
-        session.setStartLat(req.getLocation().getLat());
-        session.setStartLng(req.getLocation().getLng());
+        ChatStartSpaceRequest.Location loc = req.getLocation();
+
+        if (loc == null) {
+            loc = new ChatStartSpaceRequest.Location();
+            loc.setLat(37.545900);
+            loc.setLng(126.964400);
+            loc.setAddress("서울 용산구 청파동2가 53-12");
+            loc.setPlaceName("숙명여자대학교");
+        }
+
+        // ★ 위치 저장 (후속 메시지에서 사용할 lat/lng)
+        session.setStartLat(loc.getLat());
+        session.setStartLng(loc.getLng());
 
         // 주변 음악 요약 텍스트
         String nearbySummary = "";
@@ -133,15 +144,12 @@ public class ChatService {
         }
 
         String prompt = String.format(
-                "📍장소명: %s (%s)\n🎧 주변 음악: %s\n이 장소의 분위기를 요약해줘.",
-                req.getLocation().getPlaceName(),
-                req.getLocation().getAddress(),
+                "장소명: %s (%s)\n 주변 음악: %s\n이 장소의 분위기를 요약해줘.",
+                loc.getPlaceName(),
+                loc.getAddress(),
                 nearbySummary.isBlank() ? "정보 없음" : nearbySummary
         );
 
-        // String topic = geminiService.extractTopic(prompt);
-        // session.setTopic(topic);
-        // sessionRepo.save(session);
         String topic;
         try {
             topic = geminiService.extractTopic(prompt);
@@ -157,14 +165,24 @@ public class ChatService {
         session.setTopic(topic);
         sessionRepo.save(session);
 
-
         // 첫 메시지 저장
-        String initialText = req.getLocation().getPlaceName() + "에 왔습니다.";
+        String initialText = loc.getPlaceName() + "에 왔습니다.";
         ChatMessage userMsg = new ChatMessage();
         userMsg.setSession(session);
         userMsg.setSender("user");
         userMsg.setText(initialText);
+
+        if (req.getImageBase64() != null && !req.getImageBase64().isBlank()) {
+            try {
+                String fileName = imageService.saveBase64Image(req.getImageBase64());
+                userMsg.setImageUrl(fileName);
+            } catch (IOException e) {
+                userMsg.setImageUrl(null);
+            }
+        }
+
         messageRepo.save(userMsg);
+
 
         // ----- AI 요청 -----
         AiResponseRequest aiReq = new AiResponseRequest();
@@ -172,21 +190,7 @@ public class ChatService {
         aiReq.setInputText(initialText);
         aiReq.setImageBase64(req.getImageBase64());
 
-        // aiReq.setLocation(req.getLocation());
-        // // ★ 고정 5개 주변 음악 넣기
-        // List<NearbyMusicResponse> fixedList =
-        //         locationService.getNearbyMusic(req.getLocation().getLat(), req.getLocation().getLng());
 
-        // List<ChatStartSpaceRequest.NearbyMusic> fixedMusic = fixedList.stream()
-        //         .map(m -> {
-        //             ChatStartSpaceRequest.NearbyMusic nm = new ChatStartSpaceRequest.NearbyMusic();
-        //             nm.setSongId(null);
-        //             nm.setTitle(m.getSongTitle());
-        //             nm.setArtist(m.getArtist());
-        //             return nm;
-        //         })
-        //         .toList();
-        // aiReq.setNearbyMusic(fixedMusic);
         // ---------- 고정 Location ----------
         ChatStartSpaceRequest.Location fixedLoc = new ChatStartSpaceRequest.Location();
         fixedLoc.setLat(37.545900);
@@ -310,6 +314,7 @@ public class ChatService {
 
                     .trackUrl(songNode.path("trackUrl").asText(null))
                     .spotifyEmbedUrl(songNode.path("spotify_embed_url").asText(null))
+                    .audioUrl(songNode.path("audioUrl").asText(null))
                     .build()
                 );
             }
@@ -391,6 +396,7 @@ public class ChatService {
         }
     }
 
+
     // =====================================================
     // ④ 세션 전체 메시지 조회 (모든 세션 허용)
     // =====================================================
@@ -426,28 +432,44 @@ public class ChatService {
                     .imageBase64(msg.getImageUrl() != null
                             ? List.of("http://localhost:8080/chat-images/" + msg.getImageUrl())
                             : null
-                        )
+                    )
                     .keywords(keywords)
                     .recommendations(recs)
-                    // [추가] ChatMessageResponse에 mergedSentence와 interpretedSentence가 있다고 가정하고 매핑
                     .mergedSentence(msg.getMergedSentence())
                     .interpretedSentence(msg.getInterpretedSentence())
                     .englishText(msg.getEnglishText())
                     .englishCaption(msg.getEnglishCaption())
                     .imageDescriptionKo(msg.getImageDescriptionKo())
-                    
                     .timestamp(msg.getCreatedAt())
                     .build());
+        }
+
+        // 🔥 SPACE일 때만 고정 Location + 고정 NearbyMusic 포함
+        LocationResponse loc = null;
+        List<ChatStartSpaceRequest.NearbyMusic> fixedMusic = null;
+
+        if ("SPACE".equals(session.getType())) {
+            loc = new LocationResponse(
+                    "숙명여자대학교",
+                    37.545900,
+                    126.964400,
+                    "서울 용산구 청파동2가 53-12"
+            );
+
+            fixedMusic = locationService.getFixedNearbyMusic();
         }
 
         return ChatHistoryResponse.builder()
                 .sessionId(sessionId)
                 .type(session.getType())
                 .topic(session.getTopic())
-                .latest(true) // 이 필드는 클라이언트에서 판단할 수 있도록 true로 유지
+                .latest(true)
                 .messages(list)
+                .location(loc)
+                .nearbyMusic(fixedMusic)
                 .build();
     }
+
 
     // =====================================================
     // ⑤ 요약 조회 (활성화되지 않은 세션만 허용)
@@ -699,7 +721,7 @@ public class ChatService {
                     .topic(s.getTopic())
                     .latestMessage(latestMsg)
                     .timestamp(s.getStartTime())
-                    .isEnded(s.getIsEnded() != null && s.getIsEnded())
+                    .latest(s.getIsEnded() != null && s.getIsEnded())
                     .endTime(s.getEndTime())
                     .build());
         }

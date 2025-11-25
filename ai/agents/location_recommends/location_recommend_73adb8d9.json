@@ -1,0 +1,57 @@
+{
+  "timestamp": "2025-11-22 04:56:19",
+  "input_location": "위치: 숙명여자대학교 정문",
+  "input_image": "(Base64 Data)",
+  "english_caption_from_agent2": "Okay, here's a description of the image in natural English:\n\nThe photo shows a large, modern roller coaster in what appears to be a sunny outdoor amusement park setting. The main feature is a massive, looping steel coaster with a bright red car full of riders mid-turn. The track is a smooth, silver color and dominates the frame. \n\nTo the left, there's a similar track that curves away, also built with steel. In the background, you can see a mountain range under a partly cloudy blue sky. There's some greenery in the foreground, and other smaller roller coasters are visible in the distance. The overall impression is one of a thrilling, exciting amusement park ride. \n\nWould you like me to focus on a specific aspect of the picture, or perhaps describe something else about the scene?, taken near 숙명여자대학교 정문.",
+  "english_keywords": [
+    "rollercoaster",
+    "thrilling",
+    "exciting",
+    "amusementpark",
+    "bright"
+  ],
+  "recommended_songs": [
+    {
+      "track_name": "The Donut around the Hole",
+      "genre_tags": "classical",
+      "releasedate": "2017-01-31",
+      "artist_name": "Aufklarung",
+      "path": "95/1419495.mp3",
+      "instrument_tags": "piano",
+      "album_name": "Three Manieristic Pieces",
+      "duration": 113.1,
+      "track_id": "track_1419495",
+      "mood_tags": "adventure energetic",
+      "url": "http://www.jamendo.com/track/1419495",
+      "similarity_score": 0.40054545830958677
+    },
+    {
+      "duration": 102.2,
+      "releasedate": "2007-10-04",
+      "url": "http://www.jamendo.com/track/90044",
+      "instrument_tags": "bass drums electricguitar sampler synthesizer",
+      "track_name": "Space Ride",
+      "track_id": "track_0090044",
+      "mood_tags": "adventure documentary energetic",
+      "artist_name": "Oursvince",
+      "album_name": "Around",
+      "genre_tags": "electronic",
+      "path": "44/90044.mp3",
+      "similarity_score": 0.37897072404743726
+    },
+    {
+      "track_id": "track_1374715",
+      "track_name": "Jazz",
+      "url": "http://www.jamendo.com/track/1374715",
+      "duration": 50.1,
+      "album_name": "Corporate and Ambient Collection",
+      "genre_tags": "ambient jazz lounge",
+      "artist_name": "Sergey Gulevich",
+      "releasedate": "2016-09-09",
+      "path": "15/1374715.mp3",
+      "instrument_tags": "",
+      "mood_tags": "background",
+      "similarity_score": 0.8474183112313767
+    }
+  ]
+}

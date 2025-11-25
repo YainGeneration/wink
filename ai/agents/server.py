@@ -4,7 +4,7 @@
 Flask API for Wink AI Full Pipeline
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from datetime import datetime
 import sys, os, json, base64, uuid, random
 from PIL import Image
@@ -22,6 +22,20 @@ except ImportError as e:
     exit()
 
 app = Flask(__name__)
+
+# --------------------------------------------------------
+# AUDIO 폴더 경로 설정 (agents/server.py → ai/audio/)
+# --------------------------------------------------------
+AUDIO_ROOT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "audio")
+
+@app.route("/audio/<path:filename>")
+def serve_audio(filename):
+    try:
+        return send_from_directory(AUDIO_ROOT, filename)
+    except Exception as e:
+        print(f"❌ audio 파일 찾기 오류: {filename}: {e}")
+        return jsonify({"error": f"audio file not found: {filename}"}), 404
+
 
 # --------------------------------------------------------
 # Base64 → Image 변환
@@ -103,11 +117,8 @@ def recommend():
         # =========================================================
         is_space_mode = False
 
-        # location이 있으면 SPACE
         if location_data:
             is_space_mode = True
-
-        # location 없지만 nearbyMusic이 있으면 SPACE
         elif nearby_music:
             is_space_mode = True
 
@@ -117,7 +128,6 @@ def recommend():
         if is_space_mode:
             print("🚀 Agent4 실행 (SPACE 모드)")
 
-            # location이 None이면 기본값 제공 (오류 방지)
             if not location_data:
                 location_data = {
                     "placeName": "",
@@ -174,6 +184,7 @@ def recommend():
             artist_name = song.get("artist_name")
             duration_sec = song.get("duration")
             web_url = song.get("url")
+            path = song.get("path")  # ★ 로컬 파일 path 추가
 
             if not track_id_full or not track_name:
                 continue
@@ -193,6 +204,11 @@ def recommend():
                 except:
                     pass
 
+            # ★ 로컬 오디오 URL 추가
+            audio_url = None
+            if path:
+                audio_url = f"http://localhost:5001/audio/{path}"
+
             while True:
                 r = random.randint(1, 10000)
                 if r not in used_random_numbers:
@@ -207,8 +223,9 @@ def recommend():
                 "artist": artist_name,
                 "albumCover": album_cover_url,
                 "previewUrl": preview_url,
+                "audioUrl": audio_url,  # ★ 중요
                 "durationMs": duration_ms,
-                "spotify_embed_url": None,
+                "spotifyEmbed_url": None,
                 "trackUrl": web_url,
             })
 

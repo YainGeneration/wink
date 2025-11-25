@@ -86,7 +86,7 @@ export default function ChatBubble({
 
         {/* 추천곡 카드 */}
         {recommendations.length > 0 && (
-            <div style={{ marginTop: "14px" }}>
+            <div style={{ marginTop: "14px", marginBottom: "14px" }}>
                 {recommendations.map((r) => (
                 <MusicItem
                     key={r.songId}
@@ -103,7 +103,7 @@ export default function ChatBubble({
                         image: r.albumCover,
                         audioUrl: r.audioUrl,
                       });
-                      
+
                       setIsPlaying(true);
                     }}
                     onMore={() => console.log("more:", r.songId)}

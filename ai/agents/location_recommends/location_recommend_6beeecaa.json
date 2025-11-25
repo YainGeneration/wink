@@ -1,0 +1,57 @@
+{
+  "timestamp": "2025-11-22 06:08:59",
+  "input_location": "위치: 숙명여자대학교 정문",
+  "input_image": "(Base64 Data)",
+  "english_caption_from_agent2": "Okay, here's a description of the image in natural English:\n\nThe photo shows a thrilling rollercoaster ride on a bright, sunny day. The main focus is a large, looping roller coaster with several cars full of people soaring through the air. The track is a shiny, silver metal, and the loops are prominent.  There are other roller coasters visible in the background, some with similar looping designs. In the distance, you can see a hazy mountain range under a blue sky dotted with clouds. The overall scene looks like a typical amusement park setting., taken near 숙명여자대학교 정문.",
+  "english_keywords": [
+    "rollercoaster",
+    "thrilling",
+    "ambient",
+    "nostalgic",
+    "sunny"
+  ],
+  "recommended_songs": [
+    {
+      "artist_name": "Sideway",
+      "releasedate": "2016-08-18",
+      "mood_tags": "dark documentary dramatic powerful relaxing",
+      "url": "http://www.jamendo.com/track/1368942",
+      "track_name": "A Strangely Relaxing Day",
+      "track_id": "track_1368942",
+      "genre_tags": "ambient atmospheric soundtrack",
+      "album_name": "A Week Indoors",
+      "instrument_tags": "",
+      "path": "42/1368942.mp3",
+      "duration": 201.0,
+      "similarity_score": 0.4534377289637632
+    },
+    {
+      "artist_name": "jean-pierre.saussac",
+      "duration": 242.1,
+      "instrument_tags": "synthesizer",
+      "track_id": "track_0914861",
+      "url": "http://www.jamendo.com/track/914861",
+      "track_name": "Fleurs des champs",
+      "album_name": "Belle Saison",
+      "genre_tags": "ambient atmospheric",
+      "mood_tags": "adventure",
+      "releasedate": "2012-03-15",
+      "path": "61/914861.mp3",
+      "similarity_score": 0.449089191410065
+    },
+    {
+      "track_name": "Jazz",
+      "mood_tags": "background",
+      "track_id": "track_1374715",
+      "duration": 50.1,
+      "url": "http://www.jamendo.com/track/1374715",
+      "genre_tags": "ambient jazz lounge",
+      "releasedate": "2016-09-09",
+      "album_name": "Corporate and Ambient Collection",
+      "artist_name": "Sergey Gulevich",
+      "path": "15/1374715.mp3",
+      "instrument_tags": "",
+      "similarity_score": 0.8474183112313767
+    }
+  ]
+}

@@ -89,8 +89,8 @@ const HistoryDetail = () => {
         fetchHistoryDetail();
     }, [sessionId]);
 
-    if (loading) return <div>로딩중...</div>;
-    if (!data) return <div>로딩중...</div>;
+    if (loading) return <div></div>;
+    if (!data) return <div></div>;
 
     return (
         <S.Padding16px>
@@ -99,7 +99,8 @@ const HistoryDetail = () => {
                     marginLeft: "14px"
                 }}
             >
-                <S.Heading2>{data.topic}</S.Heading2>
+              {/* <S.Heading2>{data.topic}</S.Heading2> */}
+              <S.Heading2>잔상, 벅찬 밤의 여운</S.Heading2>
                 <div
                     style={{
                         marginTop: "8px",

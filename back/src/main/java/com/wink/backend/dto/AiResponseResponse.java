@@ -56,5 +56,6 @@ public class AiResponseResponse {
         private String durationFormatted;   // ⭐ 이 위치가 정답
         private String spotifyEmbedUrl;
         private String trackUrl;
+        private String audioUrl;
     }
 }
