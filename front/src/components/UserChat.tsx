@@ -1,17 +1,22 @@
 import ChatBubble from "./ChatBubble";
 
 export type ChatMessage = {
-  messageId: number;
-  sessionId: number;
+  messageId?: number;
+  sessionId?: number;
   sender: "user" | "ai";
-  text: string | null;
-  imageBase64: string[] | null;
-  keywords: string[];
-  recommendations: any[];
-  mergedSentence: string | null;
-  interpretedSentence: string | null;
-  timestamp: string;
+  text?: string | null;
+  imageBase64?: string[] | null;
+  keywords?: string[];
+  recommendations?: any[];
+  mergedSentence?: string | null;
+  interpretedSentence?: string | null;
+  englishText?: string | null;
+  englishCaption?: string | null;
+  imageDescriptionKo?: string | null;
+  timestamp?: string;
+  nearbyMysic?: string[];
 };
+
 
 export type ChatSession = {
   sessionId: number;
@@ -19,6 +24,12 @@ export type ChatSession = {
   topic: string;
   latest?: boolean;
   messages?: ChatMessage[];
+  nearbyMusic?: {
+    songId: string;
+    title: string;
+    artist: string;
+    albumCover: string;
+  }[];
 
   // new-chat 구조
   inputText?: string;
@@ -32,14 +43,18 @@ export type ChatSession = {
   keywords?: string[];
   recommendations?: any[];
   timestamp?: string;
+  location?: string;
 };
 
 type UserChatProps = {
   sessions: ChatSession[];
+  onAddMessage?: (newMsg: ChatMessage) => void;
 };
 
 // sessions 기반으로만 렌더링
 export default function UserChat({ sessions }: UserChatProps) {
+  console.log("UserChat sessions:", sessions);
+
   return (
     <div style={{ marginBottom: "160px" }}>
       {sessions.map((session, i) => {
@@ -47,15 +62,16 @@ export default function UserChat({ sessions }: UserChatProps) {
         if (session.messages && session.messages.length > 0) {
           return session.messages.map((m, idx) => (
             <ChatBubble
-              key={`${i}-${idx}`}
+              key={m.messageId ?? `${m.timestamp}-${idx}`}
               sender={m.sender}
               text={m.text}
-              image={m.imageBase64}
+              image={idx === 0 ? m.imageBase64 : null}
               keywords={m.keywords}
               recommendations={m.recommendations}
               topic={session.topic}
               mergedSentence={m.mergedSentence}
-              imageDescriptionKo={m.interpretedSentence}
+              imageDescriptionKo={m.imageDescriptionKo ?? m.interpretedSentence}
+              nearbyMusic={session.nearbyMusic ?? []}
             />
           ));
         }
@@ -65,6 +81,7 @@ export default function UserChat({ sessions }: UserChatProps) {
           <ChatBubble
             key={i}
             sender="ai"
+            type={session.type}
             text={session.interpretedSentence ?? session.aiMessage ?? ""}
             image={session.imageBase64 ? [session.imageBase64] : null}
             keywords={session.keywords ?? []}
@@ -72,6 +89,7 @@ export default function UserChat({ sessions }: UserChatProps) {
             topic={session.topic}
             mergedSentence={session.mergedSentence ?? null}
             imageDescriptionKo={session.imageDescriptionKo ?? null}
+            nearbyMusic={session.nearbyMusic ?? []}
           />
         );
       })}

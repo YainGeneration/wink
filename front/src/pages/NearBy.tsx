@@ -57,8 +57,8 @@ export default function NearBy () {
     {
       userId: 1,
       nickname: "사용자1",
-      songTitle: "As It Was",
-      artist: "Harry Styles",
+      songTitle: "Yoga",
+      artist: "Spa Background Music",
       albumCover: "../../public/img/near1.jpeg",
       lat: 1.000494349293526,
       lng: 0.9994459724129843,
@@ -66,8 +66,8 @@ export default function NearBy () {
     {
       userId: 2,
       nickname: "사용자2",
-      songTitle: "Peaches",
-      artist: "Justin Bieber",
+      songTitle: "To you my Love",
+      artist: "DANIEL H",
       albumCover: "../../public/img/near2.jpeg",
       lat: 1.0006338883348183,
       lng: 1.0004808060606825,
@@ -75,8 +75,8 @@ export default function NearBy () {
     {
       userId: 3,
       nickname: "사용자3",
-      songTitle: "Stay",
-      artist: "The Kid LAROI",
+      songTitle: "Jocelyn - Cyril Ury - MdC",
+      artist: "Cyril Ury",
       albumCover: "../../public/img/near3.jpeg",
       lat: 1.0008768170182383,
       lng: 1.0008959796774475,
@@ -84,8 +84,8 @@ export default function NearBy () {
     {
       userId: 4,
       nickname: "사용자4",
-      songTitle: "Good 4 U",
-      artist: "Olivia Rodrigo",
+      songTitle: "The Last Stand",
+      artist: "Grégoire Lourme",
       albumCover: "../../public/img/near4.jpeg",
       lat: 0.9991623679534147,
       lng: 0.9998732092750647,
@@ -93,14 +93,13 @@ export default function NearBy () {
     {
       userId: 5,
       nickname: "사용자5",
-      songTitle: "Blinding Lights",
-      artist: "The Weeknd",
+      songTitle: "Movement IX - Fibonacci Theorem (Orchestral Version)",
+      artist: "JCRZ",
       albumCover: "../../public/img/near5.jpeg",
       lat: 1.0004559626344167,
       lng: 1.0001181526402254,
     },
   ];
-
 
   useEffect(() => {
     let timer = setTimeout(async () => {

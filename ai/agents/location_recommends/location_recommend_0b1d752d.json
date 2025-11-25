@@ -1,0 +1,57 @@
+{
+  "timestamp": "2025-11-24 10:12:41",
+  "input_location": "위치: 숙명여자대학교 정문",
+  "input_image": "(Base64 Data)",
+  "english_caption_from_agent2": "Okay, here's a description of the image in natural English:\n\nThe photo shows a large, impressive roller coaster on a bright, sunny day. The coaster is a steel structure with a massive, looping track that dominates the scene. You can clearly see a train full of people going around the large curve, suggesting the ride is in motion. \n\nTo the left, there’s a section of the track that curves upwards, and to the right, another portion of the track is visible as well.  Behind the roller coaster, you can see mountains in the background, and a blue sky filled with fluffy white clouds. The overall impression is one of a thrilling amusement park experience. \n\nWould you like me to describe any specific detail in more detail?, taken near 숙명여자대학교 정문.",
+  "english_keywords": [
+    "rollercoaster",
+    "thrilling",
+    "sunny",
+    "amusementpark",
+    "looping"
+  ],
+  "recommended_songs": [
+    {
+      "releasedate": "2012-11-27",
+      "genre_tags": "easylistening",
+      "duration": 64.0,
+      "instrument_tags": "",
+      "url": "http://www.jamendo.com/track/983594",
+      "path": "94/983594.mp3",
+      "track_name": "For Your Information",
+      "track_id": "track_0983594",
+      "mood_tags": "game melancholic relaxing",
+      "album_name": "Televised Moodswings ",
+      "artist_name": "NomoreSisyphus",
+      "similarity_score": 0.30215056363383347
+    },
+    {
+      "releasedate": "2016-08-28",
+      "artist_name": "magagog",
+      "track_name": "Pizzaaa Time !",
+      "duration": 191.5,
+      "path": "24/1371524.mp3",
+      "track_id": "track_1371524",
+      "url": "http://www.jamendo.com/track/1371524",
+      "genre_tags": "easylistening electropop synthpop",
+      "instrument_tags": "",
+      "mood_tags": "adventure motivational",
+      "album_name": "Cheerful Memory",
+      "similarity_score": 0.30088381645621026
+    },
+    {
+      "artist_name": "Sergey Gulevich",
+      "path": "15/1374715.mp3",
+      "track_name": "Jazz",
+      "mood_tags": "background",
+      "duration": 50.1,
+      "album_name": "Corporate and Ambient Collection",
+      "genre_tags": "ambient jazz lounge",
+      "instrument_tags": "",
+      "url": "http://www.jamendo.com/track/1374715",
+      "releasedate": "2016-09-09",
+      "track_id": "track_1374715",
+      "similarity_score": 0.8474183112313767
+    }
+  ]
+}

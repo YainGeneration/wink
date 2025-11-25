@@ -54,11 +54,6 @@ private static final String GEMINI_URL =
                     "꼭 필요한 문장 기호가 아닌 이상 넣지 마. " +
                     "일반적으로 요약하지 말고 input text의 특성을 살려서 제목 만들어줘 문장: \"" + inputText + "\"";
 
-            // String requestBody = String.format("""
-            //     {
-            //       "contents": [ { "parts": [ { "text": "%s" } ] } ]
-            //     }
-            // """, prompt.replace("\"", "'"));
             Map<String, Object> jsonBody = Map.of(
                     "contents", List.of(
                             Map.of(

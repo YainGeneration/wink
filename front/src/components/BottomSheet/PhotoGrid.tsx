@@ -7,14 +7,14 @@ export default function PhotoGrid({ onSelect }: { onSelect: (img: string) => voi
   const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
 
   const photos = [
-    "https://picsum.photos/id/1011/200/200",
-    "https://picsum.photos/id/1012/200/200",
-    "https://picsum.photos/id/1015/200/200",
+    "../../../public/img/myphoto_add.png",
+    "../../../public/img/myphoto4.png",
+    "../../../public/img/myphoto_add3.JPG",
     "../../../public/img/hotchoco.jpg",
-    "https://picsum.photos/id/1020/200/200",
-    "https://picsum.photos/id/1024/200/200",
-    "https://picsum.photos/id/1025/200/200",
-    "https://picsum.photos/id/1035/200/200",
+    "../../../public/img/myphoto1.JPG",
+    "../../../public/img/myphoto6.JPG",
+    "../../../public/img/myphoto_add4.png",
+    "../../../public/img/myphoto2.png",
     "https://picsum.photos/id/1040/200/200",
     "https://picsum.photos/id/1049/200/200",
     "https://picsum.photos/id/1050/200/200"

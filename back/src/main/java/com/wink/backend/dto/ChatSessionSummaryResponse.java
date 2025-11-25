@@ -16,6 +16,6 @@ public class ChatSessionSummaryResponse {
     private String latestMessage;
 
     private LocalDateTime timestamp;   // ← ★★ 이게 없어서 에러난 것
-    private boolean isEnded;
+    private boolean latest;
     private LocalDateTime endTime;
 }

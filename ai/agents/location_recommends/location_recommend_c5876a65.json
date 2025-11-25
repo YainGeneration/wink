@@ -1,0 +1,57 @@
+{
+  "timestamp": "2025-11-22 04:43:14",
+  "input_location": "위치: 숙명여자대학교 정문",
+  "input_image": "(Base64 Data)",
+  "english_caption_from_agent2": "Here's a description of the image in natural English:\n\nThe image shows a sprawling cityscape bathed in the warm glow of a sunset. The sky is a beautiful gradient, transitioning from a pale blue near the top to a rich orange and yellow near the horizon. Tall buildings dominate the scene, clustered densely and creating a complex urban landscape. There's a main street with traffic visible, illuminated by streetlights, winding through the city. The overall impression is of a vibrant, bustling metropolis at dusk. \n\nWould you like me to describe any specific element in more detail, such as the buildings or the light?, taken near 숙명여자대학교 정문.",
+  "english_keywords": [
+    "cityscape",
+    "vibrant",
+    "sunset",
+    "warm",
+    "metropolis"
+  ],
+  "recommended_songs": [
+    {
+      "track_name": "Starlight",
+      "track_id": "track_1346191",
+      "instrument_tags": "",
+      "mood_tags": "calm dark space",
+      "duration": 150.0,
+      "artist_name": "Airmusic",
+      "releasedate": "2016-05-23",
+      "url": "http://www.jamendo.com/track/1346191",
+      "genre_tags": "ambient atmospheric darkambient",
+      "album_name": "Nature songs",
+      "path": "91/1346191.mp3",
+      "similarity_score": 0.3350704461819015
+    },
+    {
+      "album_name": "The right path (2 tracks ) 2016",
+      "path": "02/1348602.mp3",
+      "releasedate": "2016-05-31",
+      "url": "http://www.jamendo.com/track/1348602",
+      "duration": 320.1,
+      "track_name": "powerful energy",
+      "artist_name": "Xenyka",
+      "instrument_tags": "pad",
+      "mood_tags": "ambiental dark",
+      "genre_tags": "ambient atmospheric chillout",
+      "track_id": "track_1348602",
+      "similarity_score": 0.32638410924520866
+    },
+    {
+      "url": "http://www.jamendo.com/track/1374715",
+      "album_name": "Corporate and Ambient Collection",
+      "genre_tags": "ambient jazz lounge",
+      "artist_name": "Sergey Gulevich",
+      "path": "15/1374715.mp3",
+      "track_name": "Jazz",
+      "mood_tags": "background",
+      "duration": 50.1,
+      "releasedate": "2016-09-09",
+      "track_id": "track_1374715",
+      "instrument_tags": "",
+      "similarity_score": 0.8474183112313767
+    }
+  ]
+}

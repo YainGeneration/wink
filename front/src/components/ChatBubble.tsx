@@ -3,6 +3,7 @@ import play from "../assets/icons/player-play.svg";
 import theme from "../styles/theme";
 import S from "../styles/styled";
 import MusicItem from "./MusicItem";
+import { useMusicPlayer } from "./MusicPlayerContext";
 
 
 
@@ -10,12 +11,14 @@ import MusicItem from "./MusicItem";
 type ChatBubbleProps = {
   sender: "user" | "ai";
   text?: string | null;
+  type?: "MY" | "SPACE";
   image?: string[] | null;
   keywords?: string[];
   recommendations?: any[];
   topic?: string;
   mergedSentence?: string | null;
   imageDescriptionKo?: string | null;
+  nearbyMusic?: any[];
 };
 
 
@@ -33,11 +36,12 @@ export default function ChatBubble({
   image,
   keywords = [],
   recommendations = [],
-  topic,
-  mergedSentence,
-  imageDescriptionKo
+  nearbyMusic = [],
 }: ChatBubbleProps) {
   const isUser = sender === "user";
+  console.log("ChatBubble nearbyMusic:", nearbyMusic);
+
+  const { setCurrentTrack, setIsPlaying } = useMusicPlayer();
 
   return (
     <div>
@@ -49,6 +53,23 @@ export default function ChatBubble({
                 <img src={image[0]} />
             )}
             </ImageBox>
+        )}
+
+        {nearbyMusic && nearbyMusic.length > 0 && isUser=== true && (
+          <div style={{ marginTop: "20px", width: "92%" }}>
+            <S.Body1>사용자의 주변 음악</S.Body1>
+            {nearbyMusic.map((m) => (
+              <MusicItem
+                key={m.songId}
+                cover={m.albumCover}
+                title={m.title}
+                artist={m.artist}
+                duration={m.duration}
+                onPlay={() => console.log("play:", m.songId)}
+                onMore={() => console.log("more:", m.songId)}
+              />
+            ))}
+          </div>
         )}
 
         {/* 메인 텍스트 */}
@@ -65,14 +86,26 @@ export default function ChatBubble({
 
         {/* 추천곡 카드 */}
         {recommendations.length > 0 && (
-            <div style={{ marginTop: "14px" }}>
+            <div style={{ marginTop: "14px", marginBottom: "14px" }}>
                 {recommendations.map((r) => (
                 <MusicItem
                     key={r.songId}
                     cover={r.albumCover}
                     title={r.title}
                     artist={r.artist}
-                    onPlay={() => console.log("play:", r.songId)}
+                    duration={r.duration}
+                    onPlay={() => {
+                      console.log("재생:", r.songId);
+
+                      setCurrentTrack({
+                        title: r.title,
+                        artist: r.artist,
+                        image: r.albumCover,
+                        audioUrl: r.audioUrl,
+                      });
+
+                      setIsPlaying(true);
+                    }}
                     onMore={() => console.log("more:", r.songId)}
                 />
                 ))}

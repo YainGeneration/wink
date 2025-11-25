@@ -53,5 +53,5 @@ const Wrapper = styled.div<{ backgroundColor?: string }>`
   // overflow-y: auto;
   // overflow-x: hidden;
   overflow: hidden;
-  margin-top: 40px;
+  margin-top: 90px;
 `;

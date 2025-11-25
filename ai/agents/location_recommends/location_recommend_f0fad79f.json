@@ -1,0 +1,57 @@
+{
+  "timestamp": "2025-11-22 06:08:39",
+  "input_location": "위치: 숙명여자대학교 정문",
+  "input_image": "(Base64 Data)",
+  "english_caption_from_agent2": "Okay, here's a description of the image in natural English:\n\nThe image shows a thrilling roller coaster in full swing. It’s a large, looping steel coaster with a bright red car packed with riders going around in a huge, upside-down circle. The track is silver and rises dramatically into the air. \n\nBehind the main coaster, you can see another smaller roller coaster track winding up a hillside. The background features a blue sky with puffy white clouds, and in the distance, there are mountains rising into the sky. It looks like a sunny day at a theme park! \n\nWould you like me to highlight any specific aspect of the image or describe something else about it?, taken near 숙명여자대학교 정문.",
+  "english_keywords": [
+    "rollercoaster",
+    "thrilling",
+    "bright",
+    "upsidedown",
+    "sunny"
+  ],
+  "recommended_songs": [
+    {
+      "mood_tags": "adventure happy positive",
+      "album_name": "New Events - Orchestral Piano",
+      "duration": 372.0,
+      "track_id": "track_1266740",
+      "genre_tags": "ambient atmospheric classical",
+      "instrument_tags": "orchestra piano",
+      "artist_name": "Michał Jałochowski",
+      "path": "40/1266740.mp3",
+      "releasedate": "2015-08-23",
+      "url": "http://www.jamendo.com/track/1266740",
+      "track_name": "New Events - Orchestral Piano",
+      "similarity_score": 0.3294632805903073
+    },
+    {
+      "releasedate": "2016-10-02",
+      "url": "http://www.jamendo.com/track/1380732",
+      "duration": 178.7,
+      "track_name": "String Heart",
+      "instrument_tags": "guitar",
+      "mood_tags": "happy relaxing",
+      "artist_name": "Macroform",
+      "track_id": "track_1380732",
+      "album_name": "Inner Call",
+      "genre_tags": "ambient atmospheric",
+      "path": "32/1380732.mp3",
+      "similarity_score": 0.32247794409507635
+    },
+    {
+      "releasedate": "2016-09-09",
+      "mood_tags": "background",
+      "path": "15/1374715.mp3",
+      "artist_name": "Sergey Gulevich",
+      "url": "http://www.jamendo.com/track/1374715",
+      "genre_tags": "ambient jazz lounge",
+      "instrument_tags": "",
+      "track_id": "track_1374715",
+      "album_name": "Corporate and Ambient Collection",
+      "duration": 50.1,
+      "track_name": "Jazz",
+      "similarity_score": 0.8474183112313767
+    }
+  ]
+}

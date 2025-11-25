@@ -4,7 +4,7 @@
 Flask API for Wink AI Full Pipeline
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from datetime import datetime
 import sys, os, json, base64, uuid, random
 from PIL import Image
@@ -23,38 +23,37 @@ except ImportError as e:
 
 app = Flask(__name__)
 
+# --------------------------------------------------------
+# AUDIO 폴더 경로 설정 (agents/server.py → ai/audio/)
+# --------------------------------------------------------
+AUDIO_ROOT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "audio")
+
+@app.route("/audio/<path:filename>")
+def serve_audio(filename):
+    try:
+        return send_from_directory(AUDIO_ROOT, filename)
+    except Exception as e:
+        print(f"❌ audio 파일 찾기 오류: {filename}: {e}")
+        return jsonify({"error": f"audio file not found: {filename}"}), 404
+
 
 # --------------------------------------------------------
 # Base64 → Image 변환
 # --------------------------------------------------------
 def normalize_base64(raw):
-    """
-    imageBase64는 다음 3가지 형태 중 하나로 올 수 있다:
-    1) null
-    2) "xxxx" 또는 "data:image/png;base64,xxxx"
-    3) ["xxxx"] 또는 ["data:image/png;base64,xxxx"]
-
-    목적:
-    무조건 Base64 문자열을 리스트 한 개로 감싸서 반환.
-    """
-    
-    # 1) Null / 빈값
     if raw is None:
         return None
 
-    # 2) raw가 문자열인 경우
     if isinstance(raw, str):
         stripped = raw.strip()
         if stripped == "" or stripped.lower() == "null":
             return None
 
-        # data:image/jpeg;base64, prefix 제거
         if "," in stripped:
             stripped = stripped.split(",", 1)[1]
 
-        return [stripped]  # 반드시 리스트로 감싸서 반환
+        return [stripped]
 
-    # 3) raw가 배열인 경우
     if isinstance(raw, list) and raw:
         first = raw[0]
 
@@ -68,14 +67,10 @@ def normalize_base64(raw):
 
         return [stripped]
 
-    # 그 외 형식은 무효 처리
     return None
 
+
 def decode_base64_to_image(b64_str):
-    """
-    Base64 문자열을 PIL 이미지 객체로 변환.
-    Agent1~3 이미지 캡션 단계에서 필요함.
-    """
     try:
         img_bytes = base64.b64decode(b64_str)
         return Image.open(BytesIO(img_bytes))
@@ -87,14 +82,12 @@ def decode_base64_to_image(b64_str):
 # --------------------------------------------------------
 # AI 추천 API
 # --------------------------------------------------------
-
 @app.route("/api/recommend", methods=["POST"])
 def recommend():
     image_path = ""
 
     try:
         data = request.get_json(silent=True)
-
         if not data:
             print("❌ JSON body 없음")
             return jsonify({"error": "no json body"}), 400
@@ -111,28 +104,52 @@ def recommend():
         location_data = data.get("location")
         nearby_music = data.get("nearbyMusic", [])
 
-        print(f"\n🚀 [Flask] Received (session={session_id})")
+        print("\n==============================")
+        print(f"🚀 [Flask] Request (session={session_id})")
         print(f"🗣️ inputText = {korean_text}")
-        print(f"🖼️ imageBase64 exists = {bool(image_base64_list)}")
+        print(f"🖼️ image exists = {bool(image_base64_list)}")
         print(f"📍 location exists = {bool(location_data)}")
+        print(f"🎧 nearbyMusic exists = {bool(nearby_music)}")
+        print("==============================\n")
 
-        # ----------------------------------------------------
-        # Agent4: 위치 + 이미지 기반
-        # ----------------------------------------------------
-        if location_data and image_base64_list:
-            print("\n--- 🚀 Agent4 (위치 기반) 파이프라인 실행 ---")
+        # =========================================================
+        # 🔥 SPACE 모드 자동 판단 로직
+        # =========================================================
+        is_space_mode = False
+
+        if location_data:
+            is_space_mode = True
+        elif nearby_music:
+            is_space_mode = True
+
+        # --------------------------------------------------------
+        # SPACE 모드 (Agent4)
+        # --------------------------------------------------------
+        if is_space_mode:
+            print("🚀 Agent4 실행 (SPACE 모드)")
+
+            if not location_data:
+                location_data = {
+                    "placeName": "",
+                    "lat": 37.5642135,
+                    "lng": 127.0016985,
+                    "address": ""
+                }
 
             location_payload = {
                 "imageBase64": image_base64_list,
                 "location": location_data,
                 "nearbyMusic": nearby_music,
             }
+
             result = run_agent_pipeline(location_payload=location_payload)
 
-        # ----------------------------------------------------
-        # Agent1~3: 일반 텍스트/이미지
-        # ----------------------------------------------------
+        # --------------------------------------------------------
+        # MY 모드 (Agent1~3)
+        # --------------------------------------------------------
         else:
+            print("🚀 Agent1~3 실행 (MY 모드)")
+
             if image_base64_list:
                 img = decode_base64_to_image(image_base64_list[0])
                 if img:
@@ -141,15 +158,14 @@ def recommend():
                     image_path = tmp_path
                     print(f"📁 Saved image at {image_path}")
 
-            print("\n--- 🚀 Agent1~3 (일반) 파이프라인 실행 ---")
             result = run_agent_pipeline(
                 korean_text=korean_text,
                 image_path=image_path
             )
 
-        # ----------------------------------------------------
+        # --------------------------------------------------------
         # 결과 정리
-        # ----------------------------------------------------
+        # --------------------------------------------------------
         english_text = result.get("english_text_from_agent1", "")
         english_caption = result.get("english_caption_from_agent2", "")
         merged_sentence = result.get("merged_sentence", "")
@@ -168,11 +184,11 @@ def recommend():
             artist_name = song.get("artist_name")
             duration_sec = song.get("duration")
             web_url = song.get("url")
+            path = song.get("path")  # ★ 로컬 파일 path 추가
 
             if not track_id_full or not track_name:
                 continue
 
-            # duration 변환
             duration_ms = None
             if duration_sec:
                 try:
@@ -180,7 +196,6 @@ def recommend():
                 except:
                     pass
 
-            # preview url
             preview_url = ""
             if track_id_full.startswith("track_"):
                 try:
@@ -189,7 +204,11 @@ def recommend():
                 except:
                     pass
 
-            # 랜덤 앨범 커버
+            # ★ 로컬 오디오 URL 추가
+            audio_url = None
+            if path:
+                audio_url = f"http://localhost:5001/audio/{path}"
+
             while True:
                 r = random.randint(1, 10000)
                 if r not in used_random_numbers:
@@ -204,8 +223,9 @@ def recommend():
                 "artist": artist_name,
                 "albumCover": album_cover_url,
                 "previewUrl": preview_url,
-                "spotifyEmbedUrl": None,
+                "audioUrl": audio_url,  # ★ 중요
                 "durationMs": duration_ms,
+                "spotifyEmbed_url": None,
                 "trackUrl": web_url,
             })
 
@@ -225,7 +245,6 @@ def recommend():
         print("\n📦 FINAL RESPONSE JSON:")
         print(json.dumps(response, indent=2, ensure_ascii=False))
 
-        # 임시 파일 삭제
         if image_path and os.path.exists(image_path):
             os.remove(image_path)
 

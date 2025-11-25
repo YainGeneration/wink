@@ -39,54 +39,6 @@ const Tag = styled.div`
 
 
 
-const MOCK_DATA = {
-  sessionId: 55,
-  type: "MY",
-  topic: "노을빛 아래, 집중을 부르는 선율",
-  representativeText: "조금 더 밝은 노래도 추천해줘",
-//   representativeImages: null,
-  representativeImages: "https://picsum.photos/200/200?random=5",
-  latestUserSummary: "밝은 노래 추천 부탁\n",
-  summaryMode: {
-    summary:
-      "사용자는 해 질 때 집중하기 좋은 노래를 추천받고 싶어 했습니다. 시스템은 여러 번 음악을 추천했으나, 사용자는 더 밝은 느낌의 곡을 요청했습니다.",
-    keywords: ["도시 풍경", "잔잔한", "따스한", "생기 넘치는", "평온한"],
-    recommendations: [
-      {
-        songId: "1",
-        title: "Blue Valentine",
-        artist: "NMIXX",
-        albumCover: "https://picsum.photos/200/200?random=1",
-      },
-      {
-        songId: "2",
-        title: "French Inhale",
-        artist: "bsd.u",
-        albumCover: "https://picsum.photos/200/200?random=2",
-      },
-      {
-        songId: "3",
-        title: "I Love Kanye",
-        artist: "Kanye West",
-        albumCover: "https://picsum.photos/200/200?random=3",
-      },
-      {
-        songId: "4",
-        title: "MEGALOVANIA",
-        artist: "Toby Fox",
-        albumCover: "https://picsum.photos/200/200?random=4",
-      },
-    ],
-    "english_caption_from_agent2": "안녕하세요~ 이건 이미지에서 뽑아낸거에요",
-    "mergedSentence": "I recommend a brighter song if possible, while the image captures a serene cityscape at sunset, where the warm orange hues of the sky are reflected off the buildings, creating a tranquil yet vibrant scene.",
-    "interpretedSentence": "석양이 도시를 부드럽게 감싸 안고, 건물들에 따스한 주황빛이 물드는 평화로운 풍경이 눈앞에 펼쳐지니, 차분하면서도 생동감 넘치는 이 장면에 좀 더 밝고 경쾌한 멜로디를 입혀보면 어떨까 싶어요.\n"
-  },
-  timestamp: "2025-11-20T13:13:32.686525",
-  endTime: "2025-11-20T13:25:12.686525",
-  latest: false,
-};
-
-
 function getSubtitle(recommendations: any[]) {
   if (!recommendations || recommendations.length === 0) return "추천 결과 없음";
 
@@ -120,7 +72,7 @@ const HistoryDetail = () => {
             const response = await fetch(`http://localhost:8080/api/chat/${sessionId}/summary`);
             const result = await response.json();
 
-            console.log(response)
+            console.log(result)
 
             setData(result);
         } catch (err) {
@@ -131,14 +83,14 @@ const HistoryDetail = () => {
         };
 
         // 연결할 때는 여기 주석 처리
-        setData(MOCK_DATA);
+        // setData(MOCK_DATA);
         setLoading(false);
 
         fetchHistoryDetail();
     }, [sessionId]);
 
-    if (loading) return <div>로딩중...</div>;
-    if (!data) return <div>데이터가 없습니다</div>;
+    if (loading) return <div></div>;
+    if (!data) return <div></div>;
 
     return (
         <S.Padding16px>
@@ -147,7 +99,8 @@ const HistoryDetail = () => {
                     marginLeft: "14px"
                 }}
             >
-                <S.Heading2>{data.topic}</S.Heading2>
+              {/* <S.Heading2>{data.topic}</S.Heading2> */}
+              <S.Heading2>잔상, 벅찬 밤의 여운</S.Heading2>
                 <div
                     style={{
                         marginTop: "8px",
@@ -174,7 +127,7 @@ const HistoryDetail = () => {
             subtitle={<SummaryTags keywords={data.summaryMode.keywords} />} 
         >
             <RequestAnalysisContent
-                image={data.representativeImages}
+                image={data.representativeImages[0]}
                 extractedSentence={data.summaryMode.english_caption_from_agent2}
                 finalSentence={data.summaryMode.interpretedSentence}
             />

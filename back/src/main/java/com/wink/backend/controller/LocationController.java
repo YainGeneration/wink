@@ -24,13 +24,11 @@ public class LocationController {
 
     @Operation(summary = "주변 음악 조회", description = "현재 위치 기준 주변 사용자의 재생 음악 목록 반환")
     @GetMapping("/nearby-music")
-    public List<NearbyMusicResponse> getNearbyMusic(@RequestParam double lat, @RequestParam double lng) {
+    public List<ChatStartSpaceRequest.NearbyMusic> getNearbyMusic(
+            @RequestParam double lat,
+            @RequestParam double lng
+    ) {
         return locationService.getNearbyMusic(lat, lng);
     }
 
-    @Operation(summary = "주변 사용자 음악 상세 조회", description = "특정 사용자 ID로 현재 재생 음악 상세 조회")
-    @GetMapping("/nearby-music/{userId}")
-    public MusicDetailResponse getNearbyUserMusic(@PathVariable Long userId) {
-        return locationService.getNearbyUserMusic(userId);
-    }
 }

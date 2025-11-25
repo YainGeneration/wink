@@ -1,26 +1,22 @@
-export type ChatMessage = {
-  sender: "user" | "ai";
-  text: string | null;
-  image?: string | null;
-  keywords?: string[];
-  recommendations?: any[];
-  topic?: string;
-  mergedSentence?: string;
-  imageDescriptionKo?: string;
-  timestamp?: string;
-};
+import { type ChatMessage, type ChatSession } from "../components/UserChat";
 
-export function convertNewChatToMessages(data: any): ChatMessage[] {
-  return data.messages.map((m: any) => ({
-    messageId: m.messageId,
-    sessionId: m.sessionId,
-    sender: m.sender,
-    text: m.text,
-    imageBase64: m.imageBase64,
-    keywords: m.keywords || [],
-    recommendations: m.recommendations || [],
-    mergedSentence: m.mergedSentence,
-    interpretedSentence: m.interpretedSentence,
-    timestamp: m.timestamp
-  }));
+export function convertNewChatToMessages(data:any): ChatMessage[] {
+    return [
+      {
+        sender: "user",
+        text: data.inputText,
+        imageBase64: data.imageBase64 ? [data.imageBase64] : [],
+      },
+      {
+        sender: "ai",
+        text: data.aiMessage,
+        keywords: data.keywords,
+        recommendations: data.recommendations,
+        mergedSentence: data.mergedSentence,
+        interpretedSentence: data.interpretedSentence,
+        englishText: data.englishText,
+        englishCaption: data.englishCaption,
+        imageDescriptionKo: data.imageDescriptionKo,
+      }
+    ]
 }

@@ -3,7 +3,7 @@ import { createContext, useContext, useState } from "react";
 export type TrackType = {
   title: string;
   artist: string;
-  url: string;
+  audioUrl: string;   // url → audioUrl로 변경
   image: string;
 };
 
@@ -20,8 +20,7 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   const [currentTrack, setCurrentTrack] = useState<TrackType>({
     title: "Sugar",
     artist: "Maroon 5",
-    url: "/audio/sugar-maroon5.mp3",
-    // url: "https://open.spotify.com/embed/track/2oAPUnBerGoshpD7ueqwJW",
+    audioUrl: "http://localhost:5001/audio/sugar-maroon5.mp3",
     image: "/img/sugar_album_cover.jpg",
   });
 

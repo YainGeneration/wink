@@ -70,7 +70,6 @@ const TopBar = styled.div`
   right: 0;
   display: flex;
   justify-content: center;
-  pointer-events: none;
   z-index: 3;
 `;
 
@@ -81,8 +80,6 @@ const BottomBar = styled.div`
   right: 0;
   display: flex;
   justify-content: center;
-  pointer-events: none;
-  pointer-events: none;
   z-index: 4;
 `;
 
@@ -91,7 +88,6 @@ const Overlay = styled.div`
   inset: 0;
   background-color: rgba(18, 18, 18, 0.03); /* 반투명 어두운 효과 */
   z-index: 6;
-  pointer-events: auto;
 `;
 
 // 채팅 입력바
@@ -151,7 +147,6 @@ const BottomPlayerArea = styled.div`
   flex-direction: column;
 
   z-index: 3; /* Overlay보다 위에 있어야 함 */
-  pointer-events: auto;
   box-shadow: ${theme.shadow.default}
 `;
 
@@ -282,12 +277,18 @@ export default function BaseLayout({ children, showOverlay, backgroundColor }: P
   const location = useLocation();
   const navigate = useNavigate();
   const theme = useTheme();
-  const { currentTrack } = useMusicPlayer();
+  const { currentTrack, isPlaying } = useMusicPlayer();
+  
   console.log(currentTrack)
   
   const currentPath = location.pathname;
   const showPlayBar = currentPath === "/home" || currentPath === "/chat";
   const isRecommend = location.pathname === "/recommend";
+
+  const isChatPage = currentPath.startsWith("/chat/");
+  const sessionId = isChatPage ? Number(currentPath.split("/chat/")[1]) : null;
+
+
   const [inputText, setInputText] = useState("");
 
 
@@ -315,12 +316,23 @@ export default function BaseLayout({ children, showOverlay, backgroundColor }: P
 
 
    // currentTrack 변경될 때마다 audio 재생
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.load(); // 재생 준비까지만
-      // audioRef.current.play(); // 자동재생 막기
-    }
-  }, [currentTrack]);
+useEffect(() => {
+  if (!audioRef.current) return;
+
+  const audio = audioRef.current;
+
+  // src를 강제로 재적용해야 브라우저가 새 파일로 인식함
+  audio.src = currentTrack.audioUrl;
+
+  audio.load();  // 파일 준비
+
+  if (isPlaying) {
+    audio.play().catch(err => {
+      console.warn("자동재생 실패 (브라우저 정책):", err);
+    });
+  }
+}, [currentTrack, isPlaying]);
+
 
   async function convertImageToBase64(imageUrl: string) {
     const res = await fetch(imageUrl);
@@ -335,15 +347,43 @@ export default function BaseLayout({ children, showOverlay, backgroundColor }: P
     });
   }
 
-async function startMyChat() {
+async function handleChatSubmit() {
   try {
+    if (!inputText && !selectedImageBase64) return;
+
+    // 📌 1) 기존 세션에서 후속 채팅 입력
+    if (isChatPage && sessionId) {
+      const body = {
+        sessionId: sessionId,
+        text: inputText,
+        imageBase64: selectedImageBase64 || null,
+      };
+
+      const res = await fetch("http://localhost:8080/api/chat/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+      window.dispatchEvent(
+          new CustomEvent("NEW_MESSAGE", { detail: data })
+      );
+
+      console.log("[기존 세션 후속 메시지 응답]", data);
+
+      // 전송 후 입력 초기화
+      setInputText("");
+      setSelectedImage(null);
+      return;
+    }
+
+    // 📌 2) 새 채팅 시작 (HOME에서 보냈을 때)
     const body = {
       type: "my",
-      imageBase64: selectedImageBase64,  // Base64 문자열
       inputText: inputText,
+      imageBase64: selectedImageBase64,
     };
-
-    console.log(body)
 
     const res = await fetch("http://localhost:8080/api/chat/start/my", {
       method: "POST",
@@ -352,13 +392,16 @@ async function startMyChat() {
     });
 
     const data = await res.json();
-    
+
+    setInputText("");
+    setSelectedImage(null);
 
     navigate(`/chat/${data.sessionId}`);
   } catch (e) {
-    console.error("채팅 생성 실패:", e);
+    console.error("채팅 전송 실패:", e);
   }
 }
+
 
   const handleSelectImage = async (url: string) => {
     setSelectedImage(url);
@@ -429,7 +472,7 @@ async function startMyChat() {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}  
                 />
-                <SubmitButton onClick={startMyChat}>
+                <SubmitButton onClick={handleChatSubmit}>
                   <img src={upWhite} alt=""/>
                 </SubmitButton>
             </InputWrapper>
@@ -437,7 +480,13 @@ async function startMyChat() {
         )}
 
         <BottomPlayerArea>
-          {isChatMatch && <PlayBar />}
+
+          <audio
+            ref={audioRef}
+            src={currentTrack.audioUrl}
+            autoPlay={isPlaying}
+          />
+          {isChatMatch && <PlayBar audioRef={audioRef}/>}
         
           <TabBar isRecommend={isRecommend}>
             {tabs.map((tab) => {
@@ -460,13 +509,9 @@ async function startMyChat() {
                     alignItems: "center",
                     gap: "2px",
                     background: "none",
-                    border: "none",
+                    border: "none"
                   }}
                 >
-                  {/* <img 
-                    src={isActive ? tab.iconFill : tab.icon}  // 아이콘 Fill 적용
-                    alt={tab.label}
-                  /> */}
                   <img src={iconToShow} alt={tab.label} />
                   <S.Smalltext
                     style={{
